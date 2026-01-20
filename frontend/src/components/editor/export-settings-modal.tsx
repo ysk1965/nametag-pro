@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { X, FileDown, Link2, Link2Off } from 'lucide-react';
+import { X, FileDown, Link2, Link2Off, FileText, Minus, Plus } from 'lucide-react';
 import { useEditorStore } from '@/stores/editor-store';
 import { LayoutPreview } from './layout-preview';
 
@@ -219,6 +219,42 @@ export function ExportSettingsModal({
                   className="w-full accent-blue-600"
                 />
               </div>
+
+              {/* Blank Pages */}
+              <div>
+                <label className="text-xs font-medium text-slate-600 mb-2 block">
+                  빈 페이지 추가 (수동 작업용)
+                </label>
+                <div className="bg-slate-50 rounded-lg p-3">
+                  <div className="flex items-center gap-3">
+                    <FileText size={16} className="text-slate-400" />
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setExportConfig({ blankPages: Math.max(0, (exportConfig.blankPages || 0) - 1) })}
+                        className="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors disabled:opacity-50"
+                        disabled={(exportConfig.blankPages || 0) === 0}
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <span className="w-10 text-center font-bold text-slate-700">
+                        {exportConfig.blankPages || 0}
+                      </span>
+                      <button
+                        onClick={() => setExportConfig({ blankPages: Math.min(10, (exportConfig.blankPages || 0) + 1) })}
+                        className="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"
+                      >
+                        <Plus size={14} />
+                      </button>
+                    </div>
+                    <span className="text-xs text-slate-500">페이지</span>
+                  </div>
+                  {(exportConfig.blankPages || 0) > 0 && (
+                    <p className="text-[10px] text-slate-400 mt-2">
+                      PDF 끝에 같은 레이아웃의 빈 명찰 틀이 추가됩니다
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* 오른쪽: 미리보기 */}
@@ -240,6 +276,11 @@ export function ExportSettingsModal({
           >
             <FileDown size={18} />
             {persons.length}명 명찰 생성하기
+            {(exportConfig.blankPages || 0) > 0 && (
+              <span className="text-blue-200 text-xs">
+                (+빈 {exportConfig.blankPages}페이지)
+              </span>
+            )}
           </button>
         </div>
       </div>

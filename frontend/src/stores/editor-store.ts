@@ -148,6 +148,7 @@ const DEFAULT_EXPORT_CONFIG: ExportConfig = {
   sizeMode: 'auto',
   fixedWidth: 90,  // mm (일반적인 명찰 크기)
   fixedHeight: 55, // mm
+  blankPages: 0,   // 빈 페이지 수 (수동 작업용)
 };
 
 // 초기 상태 생성 함수 (클라이언트에서 기본 템플릿 포함)

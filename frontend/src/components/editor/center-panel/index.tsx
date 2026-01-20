@@ -7,6 +7,9 @@ import { useEditorStore } from '@/stores/editor-store';
 // 그리드 설정 (mm 기준)
 const GRID_SIZE_MM = 2.5; // 2.5mm 단위 정사각형 그리드
 
+// PDF 렌더링과 동일한 기준 너비 (pdf-generator.ts와 일치해야 함)
+const RENDER_WIDTH = 400;
+
 export function CenterPanel() {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -490,6 +493,9 @@ export function CenterPanel() {
           const isSelected = field.id === selectedTextFieldId;
           const isBeingDragged = field.id === draggingFieldId;
           const value = currentPerson?.data[field.column] || field.column;
+          // PDF와 동일한 비율로 폰트 크기 스케일링 (RENDER_WIDTH=400 기준)
+          const previewWidth = getPreviewDimensions().width;
+          const scaledFontSize = field.style.fontSize * (previewWidth / RENDER_WIDTH);
 
           return (
             <div
@@ -500,7 +506,7 @@ export function CenterPanel() {
                 top: `${field.position.y}%`,
                 transform: 'translate(-50%, -50%)',
                 color: field.style.color,
-                fontSize: `${field.style.fontSize}px`,
+                fontSize: `${scaledFontSize}px`,
                 fontFamily: field.style.fontFamily,
                 fontWeight: field.style.fontWeight,
                 width: '100%',

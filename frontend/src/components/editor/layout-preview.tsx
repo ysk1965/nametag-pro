@@ -8,6 +8,9 @@ const PAPER_SIZES = {
   Letter: { width: 215.9, height: 279.4 },
 };
 
+// PDF 렌더링과 동일한 기준 너비 (pdf-generator.ts와 일치해야 함)
+const RENDER_WIDTH = 400;
+
 export function LayoutPreview() {
   const {
     templates,
@@ -116,6 +119,10 @@ export function LayoutPreview() {
     const horizontalGap = cellWidth - nametagWidth;
     const verticalGap = cellHeight - nametagHeight;
 
+    const perPage = cols * rows;
+    const dataPages = Math.ceil(persons.length / perPage) || 1;
+    const blankPages = exportConfig.blankPages || 0;
+
     return {
       paper,
       margin,
@@ -128,8 +135,10 @@ export function LayoutPreview() {
       horizontalGap,
       verticalGap,
       templateAspect,
-      perPage: cols * rows,
-      totalPages: Math.ceil(persons.length / (cols * rows)) || 1,
+      perPage,
+      dataPages,
+      blankPages,
+      totalPages: dataPages + blankPages,
       isFixed: exportConfig.sizeMode === 'fixed',
     };
   }, [defaultTemplate, exportConfig, persons.length]);
@@ -138,9 +147,6 @@ export function LayoutPreview() {
   const previewScale = 0.8;
   const previewWidth = layoutInfo.paper.width * previewScale;
   const previewHeight = layoutInfo.paper.height * previewScale;
-
-  // 첫 번째 텍스트 필드의 컬럼명 가져오기 (미리보기용)
-  const previewColumn = textFields[0]?.column;
 
   return (
     <div className="space-y-4">
@@ -174,7 +180,14 @@ export function LayoutPreview() {
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div className="bg-slate-50 rounded p-2">
           <span className="text-slate-400">총 페이지</span>
-          <p className="font-bold">{layoutInfo.totalPages}페이지</p>
+          <p className="font-bold">
+            {layoutInfo.totalPages}페이지
+            {layoutInfo.blankPages > 0 && (
+              <span className="text-slate-400 font-normal text-[10px] ml-1">
+                (빈 {layoutInfo.blankPages})
+              </span>
+            )}
+          </p>
         </div>
         <div className="bg-slate-50 rounded p-2">
           <span className="text-slate-400">총 명찰</span>
@@ -240,13 +253,32 @@ export function LayoutPreview() {
                           >
                             <span className="text-white font-bold text-[4px]">NAME TAG</span>
                           </div>
-                          {/* 이름 영역 */}
-                          <div className="flex-1 flex items-center justify-center">
-                            {person && previewColumn && (
-                              <span className="text-[5px] font-bold text-center">
-                                {person.data[previewColumn]?.substring(0, 6) || ''}
-                              </span>
-                            )}
+                          {/* 텍스트 필드 영역 */}
+                          <div className="flex-1 relative">
+                            {person && textFields.map((field) => {
+                              // 폰트 크기 비례 계산 (기준: 400px 캔버스)
+                              const previewNametagWidth = layoutInfo.nametagWidth * previewScale;
+                              const scaledFontSize = Math.max(3, field.style.fontSize * (previewNametagWidth / RENDER_WIDTH));
+                              return (
+                                <div
+                                  key={field.id}
+                                  className="absolute text-center"
+                                  style={{
+                                    left: `${field.position.x}%`,
+                                    top: `${field.position.y}%`,
+                                    transform: 'translate(-50%, -50%)',
+                                    fontSize: `${scaledFontSize}px`,
+                                    fontWeight: field.style.fontWeight,
+                                    fontFamily: field.style.fontFamily,
+                                    color: field.style.color,
+                                    width: '90%',
+                                    lineHeight: 1.2,
+                                  }}
+                                >
+                                  {person.data[field.column] || ''}
+                                </div>
+                              );
+                            })}
                           </div>
                           {/* 하단 */}
                           <div className="flex flex-col items-center justify-center pb-[6%]">
@@ -264,16 +296,31 @@ export function LayoutPreview() {
                           backgroundSize: '100% 100%',
                         }}
                       >
-                        {person && previewColumn && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span
-                              className="text-[5px] font-bold text-center"
-                              style={{ maxWidth: '90%' }}
+                        {/* 모든 텍스트 필드 렌더링 */}
+                        {person && textFields.map((field) => {
+                          // 폰트 크기 비례 계산 (기준: 400px 캔버스)
+                          const previewNametagWidth = layoutInfo.nametagWidth * previewScale;
+                          const scaledFontSize = Math.max(3, field.style.fontSize * (previewNametagWidth / RENDER_WIDTH));
+                          return (
+                            <div
+                              key={field.id}
+                              className="absolute text-center"
+                              style={{
+                                left: `${field.position.x}%`,
+                                top: `${field.position.y}%`,
+                                transform: 'translate(-50%, -50%)',
+                                fontSize: `${scaledFontSize}px`,
+                                fontWeight: field.style.fontWeight,
+                                fontFamily: field.style.fontFamily,
+                                color: field.style.color,
+                                width: '90%',
+                                lineHeight: 1.2,
+                              }}
                             >
-                              {person.data[previewColumn]?.substring(0, 6) || ''}
-                            </span>
-                          </div>
-                        )}
+                              {person.data[field.column] || ''}
+                            </div>
+                          );
+                        })}
                       </div>
                     ) : (
                       <span className="text-[8px] text-slate-400">

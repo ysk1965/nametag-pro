@@ -87,6 +87,8 @@ export interface ExportConfig {
   sizeMode: 'auto' | 'fixed'; // auto: 레이아웃 기반, fixed: 고정 크기
   fixedWidth: number;  // mm (고정 크기 모드용)
   fixedHeight: number; // mm (고정 크기 모드용)
+  // 빈 페이지 (수동 작업용)
+  blankPages: number;  // 추가할 빈 페이지 수
 }
 
 // ===== Project Types =====

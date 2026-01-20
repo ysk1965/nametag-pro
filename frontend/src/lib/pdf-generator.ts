@@ -472,6 +472,91 @@ export async function generatePDF(
     }
   }
 
+  // 빈 페이지 추가 (수동 작업용)
+  const blankPages = exportConfig.blankPages || 0;
+  if (blankPages > 0) {
+    // 빈 명찰 템플릿 이미지 렌더링 (텍스트 없이)
+    const renderBlankNametag = async (): Promise<string> => {
+      const template = defaultTemplate;
+      const isDefaultTemplate = template.id === 'default-template';
+
+      let renderHeight: number;
+      if (isDefaultTemplate && useFixedSize) {
+        renderHeight = RENDER_WIDTH * (fixedHeight / fixedWidth);
+      } else {
+        renderHeight = RENDER_WIDTH * (template.height / template.width);
+      }
+
+      if (isDefaultTemplate) {
+        // 기본 템플릿: 빈 명찰 (텍스트 없음)
+        return renderDefaultTemplateToCanvas(
+          { id: 'blank', data: {} } as Person,
+          [], // 텍스트 필드 없음
+          RENDER_WIDTH,
+          renderHeight,
+          '#3b82f6'
+        );
+      } else {
+        // 커스텀 템플릿: 이미지만 (텍스트 없음)
+        return renderNametagToCanvas(
+          template,
+          { id: 'blank', data: {} } as Person,
+          [], // 텍스트 필드 없음
+          RENDER_WIDTH,
+          renderHeight
+        );
+      }
+    };
+
+    try {
+      const blankNametagDataUrl = await renderBlankNametag();
+
+      // 명찰 크기 계산
+      let nametagWidth: number;
+      let nametagHeight: number;
+
+      if (useFixedSize) {
+        nametagWidth = fixedWidth;
+        nametagHeight = fixedHeight;
+      } else {
+        const templateAspect = defaultTemplate.width / defaultTemplate.height;
+        nametagWidth = cellWidth;
+        nametagHeight = cellWidth / templateAspect;
+        if (nametagHeight > cellHeight) {
+          nametagHeight = cellHeight;
+          nametagWidth = cellHeight * templateAspect;
+        }
+      }
+
+      // 빈 페이지 추가
+      for (let page = 0; page < blankPages; page++) {
+        pdf.addPage();
+
+        // 페이지에 빈 명찰 그리드 추가
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols; col++) {
+            const cellX = margin + col * cellWidth;
+            const cellY = margin + row * cellHeight;
+            const offsetX = (cellWidth - nametagWidth) / 2;
+            const offsetY = (cellHeight - nametagHeight) / 2;
+
+            pdf.addImage(
+              blankNametagDataUrl,
+              'JPEG',
+              cellX + offsetX,
+              cellY + offsetY,
+              nametagWidth,
+              nametagHeight
+            );
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to add blank pages:', error);
+      // 빈 페이지 실패해도 계속 진행
+    }
+  }
+
   // PDF 생성
   try {
     const blob = pdf.output('blob');

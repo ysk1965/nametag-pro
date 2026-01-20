@@ -151,13 +151,15 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                     transition={{ delay: 0.3 }}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    {...getRootProps()}
-                    className={`relative border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors group ${
-                      isDragActive
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-slate-200 hover:border-blue-400 hover:bg-blue-50'
-                    }`}
                   >
+                    <div
+                      {...getRootProps()}
+                      className={`relative border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors group ${
+                        isDragActive
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-slate-200 hover:border-blue-400 hover:bg-blue-50'
+                      }`}
+                    >
                     <label className="w-full h-full flex flex-col items-center justify-center gap-3 cursor-pointer">
                       <input
                         {...getInputProps()}
@@ -178,6 +180,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                         <span className="text-xs text-slate-400">Excel, CSV</span>
                       </div>
                     </label>
+                    </div>
                   </motion.div>
 
                   {/* 직접 만들기 */}
