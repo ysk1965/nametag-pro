@@ -102,6 +102,9 @@ export interface Generation {
   createdAt: string;
 }
 
+// ===== Template Mode =====
+export type TemplateMode = 'single' | 'multi';
+
 // ===== Editor State Types =====
 export type EditorState =
   | 'INITIAL'

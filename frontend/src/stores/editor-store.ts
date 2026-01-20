@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import type { Template, Person, TextConfig, ExportConfig, EditorState, RoleCount, TextField } from '@/types';
+import type { Template, Person, TextConfig, ExportConfig, EditorState, RoleCount, TextField, TemplateMode } from '@/types';
 
 // 기본 텍스트 필드 스타일
 const DEFAULT_TEXT_STYLE = {
@@ -45,6 +45,7 @@ interface EditorStore {
   state: EditorState;
   templates: Template[];
   selectedTemplateId: string | null;  // 현재 선택된 템플릿
+  templateMode: TemplateMode;          // 싱글/멀티 템플릿 모드
   persons: Person[];
 
   // Column configuration
@@ -75,6 +76,7 @@ interface EditorStore {
   removeTemplate: (id: string) => void;
   updateTemplateRole: (id: string, role: string | null) => void;
   selectTemplate: (id: string) => void;
+  setTemplateMode: (mode: TemplateMode) => void;
 
   // Person actions
   setPersons: (persons: Person[], columns?: string[]) => void;
@@ -138,6 +140,7 @@ const getInitialState = () => {
     state: 'INITIAL' as EditorState,
     templates: defaultTemplate ? [defaultTemplate] : [],
     selectedTemplateId: defaultTemplate?.id || null,
+    templateMode: 'single' as TemplateMode,
     persons: [],
     columns: [],
     textFields: [],
@@ -226,6 +229,20 @@ export const useEditorStore = create<EditorStore>()(
           })),
 
         selectTemplate: (id) => set({ selectedTemplateId: id }),
+
+        setTemplateMode: (mode) =>
+          set((state) => {
+            // 싱글 모드로 변경 시 템플릿 컬럼 및 역할 매핑 초기화
+            if (mode === 'single') {
+              return {
+                templateMode: mode,
+                templateColumn: null,
+                roleMappings: {},
+                roleCounts: [],
+              };
+            }
+            return { templateMode: mode };
+          }),
 
         // Person actions
         setPersons: (persons, columns) =>

@@ -254,7 +254,8 @@ export async function generatePDF(
   roleMappings: Record<string, string> = {},
   templateColumn: string | null = null,
   textFields: TextField[] = [],
-  onProgress?: ProgressCallback
+  onProgress?: ProgressCallback,
+  selectedTemplateId: string | null = null  // 싱글 모드에서 사용할 템플릿 ID
 ): Promise<string> {
   // 최대 300명 제한
   const MAX_PERSONS = 300;
@@ -311,7 +312,10 @@ export async function generatePDF(
   }
 
   const templateMap = new Map(templates.map((t) => [t.id, t]));
-  const defaultTemplate = templates[0];
+  // 싱글 모드에서는 선택된 템플릿 사용, 없으면 첫 번째 템플릿
+  const defaultTemplate = selectedTemplateId
+    ? templateMap.get(selectedTemplateId) || templates[0]
+    : templates[0];
 
   // 배치 크기 설정 (메모리 관리)
   const BATCH_SIZE = 20;

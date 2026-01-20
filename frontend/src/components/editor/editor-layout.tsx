@@ -27,6 +27,8 @@ export function EditorLayout() {
     exportConfig,
     roleMappings,
     templateColumn,
+    templateMode,
+    selectedTemplateId,
     textFields,
     setGeneratedPdfUrl,
     canGenerate,
@@ -55,9 +57,10 @@ export function EditorLayout() {
         textConfig,
         exportConfig,
         roleMappings,
-        templateColumn,
+        templateMode === 'multi' ? templateColumn : null,  // 싱글 모드에서는 templateColumn 무시
         textFields,
-        handleProgress
+        handleProgress,
+        templateMode === 'single' ? selectedTemplateId : null  // 싱글 모드에서 선택된 템플릿
       );
       setGeneratedPdfUrl(pdfUrl);
       router.push('/result');
