@@ -1,0 +1,22 @@
+# Copy this file to terraform.tfvars and fill in the values
+
+project_name = "nametag-pro"
+environment  = "dev"
+aws_region   = "ap-northeast-2"
+
+# Database credentials (required)
+db_username = "admin"
+db_password = "your-secure-password-here"
+
+# EC2 Key Pair (optional, for SSH access)
+ec2_key_pair_name = "your-key-pair"
+
+# Admin CIDR blocks for SSH (optional, restrict in production)
+admin_cidr_blocks = ["0.0.0.0/0"]
+
+# CORS origins
+cors_origins = [
+  "http://localhost:3000",
+  "https://nametagpro.com",
+  "https://www.nametagpro.com"
+]

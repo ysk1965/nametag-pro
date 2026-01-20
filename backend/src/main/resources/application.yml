@@ -1,0 +1,86 @@
+spring:
+  profiles:
+    active: local
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+server:
+  port: 8080
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nametagpro
+    username: admin
+    password: admin123
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+aws:
+  s3:
+    bucket: nametag-uploads
+    region: ap-northeast-2
+  credentials:
+    access-key: ${AWS_ACCESS_KEY_ID:localstack}
+    secret-key: ${AWS_SECRET_ACCESS_KEY:localstack}
+  endpoint: ${AWS_ENDPOINT:http://localhost:4566}
+
+jwt:
+  secret: ${JWT_SECRET:local-dev-secret-key-for-jwt-token-generation-minimum-32-chars}
+  expiration: 86400000
+
+logging:
+  level:
+    root: INFO
+    com.nametagpro: DEBUG
+    org.springframework.security: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DATABASE_URL}
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  data:
+    redis:
+      url: ${REDIS_URL}
+
+aws:
+  s3:
+    bucket: ${AWS_S3_BUCKET:nametag-uploads}
+    region: ${AWS_REGION:ap-northeast-2}
+  credentials:
+    access-key: ${AWS_ACCESS_KEY_ID}
+    secret-key: ${AWS_SECRET_ACCESS_KEY}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400000
+
+logging:
+  level:
+    root: INFO
+    com.nametagpro: INFO

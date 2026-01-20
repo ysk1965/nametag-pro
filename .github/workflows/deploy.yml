@@ -1,0 +1,74 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["Backend CI"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy-backend:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Login to ECR
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+
+            # Pull latest image
+            docker pull ${{ secrets.ECR_REGISTRY }}/nametag-pro-api:latest
+
+            # Stop and remove existing container
+            docker stop nametag-api || true
+            docker rm nametag-api || true
+
+            # Run new container
+            docker run -d \
+              --name nametag-api \
+              --restart unless-stopped \
+              -p 8080:8080 \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+              -e REDIS_URL=${{ secrets.REDIS_URL }} \
+              -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+              -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+              -e AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }} \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              ${{ secrets.ECR_REGISTRY }}/nametag-pro-api:latest
+
+            # Clean up old images
+            docker image prune -f
+
+      - name: Health check
+        run: |
+          sleep 30
+          curl -f http://${{ secrets.EC2_HOST }}:8080/api/v1/health || exit 1
+
+  notify:
+    needs: deploy-backend
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Notify deployment status
+        run: |
+          if [ "${{ needs.deploy-backend.result }}" == "success" ]; then
+            echo "Deployment successful!"
+          else
+            echo "Deployment failed!"
+            exit 1
+          fi
