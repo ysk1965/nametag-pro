@@ -10,6 +10,8 @@ import { LeftPanel } from './left-panel';
 import { CenterPanel } from './center-panel';
 import { RightPanel } from './right-panel';
 import { ProgressModal } from './progress-modal';
+import { ExportSettingsModal } from './export-settings-modal';
+import { OnboardingModal } from './onboarding-modal';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { generatePDF } from '@/lib/pdf-generator';
 
@@ -18,6 +20,8 @@ export function EditorLayout() {
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const [activeTab, setActiveTab] = useState<'upload' | 'preview' | 'settings'>('upload');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(true);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
 
   const {
@@ -26,8 +30,10 @@ export function EditorLayout() {
     textConfig,
     exportConfig,
     roleMappings,
+    roleColors,
     templateColumn,
     templateMode,
+    designMode,
     selectedTemplateId,
     textFields,
     setGeneratedPdfUrl,
@@ -44,9 +50,15 @@ export function EditorLayout() {
     setProgress({ current, total });
   }, []);
 
+  const handleOpenExportModal = () => {
+    if (!canGenerate()) return;
+    setIsExportModalOpen(true);
+  };
+
   const handleGenerate = async () => {
     if (!canGenerate()) return;
 
+    setIsExportModalOpen(false);
     setIsGenerating(true);
     setProgress({ current: 0, total: persons.length });
 
@@ -60,7 +72,8 @@ export function EditorLayout() {
         templateMode === 'multi' ? templateColumn : null,  // 싱글 모드에서는 templateColumn 무시
         textFields,
         handleProgress,
-        templateMode === 'single' ? selectedTemplateId : null  // 싱글 모드에서 선택된 템플릿
+        templateMode === 'single' ? selectedTemplateId : null,  // 싱글 모드에서 선택된 템플릿
+        designMode === 'default' && templateMode === 'multi' ? roleColors : {}  // 기본 명찰 역할별 색상
       );
       setGeneratedPdfUrl(pdfUrl);
       router.push('/result');
@@ -93,7 +106,7 @@ export function EditorLayout() {
           </div>
           <Button
             disabled={!canGenerate() || isGenerating}
-            onClick={handleGenerate}
+            onClick={handleOpenExportModal}
             className="gap-2"
           >
             {isGenerating ? (
@@ -118,12 +131,26 @@ export function EditorLayout() {
           </aside>
         </main>
 
+        {/* Export Settings Modal */}
+        <ExportSettingsModal
+          isOpen={isExportModalOpen}
+          onClose={() => setIsExportModalOpen(false)}
+          onGenerate={handleGenerate}
+          isGenerating={isGenerating}
+        />
+
         {/* Progress Modal */}
         <ProgressModal
           isOpen={isGenerating}
           progress={progressPercent}
           current={progress.current}
           total={progress.total}
+        />
+
+        {/* Onboarding Modal */}
+        <OnboardingModal
+          isOpen={isOnboardingOpen && persons.length === 0}
+          onClose={() => setIsOnboardingOpen(false)}
         />
       </div>
     );
@@ -141,7 +168,7 @@ export function EditorLayout() {
         <Button
           size="sm"
           disabled={!canGenerate() || isGenerating}
-          onClick={handleGenerate}
+          onClick={handleOpenExportModal}
         >
           {isGenerating ? <Loader2 className="animate-spin" size={16} /> : 'Generate'}
         </Button>
@@ -171,12 +198,26 @@ export function EditorLayout() {
         ))}
       </nav>
 
+      {/* Export Settings Modal */}
+      <ExportSettingsModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onGenerate={handleGenerate}
+        isGenerating={isGenerating}
+      />
+
       {/* Progress Modal */}
       <ProgressModal
         isOpen={isGenerating}
         progress={progressPercent}
         current={progress.current}
         total={progress.total}
+      />
+
+      {/* Onboarding Modal */}
+      <OnboardingModal
+        isOpen={isOnboardingOpen && persons.length === 0}
+        onClose={() => setIsOnboardingOpen(false)}
       />
     </div>
   );

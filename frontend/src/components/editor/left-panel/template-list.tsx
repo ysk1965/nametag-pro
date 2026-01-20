@@ -3,17 +3,26 @@
 import { Trash2, Check } from 'lucide-react';
 import { useEditorStore } from '@/stores/editor-store';
 
-export function TemplateList() {
+interface TemplateListProps {
+  showDefaultTemplate?: boolean;
+}
+
+export function TemplateList({ showDefaultTemplate = true }: TemplateListProps) {
   const { templates, selectedTemplateId, removeTemplate, selectTemplate } = useEditorStore();
 
-  if (templates.length === 0) return null;
+  // 표시할 템플릿 필터링
+  const displayTemplates = showDefaultTemplate
+    ? templates
+    : templates.filter(t => t.id !== 'default-template');
+
+  if (displayTemplates.length === 0) return null;
 
   return (
     <>
-      {templates.map((template) => {
+      {displayTemplates.map((template) => {
         const isDefault = template.id === 'default-template';
         const isSelected = template.id === selectedTemplateId;
-        const canDelete = !isDefault || templates.length > 1;
+        const canDelete = !isDefault;
 
         return (
           <div

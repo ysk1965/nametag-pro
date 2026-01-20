@@ -13,8 +13,9 @@ interface RosterEditModalProps {
 }
 
 export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
-  const { persons, columns, setPersons } = useEditorStore();
+  const { persons, columns, setPersons, setColumns } = useEditorStore();
   const [editedPersons, setEditedPersons] = useState<Person[]>([]);
+  const [editedColumns, setEditedColumns] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -25,10 +26,11 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
         ...p,
         data: { ...p.data }
       })));
+      setEditedColumns([...columns]);
       setHasChanges(false);
       setSearchQuery('');
     }
-  }, [isOpen, persons]);
+  }, [isOpen, persons, columns]);
 
   // ESC 키로 닫기
   useEffect(() => {
@@ -68,20 +70,44 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
   const handleAdd = useCallback(() => {
     const newPerson: Person = {
       id: generateId(),
-      data: Object.fromEntries(columns.map(col => [col, ''])),
+      data: Object.fromEntries(editedColumns.map(col => [col, ''])),
     };
     setEditedPersons((prev) => [...prev, newPerson]);
     setHasChanges(true);
-  }, [columns]);
+  }, [editedColumns]);
+
+  // 컬럼 삭제
+  const handleDeleteColumn = useCallback((columnToDelete: string) => {
+    // 최소 1개 컬럼은 유지
+    if (editedColumns.length <= 1) {
+      alert('최소 1개의 컬럼이 필요합니다.');
+      return;
+    }
+
+    // 컬럼 목록에서 제거
+    setEditedColumns((prev) => prev.filter((col) => col !== columnToDelete));
+
+    // 모든 사람의 데이터에서 해당 컬럼 제거
+    setEditedPersons((prev) =>
+      prev.map((p) => {
+        const newData = { ...p.data };
+        delete newData[columnToDelete];
+        return { ...p, data: newData };
+      })
+    );
+
+    setHasChanges(true);
+  }, [editedColumns.length]);
 
   // 저장
   const handleSave = () => {
     // 첫 번째 컬럼이 비어있지 않은 행만 저장
-    const firstColumn = columns[0];
+    const firstColumn = editedColumns[0];
     const validPersons = editedPersons.filter((p) =>
       firstColumn ? p.data[firstColumn]?.trim() : true
     );
-    setPersons(validPersons, columns);
+    setPersons(validPersons, editedColumns);
+    setColumns(editedColumns);
     setHasChanges(false);
     onClose();
   };
@@ -103,7 +129,7 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
           <div>
             <h2 className="text-lg font-bold text-slate-800">명단 편집</h2>
             <p className="text-sm text-slate-500">
-              총 {editedPersons.length}명 · {columns.length}개 컬럼
+              총 {editedPersons.length}명 · {editedColumns.length}개 컬럼
             </p>
           </div>
           <button
@@ -143,12 +169,21 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
                 <th className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-12">
                   #
                 </th>
-                {columns.map((col) => (
+                {editedColumns.map((col) => (
                   <th
                     key={col}
                     className="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider min-w-[120px]"
                   >
-                    {col}
+                    <div className="flex items-center gap-1 group">
+                      <span>{col}</span>
+                      <button
+                        onClick={() => handleDeleteColumn(col)}
+                        className="p-0.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
+                        title={`${col} 컬럼 삭제`}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
                   </th>
                 ))}
                 <th className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider w-16">
@@ -162,7 +197,7 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
                   <td className="px-4 py-2 text-sm text-slate-400">
                     {editedPersons.indexOf(person) + 1}
                   </td>
-                  {columns.map((col) => (
+                  {editedColumns.map((col) => (
                     <td key={col} className="px-4 py-2">
                       <input
                         type="text"
@@ -185,7 +220,7 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
               ))}
               {filteredPersons.length === 0 && (
                 <tr>
-                  <td colSpan={columns.length + 2} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={editedColumns.length + 2} className="px-6 py-12 text-center text-slate-400">
                     {searchQuery ? '검색 결과가 없습니다' : '명단이 비어있습니다'}
                   </td>
                 </tr>

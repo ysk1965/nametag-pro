@@ -14,12 +14,14 @@ const IMAGE_QUALITY = 0.85; // JPEG 품질 (0.85는 좋은 품질 유지하면�
 
 /**
  * 기본 템플릿을 Canvas에 HTML 스타일로 렌더링 (찌그러지지 않음)
+ * @param headerColor - 헤더 색상 (기본값: 파란색 #3b82f6)
  */
 function renderDefaultTemplateToCanvas(
   person: Person,
   textFields: TextField[],
   targetWidth: number,
-  targetHeight: number
+  targetHeight: number,
+  headerColor: string = '#3b82f6'
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
@@ -59,9 +61,9 @@ function renderDefaultTemplateToCanvas(
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // 상단 헤더 (파란색)
+    // 상단 헤더 (동적 색상)
     const headerHeight = cardHeight * 0.22;
-    ctx.fillStyle = '#3b82f6';
+    ctx.fillStyle = headerColor;
     ctx.beginPath();
     ctx.roundRect(cardX, cardY, cardWidth, headerHeight, [borderRadius, borderRadius, 0, 0]);
     ctx.fill();
@@ -115,17 +117,19 @@ function renderDefaultTemplateToCanvas(
 
 /**
  * Canvas에 명찰 이미지를 렌더링 (템플릿 + 여러 텍스트 필드)
+ * @param headerColor - 기본 템플릿 헤더 색상 (옵션)
  */
 async function renderNametagToCanvas(
   template: Template,
   person: Person,
   textFields: TextField[],
   targetWidth: number,
-  targetHeight: number
+  targetHeight: number,
+  headerColor?: string
 ): Promise<string> {
   // 기본 템플릿인 경우 HTML 스타일로 렌더링
   if (template.id === 'default-template') {
-    return renderDefaultTemplateToCanvas(person, textFields, targetWidth, targetHeight);
+    return renderDefaultTemplateToCanvas(person, textFields, targetWidth, targetHeight, headerColor);
   }
 
   return new Promise((resolve, reject) => {
@@ -235,6 +239,7 @@ export interface GeneratePDFOptions {
   textConfig: TextConfig;
   exportConfig: ExportConfig;
   roleMappings?: Record<string, string>;
+  roleColors?: Record<string, string>;  // 기본 명찰 역할별 색상
   templateColumn?: string | null;
   textFields?: TextField[];
 }
@@ -255,7 +260,8 @@ export async function generatePDF(
   templateColumn: string | null = null,
   textFields: TextField[] = [],
   onProgress?: ProgressCallback,
-  selectedTemplateId: string | null = null  // 싱글 모드에서 사용할 템플릿 ID
+  selectedTemplateId: string | null = null,  // 싱글 모드에서 사용할 템플릿 ID
+  roleColors: Record<string, string> = {}    // 기본 명찰 역할별 색상
 ): Promise<string> {
   // 최대 300명 제한
   const MAX_PERSONS = 300;
@@ -376,6 +382,15 @@ export async function generatePDF(
         renderHeight = RENDER_WIDTH * (template.height / template.width);
       }
 
+      // 기본 템플릿 역할별 색상 결정
+      let headerColor: string | undefined;
+      if (isDefaultTemplate && templateColumn && Object.keys(roleColors).length > 0) {
+        const roleValue = person.data[templateColumn];
+        if (roleValue && roleColors[roleValue]) {
+          headerColor = roleColors[roleValue];
+        }
+      }
+
       let nametagDataUrl: string;
 
       if (textFields.length > 0) {
@@ -384,7 +399,8 @@ export async function generatePDF(
           person,
           textFields,
           RENDER_WIDTH,
-          renderHeight
+          renderHeight,
+          headerColor
         );
       } else {
         const displayName = Object.values(person.data)[0] || 'Name';

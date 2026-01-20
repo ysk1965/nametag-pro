@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import type { Template, Person, TextConfig, ExportConfig, EditorState, RoleCount, TextField, TemplateMode } from '@/types';
+import type { Template, Person, TextConfig, ExportConfig, EditorState, RoleCount, TextField, TemplateMode, CustomFont } from '@/types';
 
 // 기본 텍스트 필드 스타일
 const DEFAULT_TEXT_STYLE = {
@@ -48,15 +48,23 @@ interface EditorStore {
   templateMode: TemplateMode;          // 싱글/멀티 템플릿 모드
   persons: Person[];
 
+  // Custom fonts
+  customFonts: CustomFont[];
+
   // Column configuration
   columns: string[];                    // 현재 데이터의 모든 컬럼
   textFields: TextField[];              // 텍스트 필드 설정 (여러 개 가능)
   templateColumn: string | null;        // 템플릿 매칭용 컬럼
   selectedTextFieldId: string | null;   // 현재 선택된 텍스트 필드
+  showColumnConfigModal: boolean;       // 컬럼 선택 모달 표시 여부
 
   // Role counts (템플릿 매칭용)
   roleCounts: RoleCount[];
   roleMappings: Record<string, string>; // roleName -> templateId
+  roleColors: Record<string, string>;   // roleName -> color (기본 명찰 멀티 템플릿용)
+
+  // Design mode
+  designMode: 'default' | 'custom';
 
   // Legacy textConfig (하위 호환성)
   textConfig: TextConfig;
@@ -85,6 +93,7 @@ interface EditorStore {
   // Column config actions
   setColumns: (columns: string[]) => void;
   setTemplateColumn: (column: string | null) => void;
+  setShowColumnConfigModal: (show: boolean) => void;
 
   // Text field actions
   addTextField: (column: string) => void;
@@ -97,6 +106,10 @@ interface EditorStore {
   // Role mapping actions
   setRoleCounts: (counts: RoleCount[]) => void;
   updateRoleMapping: (role: string, templateId: string) => void;
+  updateRoleColor: (role: string, color: string) => void;
+
+  // Design mode actions
+  setDesignMode: (mode: 'default' | 'custom') => void;
 
   // Legacy config actions (하위 호환성)
   setTextConfig: (config: Partial<TextConfig>) => void;
@@ -110,6 +123,11 @@ interface EditorStore {
   // Generation actions
   setGeneratedPdfUrl: (url: string | null) => void;
   setError: (error: string | null) => void;
+
+  // Custom font actions
+  addCustomFont: (font: CustomFont) => void;
+  removeCustomFont: (id: string) => void;
+  setFontLoaded: (id: string, loaded: boolean) => void;
 
   // Utility actions
   reset: () => void;
@@ -146,8 +164,12 @@ const getInitialState = () => {
     textFields: [],
     templateColumn: null,
     selectedTextFieldId: null,
+    showColumnConfigModal: false,
     roleCounts: [],
     roleMappings: {},
+    roleColors: {},
+    designMode: 'default' as const,
+    customFonts: [] as CustomFont[],
     textConfig: DEFAULT_TEXT_CONFIG,
     exportConfig: DEFAULT_EXPORT_CONFIG,
     selectedSampleIndex: 0,
@@ -193,9 +215,41 @@ export const useEditorStore = create<EditorStore>()(
             const selectedTemplateId = newTemplates.length > 0
               ? newTemplates[0].id
               : state.selectedTemplateId;
+
+            // 첫 번째 커스텀 템플릿이면 이미지 크기에 맞게 exportConfig 설정
+            // (기본 템플릿 제외하고 카운트)
+            let exportConfig = state.exportConfig;
+            const existingCustomTemplates = state.templates.filter(t => t.id !== 'default-template');
+            if (existingCustomTemplates.length === 0 && newTemplates.length > 0) {
+              const firstTemplate = newTemplates[0];
+              // 픽셀을 mm로 변환 (10px = 1mm 기준, 최대 150mm 제한)
+              const scale = 0.1;
+              const maxDimension = 150;
+              let width = Math.round(firstTemplate.width * scale);
+              let height = Math.round(firstTemplate.height * scale);
+
+              // 최대 크기 제한
+              if (width > maxDimension || height > maxDimension) {
+                const ratio = maxDimension / Math.max(width, height);
+                width = Math.round(width * ratio);
+                height = Math.round(height * ratio);
+              }
+
+              // 최소 크기 보장 (20mm)
+              if (width < 20) width = 20;
+              if (height < 20) height = 20;
+
+              exportConfig = {
+                ...state.exportConfig,
+                fixedWidth: width,
+                fixedHeight: height,
+              };
+            }
+
             return {
               templates,
               selectedTemplateId,
+              exportConfig,
               state: templates.length > 0 ? 'TEMPLATE_UPLOADED' : state.state,
             };
           }),
@@ -238,6 +292,7 @@ export const useEditorStore = create<EditorStore>()(
                 templateMode: mode,
                 templateColumn: null,
                 roleMappings: {},
+                roleColors: {},
                 roleCounts: [],
               };
             }
@@ -294,6 +349,7 @@ export const useEditorStore = create<EditorStore>()(
               roleCounts,
               selectedTextFieldId: textFields.length > 0 ? textFields[0].id : null,
               state: persons.length > 0 ? 'DATA_UPLOADED' : state.state,
+              showColumnConfigModal: persons.length > 0 && newColumns.length > 0,
             };
           }),
 
@@ -304,6 +360,7 @@ export const useEditorStore = create<EditorStore>()(
             textFields: [],
             templateColumn: null,
             selectedTextFieldId: null,
+            showColumnConfigModal: false,
             roleCounts: [],
             roleMappings: {},
             state: state.templates.length > 0 ? 'TEMPLATE_UPLOADED' : 'INITIAL',
@@ -311,6 +368,8 @@ export const useEditorStore = create<EditorStore>()(
 
         // Column config actions
         setColumns: (columns) => set({ columns }),
+
+        setShowColumnConfigModal: (show) => set({ showColumnConfigModal: show }),
 
         setTemplateColumn: (column) =>
           set((state) => {
@@ -333,6 +392,7 @@ export const useEditorStore = create<EditorStore>()(
               templateColumn: column,
               roleCounts,
               roleMappings: {}, // 컬럼 변경 시 매핑 초기화
+              roleColors: {},   // 컬럼 변경 시 색상 초기화
             };
           }),
 
@@ -399,6 +459,36 @@ export const useEditorStore = create<EditorStore>()(
             return {
               roleMappings,
               state: allRolesMapped ? 'CONFIGURED' : 'ROLE_MATCHED',
+            };
+          }),
+
+        updateRoleColor: (role, color) =>
+          set((state) => {
+            const roleColors = { ...state.roleColors, [role]: color };
+            const allRolesColored = state.roleCounts.every(
+              (rc) => roleColors[rc.role]
+            );
+            return {
+              roleColors,
+              state: allRolesColored ? 'CONFIGURED' : 'ROLE_MATCHED',
+            };
+          }),
+
+        setDesignMode: (mode) =>
+          set((state) => {
+            // 디자인 모드 변경 시 기본 템플릿 선택 처리
+            if (mode === 'default') {
+              const defaultTemplate = state.templates.find(t => t.id === 'default-template');
+              return {
+                designMode: mode,
+                selectedTemplateId: defaultTemplate?.id || state.selectedTemplateId,
+              };
+            }
+            // custom 모드로 변경 시 커스텀 템플릿 선택
+            const customTemplate = state.templates.find(t => t.id !== 'default-template');
+            return {
+              designMode: mode,
+              selectedTemplateId: customTemplate?.id || state.selectedTemplateId,
             };
           }),
 
@@ -471,6 +561,24 @@ export const useEditorStore = create<EditorStore>()(
         setError: (error) =>
           set((state) => ({ error, state: error ? 'ERROR' : state.state })),
 
+        // Custom font actions
+        addCustomFont: (font) =>
+          set((state) => ({
+            customFonts: [...state.customFonts, font],
+          })),
+
+        removeCustomFont: (id) =>
+          set((state) => ({
+            customFonts: state.customFonts.filter((f) => f.id !== id),
+          })),
+
+        setFontLoaded: (id, loaded) =>
+          set((state) => ({
+            customFonts: state.customFonts.map((f) =>
+              f.id === id ? { ...f, loaded } : f
+            ),
+          })),
+
         // Utility actions
         reset: () => set(getInitialState()),
 
@@ -499,6 +607,7 @@ export const useEditorStore = create<EditorStore>()(
         partialize: (state) => ({
           textConfig: state.textConfig,
           exportConfig: state.exportConfig,
+          customFonts: state.customFonts,
         }),
         onRehydrateStorage: () => (state) => {
           // 리하이드레이션 후 기본 템플릿이 없으면 추가

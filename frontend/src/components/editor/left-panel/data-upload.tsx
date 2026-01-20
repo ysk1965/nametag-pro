@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { FileText, PenLine } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { useEditorStore } from '@/stores/editor-store';
@@ -12,11 +13,8 @@ export function DataUpload() {
   const { setPersons } = useEditorStore();
   const [showManualEntry, setShowManualEntry] = useState(false);
 
-  const handleUpload = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
+  const processFile = useCallback(
+    (file: File) => {
       const reader = new FileReader();
       reader.onload = () => {
         const result = reader.result;
@@ -48,51 +46,80 @@ export function DataUpload() {
         setPersons(newPersons, columns);
       };
       reader.readAsArrayBuffer(file);
-
-      // Reset input
-      e.target.value = '';
     },
     [setPersons]
   );
 
+  const handleUpload = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      processFile(file);
+      e.target.value = '';
+    },
+    [processFile]
+  );
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      if (acceptedFiles.length > 0) {
+        processFile(acceptedFiles[0]);
+      }
+    },
+    accept: {
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+      'application/vnd.ms-excel': ['.xls'],
+      'text/csv': ['.csv'],
+    },
+    multiple: false,
+    noClick: true,
+  });
+
   return (
     <>
-      <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2">
         {/* 파일 업로드 */}
-        <label className="border-2 border-dashed border-slate-200 rounded-lg p-6 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all group">
-          <input
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            className="hidden"
-            onChange={handleUpload}
-          />
-          <div className="p-2.5 rounded-full bg-slate-100 group-hover:bg-blue-100 transition-colors">
-            <FileText size={24} className="text-slate-500 group-hover:text-blue-600" />
-          </div>
-          <div className="text-center">
-            <span className="text-sm font-bold block mb-0.5">명단 가져오기</span>
-            <span className="text-xs text-slate-400">Excel 또는 CSV 파일</span>
-          </div>
-        </label>
-
-        {/* 구분선 */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 border-t border-slate-200" />
-          <span className="text-xs text-slate-400">또는</span>
-          <div className="flex-1 border-t border-slate-200" />
+        <div
+          {...getRootProps()}
+          className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group ${
+            isDragActive
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-slate-200 hover:border-blue-400 hover:bg-blue-50'
+          }`}
+        >
+          <label className="w-full h-full flex flex-col items-center justify-center gap-1.5 cursor-pointer">
+            <input
+              {...getInputProps()}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              className="hidden"
+              onChange={handleUpload}
+            />
+            <div className={`p-2 rounded-full transition-colors ${
+              isDragActive ? 'bg-blue-100' : 'bg-slate-100 group-hover:bg-blue-100'
+            }`}>
+              <FileText size={20} className={isDragActive ? 'text-blue-600' : 'text-slate-500 group-hover:text-blue-600'} />
+            </div>
+            <div className="text-center">
+              <span className="text-xs font-bold block">
+                {isDragActive ? '여기에 놓으세요' : '파일 가져오기'}
+              </span>
+              <span className="text-[10px] text-slate-400">Excel, CSV</span>
+            </div>
+          </label>
         </div>
 
         {/* 직접 입력 */}
         <button
           onClick={() => setShowManualEntry(true)}
-          className="w-full border-2 border-dashed border-slate-200 rounded-lg p-4 flex items-center justify-center gap-2 cursor-pointer hover:border-green-400 hover:bg-green-50 transition-all group"
+          className="border-2 border-dashed border-slate-200 rounded-lg p-4 flex flex-col items-center justify-center gap-1.5 cursor-pointer hover:border-green-400 hover:bg-green-50 transition-all group"
         >
           <div className="p-2 rounded-full bg-slate-100 group-hover:bg-green-100 transition-colors">
             <PenLine size={20} className="text-slate-500 group-hover:text-green-600" />
           </div>
-          <div className="text-left">
-            <span className="text-sm font-bold block">직접 만들기</span>
-            <span className="text-xs text-slate-400">컬럼과 데이터 직접 입력</span>
+          <div className="text-center">
+            <span className="text-xs font-bold block">직접 만들기</span>
+            <span className="text-[10px] text-slate-400">수동 입력</span>
           </div>
         </button>
       </div>

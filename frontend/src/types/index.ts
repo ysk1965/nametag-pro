@@ -1,3 +1,13 @@
+// ===== Custom Font Types =====
+export interface CustomFont {
+  id: string;
+  name: string;           // 사용자가 지정한 폰트 이름
+  fontFamily: string;     // CSS font-family 값 (고유하게 생성)
+  fileName: string;       // 원본 파일명
+  dataUrl: string;        // base64 data URL
+  loaded: boolean;        // 브라우저에 로드 완료 여부
+}
+
 // ===== Template Types =====
 export interface Template {
   id: string;

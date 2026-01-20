@@ -1,15 +1,15 @@
 'use client';
 
-import { useRef, useCallback, useState } from 'react';
+import { useRef, useCallback, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Upload } from 'lucide-react';
 import { useEditorStore } from '@/stores/editor-store';
 
-// 그리드 설정
-const GRID_SIZE = 5; // 5% 단위 그리드
-const SNAP_THRESHOLD = 2; // 2% 이내면 스냅
+// 그리드 설정 (mm 기준)
+const GRID_SIZE_MM = 2.5; // 2.5mm 단위 정사각형 그리드
 
 export function CenterPanel() {
   const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const {
     templates,
     selectedTemplateId,
@@ -17,18 +17,122 @@ export function CenterPanel() {
     textFields,
     selectedTextFieldId,
     roleMappings,
+    roleColors,
     templateColumn,
+    templateMode,
+    designMode,
     exportConfig,
     selectedSampleIndex,
     setSelectedSampleIndex,
     setSelectedTextField,
     updateTextFieldPosition,
     setTextPosition,
+    setExportConfig,
   } = useEditorStore();
 
   const [isDragging, setIsDragging] = useState(false);
   const [draggingFieldId, setDraggingFieldId] = useState<string | null>(null);
-  const [snapToGrid, setSnapToGrid] = useState(true);
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  // 그리드 스냅은 항상 활성화
+  const snapToGrid = true;
+
+  // 컨테이너 크기 감지
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const updateSize = () => {
+      setContainerSize({
+        width: container.clientWidth,
+        height: container.clientHeight,
+      });
+    };
+
+    updateSize();
+    const resizeObserver = new ResizeObserver(updateSize);
+    resizeObserver.observe(container);
+
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  // 프리뷰 크기 계산 (컨테이너에 맞춰 자동 조절)
+  const getPreviewDimensions = useCallback(() => {
+    const padding = 32;
+    const availableWidth = containerSize.width - padding * 2;
+    const availableHeight = containerSize.height - padding * 2;
+
+    if (availableWidth <= 0 || availableHeight <= 0) {
+      return { width: 300, height: 200 };
+    }
+
+    const aspectRatio = exportConfig.fixedWidth / exportConfig.fixedHeight;
+
+    // 가로 기준으로 맞출 때의 높이
+    const heightIfFitWidth = availableWidth / aspectRatio;
+
+    let width: number;
+    let height: number;
+
+    if (heightIfFitWidth <= availableHeight) {
+      // 가로에 맞추기
+      width = Math.min(availableWidth, 500);
+      height = width / aspectRatio;
+    } else {
+      // 세로에 맞추기
+      height = availableHeight;
+      width = height * aspectRatio;
+    }
+
+    return { width, height };
+  }, [containerSize, exportConfig.fixedWidth, exportConfig.fixedHeight]);
+
+  // mm 기준 그리드 계산
+  const gridStepX = (GRID_SIZE_MM / exportConfig.fixedWidth) * 100; // X축 그리드 간격 (%)
+  const gridStepY = (GRID_SIZE_MM / exportConfig.fixedHeight) * 100; // Y축 그리드 간격 (%)
+
+  // 방향키로 텍스트 필드 이동
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedTextFieldId) return;
+
+      const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+      if (!arrowKeys.includes(e.key)) return;
+
+      e.preventDefault();
+
+      const selectedField = textFields.find(f => f.id === selectedTextFieldId);
+      if (!selectedField) return;
+
+      // 그리드 모드면 그리드 단위, 아니면 1%
+      const stepX = snapToGrid ? gridStepX : 1;
+      const stepY = snapToGrid ? gridStepY : 1;
+
+      let newX = selectedField.position.x;
+      let newY = selectedField.position.y;
+
+      switch (e.key) {
+        case 'ArrowUp':
+          newY = Math.max(0, newY - stepY);
+          break;
+        case 'ArrowDown':
+          newY = Math.min(100, newY + stepY);
+          break;
+        case 'ArrowLeft':
+          newX = Math.max(0, newX - stepX);
+          break;
+        case 'ArrowRight':
+          newX = Math.min(100, newX + stepX);
+          break;
+      }
+
+      updateTextFieldPosition(selectedTextFieldId, newX, newY);
+      setTextPosition(newX, newY);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedTextFieldId, textFields, snapToGrid, gridStepX, gridStepY, updateTextFieldPosition, setTextPosition]);
 
   const currentPerson = persons.length > 0
     ? persons[selectedSampleIndex % persons.length]
@@ -62,6 +166,21 @@ export function CenterPanel() {
   // 기본 템플릿 여부 확인
   const isDefaultTemplate = currentTemplate?.id === 'default-template';
 
+  // 기본 템플릿 헤더 색상 결정 (역할별 색상 모드일 때)
+  const getDefaultTemplateHeaderColor = () => {
+    if (!isDefaultTemplate) return '#3b82f6';
+    if (designMode !== 'default' || templateMode !== 'multi') return '#3b82f6';
+    if (!currentPerson || !templateColumn) return '#3b82f6';
+
+    const roleValue = currentPerson.data[templateColumn];
+    if (roleValue && roleColors[roleValue]) {
+      return roleColors[roleValue];
+    }
+    return '#3b82f6'; // 기본 파란색
+  };
+
+  const headerColor = getDefaultTemplateHeaderColor();
+
   // 미리보기 비율 계산 (고정 크기 모드면 고정 크기 사용)
   const getPreviewAspectRatio = () => {
     if (exportConfig.sizeMode === 'fixed') {
@@ -86,18 +205,21 @@ export function CenterPanel() {
     ? currentPerson.data[textFields[0].column] || 'Example'
     : 'Example Name';
 
-  // 그리드에 스냅하는 함수
-  const snapToGridValue = useCallback((value: number): number => {
+  // 그리드에 스냅하는 함수 (X, Y 별도)
+  const snapToGridX = useCallback((value: number): number => {
     if (!snapToGrid) return value;
-    const nearestGrid = Math.round(value / GRID_SIZE) * GRID_SIZE;
-    if (Math.abs(value - nearestGrid) <= SNAP_THRESHOLD) {
-      return nearestGrid;
-    }
-    return value;
-  }, [snapToGrid]);
+    const nearestGrid = Math.round(value / gridStepX) * gridStepX;
+    return nearestGrid;
+  }, [snapToGrid, gridStepX]);
+
+  const snapToGridY = useCallback((value: number): number => {
+    if (!snapToGrid) return value;
+    const nearestGrid = Math.round(value / gridStepY) * gridStepY;
+    return nearestGrid;
+  }, [snapToGrid, gridStepY]);
 
   const handleDrag = useCallback(
-    (e: React.MouseEvent | React.TouchEvent, fieldId: string) => {
+    (e: React.MouseEvent | React.TouchEvent, fieldId: string, offset: { x: number; y: number }) => {
       if (!canvasContainerRef.current || !fieldId) return;
 
       const rect = canvasContainerRef.current.getBoundingClientRect();
@@ -111,20 +233,20 @@ export function CenterPanel() {
         clientY = e.clientY;
       }
 
-      const x = ((clientX - rect.left) / rect.width) * 100;
-      const y = ((clientY - rect.top) / rect.height) * 100;
+      const x = ((clientX - rect.left) / rect.width) * 100 - offset.x;
+      const y = ((clientY - rect.top) / rect.height) * 100 - offset.y;
 
       const clampedX = Math.max(0, Math.min(100, x));
       const clampedY = Math.max(0, Math.min(100, y));
 
-      // 그리드 스냅 적용
-      const snappedX = snapToGridValue(clampedX);
-      const snappedY = snapToGridValue(clampedY);
+      // 그리드 스냅 적용 (X, Y 별도)
+      const snappedX = snapToGridX(clampedX);
+      const snappedY = snapToGridY(clampedY);
 
       updateTextFieldPosition(fieldId, snappedX, snappedY);
       setTextPosition(snappedX, snappedY);
     },
-    [updateTextFieldPosition, setTextPosition, snapToGridValue]
+    [updateTextFieldPosition, setTextPosition, snapToGridX, snapToGridY]
   );
 
   const handleMouseDown = (e: React.MouseEvent, fieldId: string) => {
@@ -133,12 +255,24 @@ export function CenterPanel() {
     setSelectedTextField(fieldId);
     setDraggingFieldId(fieldId);
     setIsDragging(true);
-    handleDrag(e, fieldId);
+
+    // 클릭 위치와 텍스트 필드 중심 간의 오프셋 계산
+    if (canvasContainerRef.current) {
+      const rect = canvasContainerRef.current.getBoundingClientRect();
+      const field = textFields.find(f => f.id === fieldId);
+      if (field) {
+        const mouseX = ((e.clientX - rect.left) / rect.width) * 100;
+        const mouseY = ((e.clientY - rect.top) / rect.height) * 100;
+        const offsetX = mouseX - field.position.x;
+        const offsetY = mouseY - field.position.y;
+        setDragOffset({ x: offsetX, y: offsetY });
+      }
+    }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isDragging && draggingFieldId && e.buttons === 1) {
-      handleDrag(e, draggingFieldId);
+      handleDrag(e, draggingFieldId, dragOffset);
     }
   };
 
@@ -148,10 +282,9 @@ export function CenterPanel() {
   };
 
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
-    // 캔버스 빈 공간 클릭 시 선택 해제
-    if (e.target === canvasContainerRef.current) {
-      setSelectedTextField(null);
-    }
+    // 텍스트 필드가 아닌 곳 클릭 시 선택 해제
+    // (텍스트 필드는 stopPropagation으로 이 핸들러에 도달하지 않음)
+    setSelectedTextField(null);
   };
 
   const handlePrev = () => {
@@ -163,23 +296,92 @@ export function CenterPanel() {
     setSelectedSampleIndex(Math.min(maxIndex, selectedSampleIndex + 1));
   };
 
-  // 그리드 라인 생성
-  const gridLines = [];
-  for (let i = GRID_SIZE; i < 100; i += GRID_SIZE) {
-    gridLines.push(i);
+  // 그리드 라인 생성 (정사각형 mm 기준)
+  const verticalGridLines: number[] = [];
+  const horizontalGridLines: number[] = [];
+
+  // 세로선 (X축 방향으로 5mm 간격)
+  for (let mm = GRID_SIZE_MM; mm < exportConfig.fixedWidth; mm += GRID_SIZE_MM) {
+    verticalGridLines.push((mm / exportConfig.fixedWidth) * 100);
+  }
+
+  // 가로선 (Y축 방향으로 5mm 간격)
+  for (let mm = GRID_SIZE_MM; mm < exportConfig.fixedHeight; mm += GRID_SIZE_MM) {
+    horizontalGridLines.push((mm / exportConfig.fixedHeight) * 100);
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-slate-200 p-4 lg:p-8 items-center justify-center overflow-auto relative">
-      {/* Size indicator */}
-      {exportConfig.sizeMode === 'fixed' && (
-        <div className="mb-2 px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-          고정 크기: {exportConfig.fixedWidth} × {exportConfig.fixedHeight} mm
-        </div>
-      )}
+    <div className="h-full flex flex-col bg-slate-200 p-4 lg:p-8 items-center overflow-hidden">
+      {/* Size Settings Bar */}
+      {(() => {
+        // 기본값 계산: 내 디자인 모드면 첫 번째 커스텀 템플릿 크기, 아니면 90x55
+        const getDefaultDimensions = () => {
+          if (designMode === 'custom') {
+            const customTemplate = templates.find(t => t.id !== 'default-template');
+            if (customTemplate) {
+              // 픽셀을 mm로 변환 (10px = 1mm 기준, 최대 150mm 제한)
+              const scale = 0.1;
+              const maxDimension = 150;
+              let width = Math.round(customTemplate.width * scale);
+              let height = Math.round(customTemplate.height * scale);
+
+              // 최대 크기 제한
+              if (width > maxDimension || height > maxDimension) {
+                const ratio = maxDimension / Math.max(width, height);
+                width = Math.round(width * ratio);
+                height = Math.round(height * ratio);
+              }
+
+              // 최소 크기 보장 (20mm)
+              if (width < 20) width = 20;
+              if (height < 20) height = 20;
+
+              return { width, height };
+            }
+          }
+          return { width: 90, height: 55 };
+        };
+        const defaultDimensions = getDefaultDimensions();
+        const isChanged = exportConfig.fixedWidth !== defaultDimensions.width || exportConfig.fixedHeight !== defaultDimensions.height;
+        return (
+          <div className="mb-4 flex items-center gap-3 bg-white/90 backdrop-blur px-4 py-2.5 rounded-xl shadow-sm shrink-0">
+            <span className="text-xs font-medium text-slate-500">명찰 크기</span>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="number"
+                min="20"
+                max="200"
+                value={exportConfig.fixedWidth}
+                onChange={(e) => setExportConfig({ fixedWidth: parseInt(e.target.value) || 90, sizeMode: 'fixed' })}
+                className="w-14 border border-slate-200 rounded px-2 py-1 text-xs text-center bg-white"
+              />
+              <span className="text-xs text-slate-400">×</span>
+              <input
+                type="number"
+                min="20"
+                max="200"
+                value={exportConfig.fixedHeight}
+                onChange={(e) => setExportConfig({ fixedHeight: parseInt(e.target.value) || 55, sizeMode: 'fixed' })}
+                className="w-14 border border-slate-200 rounded px-2 py-1 text-xs text-center bg-white"
+              />
+              <span className="text-xs text-slate-400">mm</span>
+            </div>
+            <button
+              onClick={() => setExportConfig({ sizeMode: 'auto', fixedWidth: defaultDimensions.width, fixedHeight: defaultDimensions.height })}
+              className={`px-2 py-1 text-[10px] rounded transition-colors ${
+                isChanged
+                  ? 'text-blue-500 bg-blue-50 hover:bg-blue-100'
+                  : 'text-slate-400 hover:text-slate-500'
+              }`}
+            >
+              기본값
+            </button>
+          </div>
+        );
+      })()}
 
       {/* Preview selector */}
-      <div className={`${exportConfig.sizeMode === 'fixed' ? 'mb-4' : 'mb-6'} flex items-center gap-4 bg-white/80 backdrop-blur px-4 py-2 rounded-full shadow-sm`}>
+      <div className="mb-4 flex items-center gap-4 bg-white/80 backdrop-blur px-4 py-2 rounded-full shadow-sm shrink-0">
         <button
           onClick={handlePrev}
           className="p-1 hover:bg-slate-100 rounded"
@@ -198,32 +400,45 @@ export function CenterPanel() {
         </button>
       </div>
 
-      {/* Canvas */}
+      {/* Canvas Container */}
       <div
-        ref={canvasContainerRef}
-        className="relative bg-white shadow-2xl transition-all select-none shrink-0 rounded-lg overflow-hidden"
-        style={{
-          width: '400px',
-          aspectRatio: getPreviewAspectRatio(),
-          maxWidth: '100%',
-          backgroundImage: currentTemplate && !isDefaultTemplate
-            ? `url(${currentTemplate.dataUrl || currentTemplate.imageUrl})`
-            : 'none',
-          backgroundSize: getBackgroundSize(),
-          backgroundPosition: 'center',
+        ref={scrollContainerRef}
+        className="flex-1 w-full min-h-0 flex items-center justify-center"
+        onClick={(e) => {
+          // 컨테이너 직접 클릭 시 선택 해제
+          if (e.target === e.currentTarget) {
+            setSelectedTextField(null);
+          }
         }}
-        onMouseDown={handleCanvasMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
       >
+        {/* Canvas */}
+        <div
+          ref={canvasContainerRef}
+          className="relative bg-white shadow-2xl transition-all select-none shrink-0 rounded-lg overflow-hidden"
+          style={{
+            width: `${getPreviewDimensions().width}px`,
+            height: `${getPreviewDimensions().height}px`,
+            backgroundImage: currentTemplate && !isDefaultTemplate
+              ? `url(${currentTemplate.dataUrl || currentTemplate.imageUrl})`
+              : 'none',
+            backgroundSize: getBackgroundSize(),
+            backgroundPosition: 'center',
+          }}
+          onMouseDown={handleCanvasMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
         {/* 기본 템플릿 HTML 렌더링 */}
         {isDefaultTemplate && (
-          <div className="absolute inset-0 flex flex-col bg-gradient-to-br from-slate-50 to-slate-100">
+          <div className="absolute inset-0 flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 pointer-events-none">
             {/* 테두리 */}
             <div className="absolute inset-[3%] border-2 border-slate-200 rounded-xl bg-white flex flex-col overflow-hidden">
-              {/* 상단 헤더 */}
-              <div className="bg-blue-500 py-[8%] flex items-center justify-center">
+              {/* 상단 헤더 - 역할별 색상 적용 */}
+              <div
+                className="py-[8%] flex items-center justify-center transition-colors"
+                style={{ backgroundColor: headerColor }}
+              >
                 <span className="text-white font-bold text-[clamp(10px,4vw,18px)] tracking-wide">NAME TAG</span>
               </div>
               {/* 하단 정보 영역 */}
@@ -236,30 +451,30 @@ export function CenterPanel() {
         )}
 
         {/* Grid overlay - 드래그 중에만 표시 */}
-        {isDragging && currentTemplate && (
+        {isDragging && snapToGrid && currentTemplate && (
           <div className="absolute inset-0 pointer-events-none z-30 animate-fade-in">
             {/* Vertical lines */}
-            {gridLines.map((pos) => (
+            {verticalGridLines.map((pos, idx) => (
               <div
-                key={`v-${pos}`}
-                className={`absolute top-0 bottom-0 transition-opacity ${
-                  pos === 50 ? 'bg-blue-500/50 w-[2px]' : 'bg-black/20 w-px'
+                key={`v-${idx}`}
+                className={`absolute top-0 bottom-0 ${
+                  Math.abs(pos - 50) < 1 ? 'bg-blue-400/40 w-[1.5px]' : 'bg-slate-300/40 w-px'
                 }`}
                 style={{ left: `${pos}%` }}
               />
             ))}
             {/* Horizontal lines */}
-            {gridLines.map((pos) => (
+            {horizontalGridLines.map((pos, idx) => (
               <div
-                key={`h-${pos}`}
-                className={`absolute left-0 right-0 transition-opacity ${
-                  pos === 50 ? 'bg-blue-500/50 h-[2px]' : 'bg-black/20 h-px'
+                key={`h-${idx}`}
+                className={`absolute left-0 right-0 ${
+                  Math.abs(pos - 50) < 1 ? 'bg-blue-400/40 h-[1.5px]' : 'bg-slate-300/40 h-px'
                 }`}
                 style={{ top: `${pos}%` }}
               />
             ))}
             {/* Center crosshair highlight */}
-            <div className="absolute left-1/2 top-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2 border-2 border-blue-500 rounded-full bg-blue-500/20" />
+            <div className="absolute left-1/2 top-1/2 w-3 h-3 -translate-x-1/2 -translate-y-1/2 border border-blue-400 rounded-full bg-blue-400/20" />
           </div>
         )}
 
@@ -302,11 +517,20 @@ export function CenterPanel() {
                 setSelectedTextField(field.id);
                 setDraggingFieldId(field.id);
                 setIsDragging(true);
-                handleDrag(e, field.id);
+
+                // 터치 위치와 텍스트 필드 중심 간의 오프셋 계산
+                if (canvasContainerRef.current) {
+                  const rect = canvasContainerRef.current.getBoundingClientRect();
+                  const touchX = ((e.touches[0].clientX - rect.left) / rect.width) * 100;
+                  const touchY = ((e.touches[0].clientY - rect.top) / rect.height) * 100;
+                  const offsetX = touchX - field.position.x;
+                  const offsetY = touchY - field.position.y;
+                  setDragOffset({ x: offsetX, y: offsetY });
+                }
               }}
               onTouchMove={(e) => {
                 if (draggingFieldId === field.id) {
-                  handleDrag(e, field.id);
+                  handleDrag(e, field.id, dragOffset);
                 }
               }}
               onTouchEnd={() => {
@@ -315,46 +539,39 @@ export function CenterPanel() {
               }}
             >
               {value}
-              {/* Selection indicator */}
+              {/* Selection indicator - 모서리 핸들만 표시 */}
               {isSelected && (
-                <div
-                  className="absolute inset-0 border-2 border-blue-500 border-dashed rounded pointer-events-none"
-                  style={{
-                    margin: '-4px',
-                    padding: '4px',
-                  }}
-                />
+                <>
+                  {/* 좌상단 */}
+                  <div className="absolute -top-1 -left-1 w-2 h-2 bg-blue-500 rounded-sm pointer-events-none" style={{ transform: 'translate(-50%, -50%)' }} />
+                  {/* 우상단 */}
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-sm pointer-events-none" style={{ transform: 'translate(50%, -50%)' }} />
+                  {/* 좌하단 */}
+                  <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-blue-500 rounded-sm pointer-events-none" style={{ transform: 'translate(-50%, 50%)' }} />
+                  {/* 우하단 */}
+                  <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-blue-500 rounded-sm pointer-events-none" style={{ transform: 'translate(50%, 50%)' }} />
+                </>
               )}
             </div>
           );
         })}
 
-        {/* Position indicator for selected field */}
-        {currentTemplate && selectedTextFieldId && textFields.find(f => f.id === selectedTextFieldId) && (
-          <div
-            className="absolute w-3 h-3 bg-blue-500 rounded-full border-2 border-white shadow-lg pointer-events-none z-20"
-            style={{
-              left: `${textFields.find(f => f.id === selectedTextFieldId)!.position.x}%`,
-              top: `${textFields.find(f => f.id === selectedTextFieldId)!.position.y}%`,
-              transform: 'translate(-50%, -50%)',
-            }}
-          />
-        )}
+        </div>
       </div>
 
       {/* Instructions */}
-      <div className="mt-6 text-xs text-slate-500 font-medium text-center">
+      <div className="mt-4 text-xs text-slate-500 font-medium text-center shrink-0">
         {textFields.length > 0 ? (
           <>
             클릭하여 텍스트 필드를 선택하고, 드래그하여 위치를 조정하세요.
-            <span className="text-blue-500 ml-1">(5% 그리드 스냅)</span>
+            <span className="text-blue-500 ml-1">({GRID_SIZE_MM}mm 그리드 스냅)</span>
             <br />
             <span className="text-slate-400">
               {selectedTextFieldId && textFields.find(f => f.id === selectedTextFieldId) && (
                 <>
                   선택: {textFields.find(f => f.id === selectedTextFieldId)!.column} ·
-                  X {textFields.find(f => f.id === selectedTextFieldId)!.position.x.toFixed(1)}%,
-                  Y {textFields.find(f => f.id === selectedTextFieldId)!.position.y.toFixed(1)}%
+                  X {(textFields.find(f => f.id === selectedTextFieldId)!.position.x * exportConfig.fixedWidth / 100).toFixed(1)}mm,
+                  Y {(exportConfig.fixedHeight - textFields.find(f => f.id === selectedTextFieldId)!.position.y * exportConfig.fixedHeight / 100).toFixed(1)}mm
                 </>
               )}
             </span>

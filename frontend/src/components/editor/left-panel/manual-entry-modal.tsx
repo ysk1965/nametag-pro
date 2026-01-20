@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/stores/editor-store';
@@ -19,6 +19,17 @@ export function ManualEntryModal({ isOpen, onClose }: ManualEntryModalProps) {
   const [columns, setColumns] = useState<string[]>(['이름']);
   // 기본 행: 빈 데이터 1개
   const [rows, setRows] = useState<Record<string, string>[]>([{ '이름': '' }]);
+  // 새 행 추가 시 포커스 이동을 위한 상태
+  const [focusNewRow, setFocusNewRow] = useState(false);
+  const lastRowFirstInputRef = useRef<HTMLInputElement>(null);
+
+  // 새 행 추가 후 포커스 이동
+  useEffect(() => {
+    if (focusNewRow && lastRowFirstInputRef.current) {
+      lastRowFirstInputRef.current.focus();
+      setFocusNewRow(false);
+    }
+  }, [focusNewRow, rows.length]);
 
   const handleAddColumn = useCallback(() => {
     const newColumnName = `컬럼${columns.length + 1}`;
@@ -68,6 +79,7 @@ export function ManualEntryModal({ isOpen, onClose }: ManualEntryModalProps) {
       newRow[col] = '';
     });
     setRows([...rows, newRow]);
+    setFocusNewRow(true);
   }, [columns, rows]);
 
   const handleRemoveRow = useCallback((index: number) => {
@@ -188,9 +200,16 @@ export function ManualEntryModal({ isOpen, onClose }: ManualEntryModalProps) {
                     {columns.map((col, colIndex) => (
                       <td key={colIndex} className="p-1 border-r last:border-r-0">
                         <input
+                          ref={rowIndex === rows.length - 1 && colIndex === 0 ? lastRowFirstInputRef : undefined}
                           type="text"
                           value={row[col] || ''}
                           onChange={(e) => handleCellChange(rowIndex, col, e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                              e.preventDefault();
+                              handleAddRow();
+                            }
+                          }}
                           placeholder={col}
                           className="w-full px-2 py-1.5 bg-white text-slate-700 border border-slate-200 rounded focus:border-blue-400 focus:ring-1 focus:ring-blue-100 outline-none"
                         />
