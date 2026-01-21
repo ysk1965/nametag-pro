@@ -1,22 +1,63 @@
 # Copy this file to terraform.tfvars and fill in the values
+# terraform.tfvars 파일은 .gitignore에 포함되어 있어야 합니다
 
+#==============================================================================
+# Basic Configuration
+#==============================================================================
 project_name = "nametag-pro"
-environment  = "dev"
+environment  = "prod"  # dev, staging, prod
 aws_region   = "ap-northeast-2"
 
-# Database credentials (required)
+#==============================================================================
+# Database Configuration (REQUIRED)
+#==============================================================================
 db_username = "admin"
-db_password = "your-secure-password-here"
+db_password = "YourSecurePassword123!"  # 최소 8자, 특수문자 포함 권장
+
+# DB 인스턴스 타입 (비용 최적화)
+# dev: db.t3.micro ($0.018/hour)
+# prod: db.t3.small ($0.036/hour) 또는 db.t3.medium ($0.073/hour)
+db_instance_class = "db.t3.small"
+
+#==============================================================================
+# Redis Configuration
+#==============================================================================
+# cache.t3.micro: 0.5GB RAM ($0.017/hour)
+# cache.t3.small: 1.4GB RAM ($0.034/hour)
+redis_node_type = "cache.t3.micro"
+
+#==============================================================================
+# EC2 Configuration
+#==============================================================================
+# t3.micro: 1GB RAM ($0.0104/hour) - 테스트용
+# t3.small: 2GB RAM ($0.0208/hour) - 소규모
+# t3.medium: 4GB RAM ($0.0416/hour) - 권장
+ec2_instance_type = "t3.small"
 
 # EC2 Key Pair (optional, for SSH access)
-ec2_key_pair_name = "your-key-pair"
+# AWS Console에서 미리 생성 필요
+ec2_key_pair_name = ""
 
-# Admin CIDR blocks for SSH (optional, restrict in production)
+# Admin CIDR blocks for SSH (보안을 위해 IP 제한 권장)
+# 예: ["123.123.123.123/32"] - 본인 IP만 허용
 admin_cidr_blocks = ["0.0.0.0/0"]
 
-# CORS origins
+#==============================================================================
+# CORS Origins
+#==============================================================================
 cors_origins = [
   "http://localhost:3000",
   "https://nametagpro.com",
   "https://www.nametagpro.com"
 ]
+
+#==============================================================================
+# 예상 월 비용 (서울 리전 기준, 최소 구성)
+#==============================================================================
+# EC2 t3.small:     ~$15/월
+# RDS t3.small:     ~$26/월
+# ElastiCache:      ~$12/월
+# NAT Gateway:      ~$32/월 (단일)
+# S3 + CloudFront:  ~$5/월 (트래픽에 따라 변동)
+# ------------------------------------
+# 합계:              ~$90/월 (최소 구성)

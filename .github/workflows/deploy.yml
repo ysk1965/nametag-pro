@@ -30,7 +30,7 @@ jobs:
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
             # Pull latest image
-            docker pull ${{ secrets.ECR_REGISTRY }}/nametag-pro-api:latest
+            docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
             # Stop and remove existing container
             docker stop nametag-api || true
@@ -48,7 +48,7 @@ jobs:
               -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
               -e AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }} \
               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              ${{ secrets.ECR_REGISTRY }}/nametag-pro-api:latest
+              ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
             # Clean up old images
             docker image prune -f

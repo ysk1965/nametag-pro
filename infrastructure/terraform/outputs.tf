@@ -52,3 +52,42 @@ output "api_security_group_id" {
   description = "Security group ID for API server"
   value       = aws_security_group.api.id
 }
+
+# ECR outputs
+output "ecr_repository_url" {
+  description = "ECR repository URL for API"
+  value       = aws_ecr_repository.api.repository_url
+}
+
+output "ecr_registry_id" {
+  description = "ECR registry ID"
+  value       = aws_ecr_repository.api.registry_id
+}
+
+# Frontend outputs
+output "frontend_bucket_name" {
+  description = "S3 bucket name for frontend"
+  value       = aws_s3_bucket.frontend.bucket
+}
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID"
+  value       = aws_cloudfront_distribution.frontend.id
+}
+
+output "cloudfront_domain_name" {
+  description = "CloudFront distribution domain name"
+  value       = aws_cloudfront_distribution.frontend.domain_name
+}
+
+# GitHub Actions IAM outputs
+output "github_actions_access_key_id" {
+  description = "Access key ID for GitHub Actions"
+  value       = aws_iam_access_key.github_actions.id
+}
+
+output "github_actions_secret_access_key" {
+  description = "Secret access key for GitHub Actions (sensitive)"
+  value       = aws_iam_access_key.github_actions.secret
+  sensitive   = true
+}

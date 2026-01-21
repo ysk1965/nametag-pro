@@ -6,9 +6,15 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.amazonaws.com',
       },
+      {
+        protocol: 'https',
+        hostname: '**.railway.app',
+      },
     ],
   },
+
   async rewrites() {
+    // 개발 환경에서만 프록시 사용
     return process.env.NODE_ENV === 'development'
       ? [
           {
