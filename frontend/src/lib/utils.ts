@@ -29,6 +29,14 @@ export function generateId(): string {
   return crypto.randomUUID();
 }
 
+// 용지 크기 상수 (mm) - jsPDF와 동일한 값 사용
+export const PAPER_SIZES = {
+  A4: { width: 210, height: 297 },
+  Letter: { width: 215.9, height: 279.4 },
+} as const;
+
+export type PaperSize = keyof typeof PAPER_SIZES;
+
 export function detectNameColumn(columns: string[]): string {
   const namePatterns = ['이름', 'name', '성명', '참가자', '참석자', 'Name', '이 름'];
   for (const col of columns) {

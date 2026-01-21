@@ -1,5 +1,5 @@
 import type { Template, Person, TextConfig, ExportConfig, TextField } from '@/types';
-import { getLayoutDimensions } from './utils';
+import { getLayoutDimensions, PAPER_SIZES } from './utils';
 
 // Dynamic import for jsPDF (client-side only)
 async function getJsPDF() {
@@ -277,8 +277,10 @@ export async function generatePDF(
     format: exportConfig.paperSize.toLowerCase() as 'a4' | 'letter',
   });
 
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+  // PAPER_SIZES 상수 사용 (layout-preview.tsx와 동일한 값)
+  const paper = PAPER_SIZES[exportConfig.paperSize];
+  const pageWidth = paper.width;
+  const pageHeight = paper.height;
   const margin = exportConfig.margin;
 
   const availableWidth = pageWidth - margin * 2;
@@ -289,8 +291,10 @@ export async function generatePDF(
   let cellWidth: number;
   let cellHeight: number;
   let useFixedSize = false;
+  let useGridMode = false;
   let fixedWidth = 0;
   let fixedHeight = 0;
+  let gridGap = 0;
 
   if (exportConfig.sizeMode === 'fixed') {
     // 고정 크기 모드
@@ -305,10 +309,20 @@ export async function generatePDF(
     cellWidth = availableWidth / cols;
     cellHeight = availableHeight / rows;
   } else {
-    // 자동 모드 (레이아웃 기반)
+    // 그리드 모드 (레이아웃 기반 + 명찰 간격)
+    useGridMode = true;
     [cols, rows] = getLayoutDimensions(exportConfig.layout);
-    cellWidth = availableWidth / cols;
-    cellHeight = availableHeight / rows;
+    gridGap = exportConfig.gridGap || 0;
+
+    // 전체 간격을 제외한 사용 가능 영역
+    const totalHorizontalGaps = gridGap * (cols - 1);
+    const totalVerticalGaps = gridGap * (rows - 1);
+    const contentWidth = availableWidth - totalHorizontalGaps;
+    const contentHeight = availableHeight - totalVerticalGaps;
+
+    // 각 셀 크기 (간격 제외)
+    cellWidth = contentWidth / cols;
+    cellHeight = contentHeight / rows;
   }
 
   const perPage = cols * rows;
@@ -347,8 +361,13 @@ export async function generatePDF(
       pdf.addPage();
     }
 
-    const cellX = margin + col * cellWidth;
-    const cellY = margin + row * cellHeight;
+    // 셀 위치 계산 (그리드 모드에서는 간격 반영)
+    const cellX = useGridMode
+      ? margin + col * (cellWidth + gridGap)
+      : margin + col * cellWidth;
+    const cellY = useGridMode
+      ? margin + row * (cellHeight + gridGap)
+      : margin + row * cellHeight;
 
     // 템플릿 선택
     let template: Template | undefined;
@@ -472,14 +491,62 @@ export async function generatePDF(
     }
   }
 
-  // 빈 페이지 추가 (수동 작업용)
-  const blankPages = exportConfig.blankPages || 0;
-  if (blankPages > 0) {
-    // 빈 명찰 템플릿 이미지 렌더링 (텍스트 없이)
-    const renderBlankNametag = async (): Promise<string> => {
-      const template = defaultTemplate;
-      const isDefaultTemplate = template.id === 'default-template';
+  // 빈 명찰 추가 (수동 작업용) - 개별 명찰 개수로 추가
+  // 커스텀 템플릿만 필터링 (default-template 제외)
+  const customTemplates = templates.filter(t => t.id !== 'default-template');
+  // 다중 템플릿 모드: 커스텀 템플릿 2개 이상
+  const isMultiTemplateMode = customTemplates.length > 1;
 
+  // 빈 명찰 목록 생성 (템플릿별 개수만큼)
+  interface BlankNametag {
+    template: Template;
+  }
+  const blankNametags: BlankNametag[] = [];
+
+  if (isMultiTemplateMode && exportConfig.blankPagesPerTemplate) {
+    // 다중 템플릿 모드: 템플릿별 빈 명찰 개수
+    for (const template of customTemplates) {
+      const count = exportConfig.blankPagesPerTemplate[template.id] || 0;
+      for (let i = 0; i < count; i++) {
+        blankNametags.push({ template });
+      }
+    }
+  } else {
+    // 싱글 템플릿 모드: 전체 빈 명찰 개수
+    const count = exportConfig.blankPages || 0;
+    for (let i = 0; i < count; i++) {
+      blankNametags.push({ template: defaultTemplate });
+    }
+  }
+
+  console.log('[DEBUG] Blank nametags to add:', blankNametags.length);
+
+  // 빈 명찰 렌더링 및 추가
+  // 현재 페이지의 마지막 위치부터 이어서 추가
+  let currentIndex = persons.length; // 기존 명찰 다음 인덱스부터 시작
+
+  for (let i = 0; i < blankNametags.length; i++) {
+    const { template } = blankNametags[i];
+    const totalIndex = currentIndex + i;
+    const posIdx = totalIndex % perPage;
+    const col = posIdx % cols;
+    const row = Math.floor(posIdx / cols);
+
+    // 새 페이지 필요시 추가
+    if (totalIndex > 0 && totalIndex % perPage === 0) {
+      pdf.addPage();
+    }
+
+    // 셀 위치 계산 (그리드 모드에서는 간격 반영)
+    const cellX = useGridMode
+      ? margin + col * (cellWidth + gridGap)
+      : margin + col * cellWidth;
+    const cellY = useGridMode
+      ? margin + row * (cellHeight + gridGap)
+      : margin + row * cellHeight;
+
+    try {
+      const isDefaultTemplate = template.id === 'default-template';
       let renderHeight: number;
       if (isDefaultTemplate && useFixedSize) {
         renderHeight = RENDER_WIDTH * (fixedHeight / fixedWidth);
@@ -487,29 +554,25 @@ export async function generatePDF(
         renderHeight = RENDER_WIDTH * (template.height / template.width);
       }
 
+      // 빈 명찰 렌더링 (텍스트 없음)
+      let blankNametagDataUrl: string;
       if (isDefaultTemplate) {
-        // 기본 템플릿: 빈 명찰 (텍스트 없음)
-        return renderDefaultTemplateToCanvas(
+        blankNametagDataUrl = await renderDefaultTemplateToCanvas(
           { id: 'blank', data: {} } as Person,
-          [], // 텍스트 필드 없음
+          [],
           RENDER_WIDTH,
           renderHeight,
           '#3b82f6'
         );
       } else {
-        // 커스텀 템플릿: 이미지만 (텍스트 없음)
-        return renderNametagToCanvas(
+        blankNametagDataUrl = await renderNametagToCanvas(
           template,
           { id: 'blank', data: {} } as Person,
-          [], // 텍스트 필드 없음
+          [],
           RENDER_WIDTH,
           renderHeight
         );
       }
-    };
-
-    try {
-      const blankNametagDataUrl = await renderBlankNametag();
 
       // 명찰 크기 계산
       let nametagWidth: number;
@@ -519,7 +582,7 @@ export async function generatePDF(
         nametagWidth = fixedWidth;
         nametagHeight = fixedHeight;
       } else {
-        const templateAspect = defaultTemplate.width / defaultTemplate.height;
+        const templateAspect = template.width / template.height;
         nametagWidth = cellWidth;
         nametagHeight = cellWidth / templateAspect;
         if (nametagHeight > cellHeight) {
@@ -528,41 +591,26 @@ export async function generatePDF(
         }
       }
 
-      // 빈 페이지 추가
-      for (let page = 0; page < blankPages; page++) {
-        pdf.addPage();
+      // 셀 중앙에 배치
+      const offsetX = (cellWidth - nametagWidth) / 2;
+      const offsetY = (cellHeight - nametagHeight) / 2;
+      const x = cellX + offsetX;
+      const y = cellY + offsetY;
 
-        // 페이지에 빈 명찰 그리드 추가
-        for (let row = 0; row < rows; row++) {
-          for (let col = 0; col < cols; col++) {
-            const cellX = margin + col * cellWidth;
-            const cellY = margin + row * cellHeight;
-            const offsetX = (cellWidth - nametagWidth) / 2;
-            const offsetY = (cellHeight - nametagHeight) / 2;
-
-            pdf.addImage(
-              blankNametagDataUrl,
-              'JPEG',
-              cellX + offsetX,
-              cellY + offsetY,
-              nametagWidth,
-              nametagHeight
-            );
-          }
-        }
-      }
+      pdf.addImage(blankNametagDataUrl, 'JPEG', x, y, nametagWidth, nametagHeight);
     } catch (error) {
-      console.error('Failed to add blank pages:', error);
-      // 빈 페이지 실패해도 계속 진행
+      console.error(`Failed to render blank nametag ${i + 1}:`, error);
     }
   }
 
   // PDF 생성
+  console.log('[DEBUG] PDF total pages:', pdf.internal.pages.length - 1); // pages[0] is empty
   try {
     const blob = pdf.output('blob');
     if (!blob || blob.size === 0) {
       throw new Error('PDF blob is empty');
     }
+    console.log('[DEBUG] PDF generated successfully, blob size:', blob.size);
     return URL.createObjectURL(blob);
   } catch (error) {
     console.error('Failed to generate PDF blob:', error);

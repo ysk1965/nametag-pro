@@ -117,7 +117,7 @@ export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateMod
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* 모달 */}
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[85vh] overflow-hidden flex flex-col">
+      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[85vh] overflow-hidden flex flex-col">
         {/* 헤더 */}
         <div className="px-5 py-4 border-b flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">

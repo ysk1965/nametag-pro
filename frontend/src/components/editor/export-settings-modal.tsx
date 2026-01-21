@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { X, FileDown, Link2, Link2Off, FileText, Minus, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { X, FileDown, Link2, Link2Off, FileText, Minus, Plus, Settings2, Grid3X3, Ruler } from 'lucide-react';
 import { useEditorStore } from '@/stores/editor-store';
 import { LayoutPreview } from './layout-preview';
+import Image from 'next/image';
 
 interface ExportSettingsModalProps {
   isOpen: boolean;
@@ -20,13 +21,24 @@ export function ExportSettingsModal({
 }: ExportSettingsModalProps) {
   const { exportConfig, setExportConfig, persons, templates, designMode } = useEditorStore();
   const [lockAspectRatio, setLockAspectRatio] = useState(true);
-  const aspectRatioRef = useRef(exportConfig.fixedWidth / exportConfig.fixedHeight);
+  const [showBlankPagesModal, setShowBlankPagesModal] = useState(false);
 
   if (!isOpen) return null;
 
-  // 비율 업데이트 (프리셋 선택 시)
-  const updateAspectRatio = (width: number, height: number) => {
-    aspectRatioRef.current = width / height;
+  // 커스텀 템플릿만 필터링 (default-template 제외)
+  const customTemplates = templates.filter(t => t.id !== 'default-template');
+  const hasMultipleTemplates = customTemplates.length > 1;
+
+  // 템플릿별 총 빈 페이지 수 계산 (현재 존재하는 템플릿만)
+  const getTotalBlankPages = () => {
+    if (hasMultipleTemplates) {
+      const blankPages = exportConfig.blankPagesPerTemplate || {};
+      // 현재 존재하는 템플릿의 빈 페이지만 합산
+      return customTemplates.reduce((sum, template) => {
+        return sum + (blankPages[template.id] || 0);
+      }, 0);
+    }
+    return exportConfig.blankPages || 0;
   };
 
   // 원본 템플릿 크기 계산 (첫 번째 커스텀 템플릿 기준)
@@ -66,6 +78,14 @@ export function ExportSettingsModal({
     { w: 86, h: 54, label: '카드' },
     { w: 100, h: 70, label: '대형' },
     { w: 75, h: 50, label: '소형' },
+  ];
+
+  // 레이아웃 옵션
+  const layoutOptions = [
+    { value: '2x2' as const, label: '2×2', desc: '4장/페이지' },
+    { value: '3x3' as const, label: '3×3', desc: '9장/페이지' },
+    { value: '2x4' as const, label: '2×4', desc: '8장/페이지' },
+    { value: '2x3' as const, label: '2×3', desc: '6장/페이지' },
   ];
 
   return (
@@ -110,148 +130,268 @@ export function ExportSettingsModal({
                 </div>
               </div>
 
-              {/* 명찰 크기 */}
+              {/* 크기 모드 탭 */}
               <div>
                 <label className="text-xs font-medium text-slate-600 mb-2 block">
-                  명찰 크기
+                  배열 방식
                 </label>
-                <div className="bg-slate-50 rounded-lg p-3 space-y-3">
-                  {/* 프리셋 버튼 */}
-                  <div className="flex gap-1.5 flex-wrap">
-                    {presets.map((preset) => (
-                      <button
-                        key={preset.label}
-                        onClick={() => {
-                          setExportConfig({ fixedWidth: preset.w, fixedHeight: preset.h, sizeMode: 'fixed' });
-                          updateAspectRatio(preset.w, preset.h);
-                        }}
-                        className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
-                          exportConfig.fixedWidth === preset.w && exportConfig.fixedHeight === preset.h
-                            ? 'bg-blue-500 border-blue-500 text-white'
-                            : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
-                        }`}
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* 가로/세로 입력 */}
-                  <div className="flex items-end gap-2">
-                    <div className="flex-1">
-                      <label className="text-[10px] font-medium text-slate-500 mb-1 block">
-                        가로 (mm)
-                      </label>
-                      <input
-                        type="number"
-                        min="20"
-                        max="200"
-                        value={exportConfig.fixedWidth}
-                        onChange={(e) => {
-                          const newWidth = parseInt(e.target.value) || 20;
-                          if (lockAspectRatio) {
-                            const newHeight = Math.round(newWidth / aspectRatioRef.current);
-                            setExportConfig({ fixedWidth: newWidth, fixedHeight: Math.max(20, Math.min(200, newHeight)), sizeMode: 'fixed' });
-                          } else {
-                            setExportConfig({ fixedWidth: newWidth, sizeMode: 'fixed' });
-                          }
-                        }}
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white text-slate-700"
-                      />
-                    </div>
-
-                    {/* 비율 고정 토글 */}
-                    <button
-                      onClick={() => {
-                        if (!lockAspectRatio) {
-                          // 잠금 활성화 시 현재 비율 저장
-                          updateAspectRatio(exportConfig.fixedWidth, exportConfig.fixedHeight);
-                        }
-                        setLockAspectRatio(!lockAspectRatio);
-                      }}
-                      className={`p-2 rounded-lg border transition-colors mb-0.5 ${
-                        lockAspectRatio
-                          ? 'bg-blue-50 border-blue-300 text-blue-600'
-                          : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
-                      }`}
-                      title={lockAspectRatio ? '비율 고정 해제' : '비율 고정'}
-                    >
-                      {lockAspectRatio ? <Link2 size={16} /> : <Link2Off size={16} />}
-                    </button>
-
-                    <div className="flex-1">
-                      <label className="text-[10px] font-medium text-slate-500 mb-1 block">
-                        세로 (mm)
-                      </label>
-                      <input
-                        type="number"
-                        min="20"
-                        max="200"
-                        value={exportConfig.fixedHeight}
-                        onChange={(e) => {
-                          const newHeight = parseInt(e.target.value) || 20;
-                          if (lockAspectRatio) {
-                            const newWidth = Math.round(newHeight * aspectRatioRef.current);
-                            setExportConfig({ fixedWidth: Math.max(20, Math.min(200, newWidth)), fixedHeight: newHeight, sizeMode: 'fixed' });
-                          } else {
-                            setExportConfig({ fixedHeight: newHeight, sizeMode: 'fixed' });
-                          }
-                        }}
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white text-slate-700"
-                      />
-                    </div>
-                  </div>
+                <div className="flex gap-1 p-1 bg-slate-100 rounded-lg">
+                  <button
+                    onClick={() => setExportConfig({ sizeMode: 'grid' })}
+                    className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                      exportConfig.sizeMode === 'grid'
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    <Grid3X3 size={14} />
+                    그리드
+                  </button>
+                  <button
+                    onClick={() => setExportConfig({ sizeMode: 'fixed' })}
+                    className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-1.5 ${
+                      exportConfig.sizeMode === 'fixed'
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    <Ruler size={14} />
+                    고정 크기
+                  </button>
                 </div>
               </div>
 
-              {/* Margins */}
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-2 block">
-                  여백 ({exportConfig.margin}mm)
-                </label>
-                <input
-                  type="range"
-                  min="0"
-                  max="30"
-                  step="1"
-                  value={exportConfig.margin}
-                  onChange={(e) => setExportConfig({ margin: parseInt(e.target.value) })}
-                  className="w-full accent-blue-600"
-                />
-              </div>
+              {/* 그리드 모드 설정 */}
+              {exportConfig.sizeMode === 'grid' && (
+                <>
+                  {/* 레이아웃 선택 */}
+                  <div>
+                    <label className="text-xs font-medium text-slate-600 mb-2 block">
+                      레이아웃
+                    </label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {layoutOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => setExportConfig({ layout: option.value })}
+                          className={`py-2.5 px-2 rounded-lg border text-center transition-colors ${
+                            exportConfig.layout === option.value
+                              ? 'bg-blue-50 border-blue-500 text-blue-600'
+                              : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                          }`}
+                        >
+                          <div className="font-bold text-sm">{option.label}</div>
+                          <div className="text-[10px] text-slate-400 mt-0.5">{option.desc}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-              {/* Blank Pages */}
+                  {/* 여백 설정 */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-medium text-slate-600 mb-2 block">
+                        페이지 여백 ({exportConfig.margin}mm)
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="30"
+                        step="1"
+                        value={exportConfig.margin}
+                        onChange={(e) => setExportConfig({ margin: parseInt(e.target.value) })}
+                        className="w-full accent-blue-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-slate-600 mb-2 block">
+                        명찰 간격 ({exportConfig.gridGap}mm)
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="20"
+                        step="1"
+                        value={exportConfig.gridGap}
+                        onChange={(e) => setExportConfig({ gridGap: parseInt(e.target.value) })}
+                        className="w-full accent-blue-600"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* 고정 크기 모드 설정 */}
+              {exportConfig.sizeMode === 'fixed' && (
+                <>
+                  {/* 명찰 크기 */}
+                  <div>
+                    <label className="text-xs font-medium text-slate-600 mb-2 block">
+                      명찰 크기
+                    </label>
+                    <div className="bg-slate-50 rounded-lg p-3 space-y-3">
+                      {/* 프리셋 버튼 */}
+                      <div className="flex gap-1.5 flex-wrap">
+                        {presets.map((preset) => (
+                          <button
+                            key={preset.label}
+                            onClick={() => {
+                              setExportConfig({ fixedWidth: preset.w, fixedHeight: preset.h });
+                            }}
+                            className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+                              exportConfig.fixedWidth === preset.w && exportConfig.fixedHeight === preset.h
+                                ? 'bg-blue-500 border-blue-500 text-white'
+                                : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                            }`}
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* 가로/세로 입력 */}
+                      <div className="flex items-end gap-2">
+                        <div className="flex-1">
+                          <label className="text-[10px] font-medium text-slate-500 mb-1 block">
+                            가로 (mm)
+                          </label>
+                          <input
+                            type="number"
+                            min="20"
+                            max="200"
+                            value={exportConfig.fixedWidth}
+                            onChange={(e) => {
+                              const newWidth = parseInt(e.target.value) || 20;
+                              if (lockAspectRatio && exportConfig.fixedWidth > 0) {
+                                const currentRatio = exportConfig.fixedWidth / exportConfig.fixedHeight;
+                                const newHeight = Math.round(newWidth / currentRatio);
+                                setExportConfig({ fixedWidth: newWidth, fixedHeight: Math.max(20, Math.min(200, newHeight)) });
+                              } else {
+                                setExportConfig({ fixedWidth: newWidth });
+                              }
+                            }}
+                            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white text-slate-700"
+                          />
+                        </div>
+
+                        {/* 비율 고정 토글 */}
+                        <button
+                          onClick={() => setLockAspectRatio(!lockAspectRatio)}
+                          className={`p-2 rounded-lg border transition-colors mb-0.5 ${
+                            lockAspectRatio
+                              ? 'bg-blue-50 border-blue-300 text-blue-600'
+                              : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
+                          }`}
+                          title={lockAspectRatio ? '비율 고정 해제' : '비율 고정'}
+                        >
+                          {lockAspectRatio ? <Link2 size={16} /> : <Link2Off size={16} />}
+                        </button>
+
+                        <div className="flex-1">
+                          <label className="text-[10px] font-medium text-slate-500 mb-1 block">
+                            세로 (mm)
+                          </label>
+                          <input
+                            type="number"
+                            min="20"
+                            max="200"
+                            value={exportConfig.fixedHeight}
+                            onChange={(e) => {
+                              const newHeight = parseInt(e.target.value) || 20;
+                              if (lockAspectRatio && exportConfig.fixedHeight > 0) {
+                                const currentRatio = exportConfig.fixedWidth / exportConfig.fixedHeight;
+                                const newWidth = Math.round(newHeight * currentRatio);
+                                setExportConfig({ fixedWidth: Math.max(20, Math.min(200, newWidth)), fixedHeight: newHeight });
+                              } else {
+                                setExportConfig({ fixedHeight: newHeight });
+                              }
+                            }}
+                            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white text-slate-700"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 여백 */}
+                  <div>
+                    <label className="text-xs font-medium text-slate-600 mb-2 block">
+                      페이지 여백 ({exportConfig.margin}mm)
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="30"
+                      step="1"
+                      value={exportConfig.margin}
+                      onChange={(e) => setExportConfig({ margin: parseInt(e.target.value) })}
+                      className="w-full accent-blue-600"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Blank Nametags */}
               <div>
                 <label className="text-xs font-medium text-slate-600 mb-2 block">
-                  빈 페이지 추가 (수동 작업용)
+                  빈 명찰 추가 (수동 작업용)
                 </label>
                 <div className="bg-slate-50 rounded-lg p-3">
-                  <div className="flex items-center gap-3">
-                    <FileText size={16} className="text-slate-400" />
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setExportConfig({ blankPages: Math.max(0, (exportConfig.blankPages || 0) - 1) })}
-                        className="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors disabled:opacity-50"
-                        disabled={(exportConfig.blankPages || 0) === 0}
-                      >
-                        <Minus size={14} />
-                      </button>
-                      <span className="w-10 text-center font-bold text-slate-700">
-                        {exportConfig.blankPages || 0}
-                      </span>
-                      <button
-                        onClick={() => setExportConfig({ blankPages: Math.min(10, (exportConfig.blankPages || 0) + 1) })}
-                        className="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"
-                      >
-                        <Plus size={14} />
-                      </button>
-                    </div>
-                    <span className="text-xs text-slate-500">페이지</span>
-                  </div>
-                  {(exportConfig.blankPages || 0) > 0 && (
-                    <p className="text-[10px] text-slate-400 mt-2">
-                      PDF 끝에 같은 레이아웃의 빈 명찰 틀이 추가됩니다
-                    </p>
+                  {hasMultipleTemplates ? (
+                    // 템플릿 2개 이상: 템플릿별 설정 버튼
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <FileText size={16} className="text-slate-400" />
+                          <span className="text-sm text-slate-600">
+                            총 <span className="font-bold text-slate-700">{getTotalBlankPages()}</span>개
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setShowBlankPagesModal(true)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                        >
+                          <Settings2 size={14} />
+                          템플릿별 설정
+                        </button>
+                      </div>
+                      {getTotalBlankPages() > 0 && (
+                        <p className="text-[10px] text-slate-400 mt-2">
+                          각 템플릿별로 빈 명찰이 추가됩니다
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    // 템플릿 1개: 기존 UI
+                    <>
+                      <div className="flex items-center gap-3">
+                        <FileText size={16} className="text-slate-400" />
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setExportConfig({ blankPages: Math.max(0, (exportConfig.blankPages || 0) - 1) })}
+                            className="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors disabled:opacity-50"
+                            disabled={(exportConfig.blankPages || 0) === 0}
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <span className="w-10 text-center font-bold text-slate-700">
+                            {exportConfig.blankPages || 0}
+                          </span>
+                          <button
+                            onClick={() => setExportConfig({ blankPages: Math.min(50, (exportConfig.blankPages || 0) + 1) })}
+                            className="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                        <span className="text-xs text-slate-500">개</span>
+                      </div>
+                      {(exportConfig.blankPages || 0) > 0 && (
+                        <p className="text-[10px] text-slate-400 mt-2">
+                          PDF 끝에 빈 명찰이 추가됩니다
+                        </p>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -276,14 +416,106 @@ export function ExportSettingsModal({
           >
             <FileDown size={18} />
             {persons.length}명 명찰 생성하기
-            {(exportConfig.blankPages || 0) > 0 && (
+            {getTotalBlankPages() > 0 && (
               <span className="text-blue-200 text-xs">
-                (+빈 {exportConfig.blankPages}페이지)
+                (+빈 {getTotalBlankPages()}개)
               </span>
             )}
           </button>
         </div>
       </div>
+
+      {/* 템플릿별 빈 명찰 설정 모달 */}
+      {showBlankPagesModal && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowBlankPagesModal(false)} />
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 max-h-[80vh] overflow-hidden flex flex-col">
+            {/* 헤더 */}
+            <div className="px-5 py-4 border-b flex items-center justify-between shrink-0">
+              <h3 className="font-bold text-base text-slate-800">템플릿별 빈 명찰 설정</h3>
+              <button onClick={() => setShowBlankPagesModal(false)} className="p-1 hover:bg-slate-100 rounded">
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* 템플릿 목록 */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {customTemplates.map((template) => {
+                const currentCount = exportConfig.blankPagesPerTemplate?.[template.id] || 0;
+                return (
+                  <div
+                    key={template.id}
+                    className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg"
+                  >
+                    {/* 템플릿 썸네일 */}
+                    <div className="w-16 h-12 relative bg-white rounded border border-slate-200 overflow-hidden shrink-0">
+                      <Image
+                        src={template.thumbnailUrl || template.dataUrl || template.imageUrl}
+                        alt={template.fileName}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+
+                    {/* 템플릿 정보 */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-700 truncate">
+                        {template.role || template.fileName}
+                      </p>
+                      {template.role && (
+                        <p className="text-[10px] text-slate-400 truncate">{template.fileName}</p>
+                      )}
+                    </div>
+
+                    {/* 페이지 수 조절 */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => {
+                          const newBlankPages = { ...exportConfig.blankPagesPerTemplate };
+                          newBlankPages[template.id] = Math.max(0, currentCount - 1);
+                          setExportConfig({ blankPagesPerTemplate: newBlankPages });
+                        }}
+                        className="w-7 h-7 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors disabled:opacity-50"
+                        disabled={currentCount === 0}
+                      >
+                        <Minus size={12} />
+                      </button>
+                      <span className="w-8 text-center font-bold text-slate-700 text-sm">
+                        {currentCount}
+                      </span>
+                      <button
+                        onClick={() => {
+                          const newBlankPages = { ...exportConfig.blankPagesPerTemplate };
+                          newBlankPages[template.id] = Math.min(50, currentCount + 1);
+                          setExportConfig({ blankPagesPerTemplate: newBlankPages });
+                        }}
+                        className="w-7 h-7 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"
+                      >
+                        <Plus size={12} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 푸터 */}
+            <div className="px-4 py-3 border-t bg-slate-50 shrink-0">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">
+                  총 빈 명찰: <span className="font-bold text-slate-800">{getTotalBlankPages()}개</span>
+                </span>
+                <button
+                  onClick={() => setShowBlankPagesModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
+                >
+                  완료
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

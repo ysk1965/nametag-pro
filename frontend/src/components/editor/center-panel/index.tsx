@@ -59,7 +59,17 @@ export function CenterPanel() {
     return () => resizeObserver.disconnect();
   }, []);
 
-  // 프리뷰 크기 계산 (컨테이너에 맞춰 자동 조절)
+  // 현재 템플릿의 원본 크기 가져오기
+  const getOriginalTemplateSize = useCallback(() => {
+    const template = templates.find(t => t.id === selectedTemplateId);
+    if (template && template.id !== 'default-template') {
+      return { width: template.width, height: template.height };
+    }
+    // 기본 템플릿이나 없는 경우 기본값
+    return { width: 400, height: 240 };
+  }, [templates, selectedTemplateId]);
+
+  // 프리뷰 크기 계산 (원본 해상도 유지, 컨테이너에 맞춰 자동 조절)
   const getPreviewDimensions = useCallback(() => {
     const padding = 32;
     const availableWidth = containerSize.width - padding * 2;
@@ -69,17 +79,20 @@ export function CenterPanel() {
       return { width: 300, height: 200 };
     }
 
-    const aspectRatio = exportConfig.fixedWidth / exportConfig.fixedHeight;
+    // 원본 템플릿 크기 가져오기
+    const originalSize = getOriginalTemplateSize();
+    const aspectRatio = originalSize.width / originalSize.height;
+
+    // 컨테이너에 fit-contain으로 맞추기 (최대 크기 제한 없음)
+    let width: number;
+    let height: number;
 
     // 가로 기준으로 맞출 때의 높이
     const heightIfFitWidth = availableWidth / aspectRatio;
 
-    let width: number;
-    let height: number;
-
     if (heightIfFitWidth <= availableHeight) {
       // 가로에 맞추기
-      width = Math.min(availableWidth, 500);
+      width = availableWidth;
       height = width / aspectRatio;
     } else {
       // 세로에 맞추기
@@ -87,8 +100,14 @@ export function CenterPanel() {
       width = height * aspectRatio;
     }
 
+    // 원본 크기보다 크게 확대하지 않음 (선명도 유지)
+    if (width > originalSize.width || height > originalSize.height) {
+      width = originalSize.width;
+      height = originalSize.height;
+    }
+
     return { width, height };
-  }, [containerSize, exportConfig.fixedWidth, exportConfig.fixedHeight]);
+  }, [containerSize, getOriginalTemplateSize]);
 
   // mm 기준 그리드 계산
   const gridStepX = (GRID_SIZE_MM / exportConfig.fixedWidth) * 100; // X축 그리드 간격 (%)
@@ -323,21 +342,40 @@ export function CenterPanel() {
             const customTemplate = templates.find(t => t.id !== 'default-template');
             if (customTemplate) {
               // 픽셀을 mm로 변환 (10px = 1mm 기준, 최대 150mm 제한)
+              // 원본 비율을 정확히 유지하기 위해 비율 기반 계산
               const scale = 0.1;
               const maxDimension = 150;
-              let width = Math.round(customTemplate.width * scale);
-              let height = Math.round(customTemplate.height * scale);
+              const minDimension = 20;
+              const aspectRatio = customTemplate.width / customTemplate.height;
 
-              // 최대 크기 제한
+              let width = customTemplate.width * scale;
+              let height = customTemplate.height * scale;
+
+              // 최대 크기 제한 (비율 유지)
               if (width > maxDimension || height > maxDimension) {
-                const ratio = maxDimension / Math.max(width, height);
-                width = Math.round(width * ratio);
-                height = Math.round(height * ratio);
+                if (width > height) {
+                  width = maxDimension;
+                  height = width / aspectRatio;
+                } else {
+                  height = maxDimension;
+                  width = height * aspectRatio;
+                }
               }
 
-              // 최소 크기 보장 (20mm)
-              if (width < 20) width = 20;
-              if (height < 20) height = 20;
+              // 최소 크기 보장 (비율 유지)
+              if (width < minDimension || height < minDimension) {
+                if (width < height) {
+                  width = minDimension;
+                  height = width / aspectRatio;
+                } else {
+                  height = minDimension;
+                  width = height * aspectRatio;
+                }
+              }
+
+              // 소수점 첫째 자리까지 유지 (비율 보존)
+              width = Math.round(width * 10) / 10;
+              height = Math.round(height * 10) / 10;
 
               return { width, height };
             }
@@ -354,8 +392,9 @@ export function CenterPanel() {
                 type="number"
                 min="20"
                 max="200"
+                step="0.1"
                 value={exportConfig.fixedWidth}
-                onChange={(e) => setExportConfig({ fixedWidth: parseInt(e.target.value) || 90, sizeMode: 'fixed' })}
+                onChange={(e) => setExportConfig({ fixedWidth: parseFloat(e.target.value) || 90, sizeMode: 'fixed' })}
                 className="w-14 border border-slate-200 rounded px-2 py-1 text-xs text-center bg-white"
               />
               <span className="text-xs text-slate-400">×</span>
@@ -363,14 +402,15 @@ export function CenterPanel() {
                 type="number"
                 min="20"
                 max="200"
+                step="0.1"
                 value={exportConfig.fixedHeight}
-                onChange={(e) => setExportConfig({ fixedHeight: parseInt(e.target.value) || 55, sizeMode: 'fixed' })}
+                onChange={(e) => setExportConfig({ fixedHeight: parseFloat(e.target.value) || 55, sizeMode: 'fixed' })}
                 className="w-14 border border-slate-200 rounded px-2 py-1 text-xs text-center bg-white"
               />
               <span className="text-xs text-slate-400">mm</span>
             </div>
             <button
-              onClick={() => setExportConfig({ sizeMode: 'auto', fixedWidth: defaultDimensions.width, fixedHeight: defaultDimensions.height })}
+              onClick={() => setExportConfig({ sizeMode: 'grid', fixedWidth: defaultDimensions.width, fixedHeight: defaultDimensions.height })}
               className={`px-2 py-1 text-[10px] rounded transition-colors ${
                 isChanged
                   ? 'text-blue-500 bg-blue-50 hover:bg-blue-100'

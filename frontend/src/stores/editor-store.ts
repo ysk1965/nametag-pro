@@ -145,10 +145,12 @@ const DEFAULT_EXPORT_CONFIG: ExportConfig = {
   layout: '2x2',
   margin: 10,
   dpi: 300,
-  sizeMode: 'auto',
-  fixedWidth: 90,  // mm (일반적인 명찰 크기)
-  fixedHeight: 55, // mm
-  blankPages: 0,   // 빈 페이지 수 (수동 작업용)
+  sizeMode: 'grid',  // 기본값: 그리드 모드
+  gridGap: 5,        // mm (명찰 사이 간격)
+  fixedWidth: 90,    // mm (고정 크기 모드용)
+  fixedHeight: 55,   // mm
+  blankPages: 0,     // 빈 명찰 수 (템플릿 1개일 때)
+  blankPagesPerTemplate: {},  // 템플릿별 빈 명찰 수
 };
 
 // 초기 상태 생성 함수 (클라이언트에서 기본 템플릿 포함)
@@ -224,26 +226,46 @@ export const useEditorStore = create<EditorStore>()(
             if (existingCustomTemplates.length === 0 && newTemplates.length > 0) {
               const firstTemplate = newTemplates[0];
               // 픽셀을 mm로 변환 (10px = 1mm 기준, 최대 150mm 제한)
+              // 원본 비율을 정확히 유지하기 위해 너비 기준으로 높이 계산
               const scale = 0.1;
               const maxDimension = 150;
-              let width = Math.round(firstTemplate.width * scale);
-              let height = Math.round(firstTemplate.height * scale);
+              const minDimension = 20;
+              const aspectRatio = firstTemplate.width / firstTemplate.height;
 
-              // 최대 크기 제한
+              let width = firstTemplate.width * scale;
+              let height = firstTemplate.height * scale;
+
+              // 최대 크기 제한 (비율 유지)
               if (width > maxDimension || height > maxDimension) {
-                const ratio = maxDimension / Math.max(width, height);
-                width = Math.round(width * ratio);
-                height = Math.round(height * ratio);
+                if (width > height) {
+                  width = maxDimension;
+                  height = width / aspectRatio;
+                } else {
+                  height = maxDimension;
+                  width = height * aspectRatio;
+                }
               }
 
-              // 최소 크기 보장 (20mm)
-              if (width < 20) width = 20;
-              if (height < 20) height = 20;
+              // 최소 크기 보장 (비율 유지)
+              if (width < minDimension || height < minDimension) {
+                if (width < height) {
+                  width = minDimension;
+                  height = width / aspectRatio;
+                } else {
+                  height = minDimension;
+                  width = height * aspectRatio;
+                }
+              }
+
+              // 소수점 첫째 자리까지 유지 (비율 보존)
+              width = Math.round(width * 10) / 10;
+              height = Math.round(height * 10) / 10;
 
               exportConfig = {
                 ...state.exportConfig,
                 fixedWidth: width,
                 fixedHeight: height,
+                sizeMode: 'fixed',  // 고정 크기 모드 활성화
               };
             }
 

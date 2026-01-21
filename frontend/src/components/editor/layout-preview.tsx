@@ -2,11 +2,7 @@
 
 import { useMemo } from 'react';
 import { useEditorStore } from '@/stores/editor-store';
-
-const PAPER_SIZES = {
-  A4: { width: 210, height: 297 },
-  Letter: { width: 215.9, height: 279.4 },
-};
+import { PAPER_SIZES } from '@/lib/utils';
 
 // PDF 렌더링과 동일한 기준 너비 (pdf-generator.ts와 일치해야 함)
 const RENDER_WIDTH = 400;
@@ -80,6 +76,7 @@ export function LayoutPreview() {
     let cellHeight: number;
     let nametagWidth: number;
     let nametagHeight: number;
+    let actualGap: number;
 
     if (exportConfig.sizeMode === 'fixed') {
       // 고정 크기 모드: 고정 크기로 몇 개 들어가는지 계산
@@ -88,6 +85,7 @@ export function LayoutPreview() {
 
       // 간격 (명찰 사이 최소 여백)
       const gap = 2; // mm
+      actualGap = gap;
 
       cols = Math.floor((availableWidth + gap) / (nametagWidth + gap));
       rows = Math.floor((availableHeight + gap) / (nametagHeight + gap));
@@ -97,15 +95,25 @@ export function LayoutPreview() {
       rows = Math.max(1, rows);
 
       // 셀 크기 = 명찰 크기 + 간격
-      cellWidth = (availableWidth) / cols;
-      cellHeight = (availableHeight) / rows;
-    } else {
-      // 자동 모드: 레이아웃 기반
-      [cols, rows] = exportConfig.layout.split('x').map(Number);
       cellWidth = availableWidth / cols;
       cellHeight = availableHeight / rows;
+    } else {
+      // 그리드 모드: 레이아웃 기반 + 명찰 간격
+      [cols, rows] = exportConfig.layout.split('x').map(Number);
+      const gridGap = exportConfig.gridGap || 0;
+      actualGap = gridGap;
 
-      // 셀에 맞게 명찰 크기 계산 (fit contain)
+      // 전체 간격을 제외한 사용 가능 영역
+      const totalHorizontalGaps = gridGap * (cols - 1);
+      const totalVerticalGaps = gridGap * (rows - 1);
+      const contentWidth = availableWidth - totalHorizontalGaps;
+      const contentHeight = availableHeight - totalVerticalGaps;
+
+      // 각 셀 크기 (간격 제외)
+      cellWidth = contentWidth / cols;
+      cellHeight = contentHeight / rows;
+
+      // 셀에 맞게 명찰 크기 계산 (fit contain, 비율 유지)
       nametagWidth = cellWidth;
       nametagHeight = cellWidth / templateAspect;
 
@@ -140,6 +148,8 @@ export function LayoutPreview() {
       blankPages,
       totalPages: dataPages + blankPages,
       isFixed: exportConfig.sizeMode === 'fixed',
+      isGrid: exportConfig.sizeMode === 'grid',
+      gridGap: actualGap,
     };
   }, [defaultTemplate, exportConfig, persons.length]);
 
@@ -154,7 +164,7 @@ export function LayoutPreview() {
       <div className={`rounded-lg p-3 border ${layoutInfo.isFixed ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
         <div className="flex items-center justify-between mb-1">
           <span className={`text-xs font-medium ${layoutInfo.isFixed ? 'text-green-600' : 'text-blue-600'}`}>
-            {layoutInfo.isFixed ? '고정 명찰 크기' : '출력 명찰 크기'}
+            {layoutInfo.isFixed ? '고정 크기' : '그리드 레이아웃'}
           </span>
           <span className={`text-lg font-bold ${layoutInfo.isFixed ? 'text-green-700' : 'text-blue-700'}`}>
             {layoutInfo.nametagWidth.toFixed(1)} × {layoutInfo.nametagHeight.toFixed(1)} mm
@@ -164,14 +174,7 @@ export function LayoutPreview() {
           {layoutInfo.isFixed ? (
             <span>자동 배열: {layoutInfo.cols}×{layoutInfo.rows} ({layoutInfo.perPage}장/페이지)</span>
           ) : (
-            <>
-              셀 크기: {layoutInfo.cellWidth.toFixed(1)} × {layoutInfo.cellHeight.toFixed(1)} mm
-              {defaultTemplate && (
-                <span className="ml-2">
-                  | 원본 비율: {defaultTemplate.width}:{defaultTemplate.height}
-                </span>
-              )}
-            </>
+            <span>{layoutInfo.cols}×{layoutInfo.rows} ({layoutInfo.perPage}장/페이지) | 간격: {layoutInfo.gridGap}mm</span>
           )}
         </div>
       </div>
@@ -223,13 +226,21 @@ export function LayoutPreview() {
               // 각 사람의 역할에 맞는 템플릿 가져오기
               const personTemplate = getTemplateForPerson(person);
 
+              // 셀 위치 계산 (그리드 모드에서는 간격 반영)
+              const cellLeft = layoutInfo.isGrid
+                ? layoutInfo.margin + col * (layoutInfo.cellWidth + layoutInfo.gridGap)
+                : layoutInfo.margin + col * layoutInfo.cellWidth;
+              const cellTop = layoutInfo.isGrid
+                ? layoutInfo.margin + row * (layoutInfo.cellHeight + layoutInfo.gridGap)
+                : layoutInfo.margin + row * layoutInfo.cellHeight;
+
               return (
                 <div
                   key={`${row}-${col}`}
                   className="absolute flex items-center justify-center"
                   style={{
-                    left: `${(layoutInfo.margin + col * layoutInfo.cellWidth) * previewScale}px`,
-                    top: `${(layoutInfo.margin + row * layoutInfo.cellHeight) * previewScale}px`,
+                    left: `${cellLeft * previewScale}px`,
+                    top: `${cellTop * previewScale}px`,
                     width: `${layoutInfo.cellWidth * previewScale}px`,
                     height: `${layoutInfo.cellHeight * previewScale}px`,
                   }}

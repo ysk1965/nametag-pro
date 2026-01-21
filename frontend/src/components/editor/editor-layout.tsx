@@ -12,6 +12,9 @@ import { RightPanel } from './right-panel';
 import { ProgressModal } from './progress-modal';
 import { ExportSettingsModal } from './export-settings-modal';
 import { OnboardingModal } from './onboarding-modal';
+import { TemplateSelectionModal } from './template-selection-modal';
+import { RoleDesignGuideModal } from './role-design-guide-modal';
+import { BlankPagesModal } from './blank-pages-modal';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { generatePDF } from '@/lib/pdf-generator';
 
@@ -22,6 +25,12 @@ export function EditorLayout() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(true);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [isRoleGuideModalOpen, setIsRoleGuideModalOpen] = useState(false);
+  const [isBlankPagesModalOpen, setIsBlankPagesModalOpen] = useState(false);
+  const [hasShownTemplateModal, setHasShownTemplateModal] = useState(false);
+  const [prevPersonsCount, setPrevPersonsCount] = useState(0);
+  const [prevCustomTemplateCount, setPrevCustomTemplateCount] = useState(0);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
 
   const {
@@ -46,6 +55,36 @@ export function EditorLayout() {
     ensureDefaultTemplate();
   }, [ensureDefaultTemplate]);
 
+  // 명단이 추가되면 템플릿 선택 모달 표시 (단, 커스텀 템플릿이 없을 때만)
+  useEffect(() => {
+    const hasCustomTemplates = templates.some(t => t.id !== 'default-template');
+
+    if (persons.length > 0 && prevPersonsCount === 0 && !hasShownTemplateModal && !hasCustomTemplates) {
+      // 약간의 딜레이 후 모달 표시 (온보딩 모달이 닫히는 것을 기다림)
+      const timer = setTimeout(() => {
+        setIsTemplateModalOpen(true);
+        setHasShownTemplateModal(true);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+    setPrevPersonsCount(persons.length);
+  }, [persons.length, prevPersonsCount, hasShownTemplateModal, templates]);
+
+  // 첫 번째 커스텀 템플릿이 추가되면 역할별 디자인 안내 모달 표시
+  useEffect(() => {
+    const customTemplateCount = templates.filter(t => t.id !== 'default-template').length;
+
+    // 0 -> 1로 변할 때만 모달 표시
+    if (customTemplateCount === 1 && prevCustomTemplateCount === 0) {
+      // 디자인 선택 모달이 닫히는 것을 기다림
+      const timer = setTimeout(() => {
+        setIsRoleGuideModalOpen(true);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+    setPrevCustomTemplateCount(customTemplateCount);
+  }, [templates, prevCustomTemplateCount]);
+
   const handleProgress = useCallback((current: number, total: number) => {
     setProgress({ current, total });
   }, []);
@@ -55,10 +94,21 @@ export function EditorLayout() {
     setIsExportModalOpen(true);
   };
 
-  const handleGenerate = async () => {
+  // 출력 설정에서 생성 버튼 클릭 시 → 빈 페이지 설정 모달
+  const handleExportGenerate = () => {
+    setIsExportModalOpen(false);
+    setIsBlankPagesModalOpen(true);
+  };
+
+  // 빈 페이지 설정 후 실제 생성
+  const handleBlankPagesConfirm = () => {
+    setIsBlankPagesModalOpen(false);
+    executeGenerate();
+  };
+
+  const executeGenerate = async () => {
     if (!canGenerate()) return;
 
-    setIsExportModalOpen(false);
     setIsGenerating(true);
     setProgress({ current: 0, total: persons.length });
 
@@ -69,11 +119,11 @@ export function EditorLayout() {
         textConfig,
         exportConfig,
         roleMappings,
-        templateMode === 'multi' ? templateColumn : null,  // 싱글 모드에서는 templateColumn 무시
+        templateMode === 'multi' ? templateColumn : null,
         textFields,
         handleProgress,
-        templateMode === 'single' ? selectedTemplateId : null,  // 싱글 모드에서 선택된 템플릿
-        designMode === 'default' && templateMode === 'multi' ? roleColors : {}  // 기본 명찰 역할별 색상
+        templateMode === 'single' ? selectedTemplateId : null,
+        designMode === 'default' && templateMode === 'multi' ? roleColors : {}
       );
       setGeneratedPdfUrl(pdfUrl);
       router.push('/result');
@@ -85,7 +135,15 @@ export function EditorLayout() {
     }
   };
 
+  
   const progressPercent = progress.total > 0 ? (progress.current / progress.total) * 100 : 0;
+
+  // 빈 명찰 총합 계산
+  const customTemplates = templates.filter(t => t.id !== 'default-template');
+  const hasMultipleTemplates = customTemplates.length > 1;
+  const totalBlankPages = hasMultipleTemplates
+    ? customTemplates.reduce((sum, t) => sum + (exportConfig.blankPagesPerTemplate?.[t.id] || 0), 0)
+    : exportConfig.blankPages || 0;
 
   // Desktop layout
   if (isDesktop) {
@@ -135,7 +193,7 @@ export function EditorLayout() {
         <ExportSettingsModal
           isOpen={isExportModalOpen}
           onClose={() => setIsExportModalOpen(false)}
-          onGenerate={handleGenerate}
+          onGenerate={handleExportGenerate}
           isGenerating={isGenerating}
         />
 
@@ -145,12 +203,32 @@ export function EditorLayout() {
           progress={progressPercent}
           current={progress.current}
           total={progress.total}
+          blankPages={totalBlankPages}
         />
 
         {/* Onboarding Modal */}
         <OnboardingModal
           isOpen={isOnboardingOpen && persons.length === 0}
           onClose={() => setIsOnboardingOpen(false)}
+        />
+
+        {/* Template Selection Modal */}
+        <TemplateSelectionModal
+          isOpen={isTemplateModalOpen}
+          onClose={() => setIsTemplateModalOpen(false)}
+        />
+
+        {/* Role Design Guide Modal */}
+        <RoleDesignGuideModal
+          isOpen={isRoleGuideModalOpen}
+          onClose={() => setIsRoleGuideModalOpen(false)}
+        />
+
+        {/* Blank Pages Modal */}
+        <BlankPagesModal
+          isOpen={isBlankPagesModalOpen}
+          onClose={() => setIsBlankPagesModalOpen(false)}
+          onConfirm={handleBlankPagesConfirm}
         />
       </div>
     );
@@ -202,7 +280,7 @@ export function EditorLayout() {
       <ExportSettingsModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
-        onGenerate={handleGenerate}
+        onGenerate={handleExportGenerate}
         isGenerating={isGenerating}
       />
 
@@ -212,12 +290,32 @@ export function EditorLayout() {
         progress={progressPercent}
         current={progress.current}
         total={progress.total}
+        blankPages={totalBlankPages}
       />
 
       {/* Onboarding Modal */}
       <OnboardingModal
         isOpen={isOnboardingOpen && persons.length === 0}
         onClose={() => setIsOnboardingOpen(false)}
+      />
+
+      {/* Template Selection Modal */}
+      <TemplateSelectionModal
+        isOpen={isTemplateModalOpen}
+        onClose={() => setIsTemplateModalOpen(false)}
+      />
+
+      {/* Role Design Guide Modal */}
+      <RoleDesignGuideModal
+        isOpen={isRoleGuideModalOpen}
+        onClose={() => setIsRoleGuideModalOpen(false)}
+      />
+
+      {/* Blank Pages Modal */}
+      <BlankPagesModal
+        isOpen={isBlankPagesModalOpen}
+        onClose={() => setIsBlankPagesModalOpen(false)}
+        onConfirm={handleBlankPagesConfirm}
       />
     </div>
   );

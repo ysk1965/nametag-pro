@@ -8,6 +8,7 @@ interface ProgressModalProps {
   current: number;
   total: number;
   message?: string;
+  blankPages?: number; // 빈 페이지 수
 }
 
 export function ProgressModal({
@@ -16,6 +17,7 @@ export function ProgressModal({
   current,
   total,
   message = 'PDF 생성 중...',
+  blankPages = 0,
 }: ProgressModalProps) {
   if (!isOpen) return null;
 
@@ -45,6 +47,9 @@ export function ProgressModal({
         </h3>
         <p className="text-sm text-center text-slate-500 mb-6">
           {current} / {total} 명찰 처리 중
+          {blankPages > 0 && (
+            <span className="text-blue-500"> (+빈 {blankPages}개)</span>
+          )}
         </p>
 
         {/* 프로그레스 바 */}

@@ -18,6 +18,17 @@ interface OnboardingModalProps {
 export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   const { setPersons, persons } = useEditorStore();
   const [showManualEntry, setShowManualEntry] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  // 닫기 애니메이션 처리
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    // 애니메이션이 끝난 후 실제로 닫기
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 400);
+  }, [onClose]);
 
   // 명단이 생성되면 모달 닫기
   useEffect(() => {
@@ -92,17 +103,35 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              animate={{ opacity: isClosing ? 0 : 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.3 }}
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={onClose}
+              onClick={handleClose}
             />
 
             {/* Modal */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
+              animate={
+                isClosing
+                  ? {
+                      opacity: 0,
+                      scale: 0.2,
+                      x: -400,
+                      y: -150,
+                      transition: {
+                        duration: 0.4,
+                        ease: [0.32, 0, 0.67, 0],
+                      },
+                    }
+                  : {
+                      opacity: 1,
+                      scale: 1,
+                      x: 0,
+                      y: 0,
+                    }
+              }
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg m-4 overflow-hidden"
@@ -110,7 +139,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
               {/* Header */}
               <div className="relative px-6 pt-8 pb-4 text-center bg-gradient-to-b from-blue-50 to-white">
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="absolute top-4 right-4 p-2 hover:bg-slate-100 rounded-lg transition-colors"
                 >
                   <X size={20} className="text-slate-400" />
@@ -208,7 +237,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.45 }}
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="mt-6 w-full py-3 text-sm text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center gap-1"
                 >
                   나중에 할게요

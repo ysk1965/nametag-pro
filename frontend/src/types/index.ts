@@ -81,14 +81,18 @@ export interface TextConfig {
 export interface ExportConfig {
   paperSize: 'A4' | 'Letter';
   layout: '2x2' | '2x3' | '3x3' | '2x4';
-  margin: number; // mm
+  margin: number; // mm (페이지 여백)
   dpi: number;
-  // 고정 크기 모드
-  sizeMode: 'auto' | 'fixed'; // auto: 레이아웃 기반, fixed: 고정 크기
-  fixedWidth: number;  // mm (고정 크기 모드용)
-  fixedHeight: number; // mm (고정 크기 모드용)
-  // 빈 페이지 (수동 작업용)
-  blankPages: number;  // 추가할 빈 페이지 수
+  // 크기 모드
+  sizeMode: 'grid' | 'fixed'; // grid: 그리드 레이아웃, fixed: 고정 크기
+  // 그리드 모드용
+  gridGap: number; // mm (명찰 사이 간격)
+  // 고정 크기 모드용
+  fixedWidth: number;  // mm
+  fixedHeight: number; // mm
+  // 빈 명찰 (수동 작업용)
+  blankPages: number;  // 추가할 빈 명찰 개수 (템플릿 1개일 때 사용)
+  blankPagesPerTemplate: Record<string, number>;  // 템플릿별 빈 명찰 개수 (템플릿 2개+ 일 때)
 }
 
 // ===== Project Types =====
