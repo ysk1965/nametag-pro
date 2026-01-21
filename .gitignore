@@ -48,6 +48,8 @@ infrastructure/terraform/*.tfstate
 infrastructure/terraform/*.tfstate.*
 infrastructure/terraform/*.tfplan
 infrastructure/terraform/.terraform.lock.hcl
+infrastructure/terraform/terraform.tfvars
+!infrastructure/terraform/terraform.tfvars.example
 
 # Docker
 *.tar
@@ -55,3 +57,12 @@ infrastructure/terraform/.terraform.lock.hcl
 # Temp files
 tmp/
 temp/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Terraform plan files
+infrastructure/terraform/tfplan
+
+# Claude local settings
+.claude/settings.local.json

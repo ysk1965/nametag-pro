@@ -27,10 +27,6 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  data:
-    redis:
-      host: localhost
-      port: 6379
 
 aws:
   s3:
@@ -64,9 +60,6 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: false
-  data:
-    redis:
-      url: ${REDIS_URL}
 
 aws:
   s3:
