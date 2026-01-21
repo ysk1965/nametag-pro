@@ -1,15 +1,16 @@
 name: Frontend Deploy
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Frontend CI"]
+    types: [completed]
     branches: [main]
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend-deploy.yml'
   workflow_dispatch:  # 수동 실행 허용
 
 jobs:
   deploy:
+    # Frontend CI 성공 시 또는 수동 실행 시 배포
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     defaults:
