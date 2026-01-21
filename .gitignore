@@ -40,6 +40,7 @@ backend/build/
 backend/bin/
 *.class
 *.jar
+!**/gradle-wrapper.jar
 *.war
 
 # Terraform
