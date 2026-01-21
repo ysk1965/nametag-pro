@@ -16,7 +16,21 @@
       "Bash(git push:*)",
       "Bash(gh auth:*)",
       "Bash(git remote:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nUpdate editor components and improve left panel UI\n\n- Enhance column config component\n- Improve left panel with additional features\n- Refactor role mapping component\n- Update PDF generator and editor store\n- Add new type definitions\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nUpdate editor components and improve left panel UI\n\n- Enhance column config component\n- Improve left panel with additional features\n- Refactor role mapping component\n- Update PDF generator and editor store\n- Add new type definitions\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(gradle wrapper)",
+      "Bash(chmod:*)",
+      "Bash(make restart-all:*)",
+      "Bash(terraform:*)",
+      "Bash(brew tap:*)",
+      "Bash(brew install:*)",
+      "Bash(aws sts get-caller-identity:*)",
+      "Bash(ls:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\n[dev] PDF 내보내기 그리드 모드 추가 및 UI 개선\n\n- 그리드/고정크기 모드 탭 UI 추가\n- 명찰 사이 간격\\(gridGap\\) 설정 기능\n- 템플릿별 빈 명찰 개수 설정 기능 \\(blankPagesPerTemplate\\)\n- 내보내기 설정 모달 전면 리뉴얼\n- 레이아웃 프리뷰에 그리드 간격 반영\n- 템플릿 크기 비율 유지 로직 개선\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(git check-ignore:*)"
     ]
   }
 }
