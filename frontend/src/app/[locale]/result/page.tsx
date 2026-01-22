@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   Download,
   ChevronLeft,
@@ -9,7 +9,10 @@ import {
   Mail,
   FileText,
   Loader2,
+  Check,
+  Copy,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/stores/editor-store';
@@ -21,11 +24,78 @@ export default function ResultPage() {
   const t = useTranslations('result');
   const { persons, exportConfig, generatedPdfUrl } = useEditorStore();
   const [isMounted, setIsMounted] = useState(false);
+  const pageCount = calculatePageCount(persons.length, exportConfig.layout);
 
   // 마운트 상태 추적 (hydration 에러 방지)
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // PDF Blob을 File 객체로 변환하는 함수
+  const getPdfFile = useCallback(async (): Promise<File | null> => {
+    if (!generatedPdfUrl) return null;
+    try {
+      const response = await fetch(generatedPdfUrl);
+      const blob = await response.blob();
+      return new File([blob], 'nametags.pdf', { type: 'application/pdf' });
+    } catch {
+      return null;
+    }
+  }, [generatedPdfUrl]);
+
+  // 공유 기능
+  const handleShare = useCallback(async () => {
+    // Web Share API 지원 여부 확인
+    if (navigator.share) {
+      try {
+        const pdfFile = await getPdfFile();
+        if (pdfFile && navigator.canShare?.({ files: [pdfFile] })) {
+          // 파일 공유 지원 시
+          await navigator.share({
+            title: t('shareTitle'),
+            text: t('shareText'),
+            files: [pdfFile],
+          });
+          toast.success(t('shareSuccess'));
+        } else {
+          // 파일 공유 미지원 시 텍스트만 공유
+          await navigator.share({
+            title: t('shareTitle'),
+            text: t('shareText'),
+            url: window.location.href,
+          });
+          toast.success(t('shareSuccess'));
+        }
+      } catch (error) {
+        // 사용자가 공유 취소한 경우는 무시
+        if ((error as Error).name !== 'AbortError') {
+          toast.error(t('shareFailed'));
+        }
+      }
+    } else {
+      // Web Share API 미지원 시 URL 복사
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success(t('linkCopied'));
+      } catch {
+        toast.error(t('shareFailed'));
+      }
+    }
+  }, [getPdfFile, t]);
+
+  // 이메일로 보내기 기능
+  const handleEmail = useCallback(async () => {
+    const subject = encodeURIComponent(t('emailSubject'));
+    const body = encodeURIComponent(
+      t('emailBody', { count: persons.length, pages: pageCount })
+    );
+
+    // mailto 링크로 이메일 클라이언트 열기
+    const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
+    window.open(mailtoLink, '_blank');
+
+    toast.info(t('emailOpened'));
+  }, [t, persons.length, pageCount]);
 
   // Redirect if no PDF
   useEffect(() => {

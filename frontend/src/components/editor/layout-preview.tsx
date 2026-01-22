@@ -293,6 +293,21 @@ export function LayoutPreview() {
                 ? layoutInfo.margin + row * (layoutInfo.cellHeight + layoutInfo.gridGap)
                 : layoutInfo.margin + row * layoutInfo.cellHeight;
 
+              // 각 셀에서 해당 템플릿의 비율로 명찰 크기 계산 (PDF와 동일한 방식)
+              let cellNametagWidth = layoutInfo.nametagWidth;
+              let cellNametagHeight = layoutInfo.nametagHeight;
+
+              if (!layoutInfo.isFixed && personTemplate) {
+                const personTemplateAspect = personTemplate.width / personTemplate.height;
+                cellNametagWidth = layoutInfo.cellWidth;
+                cellNametagHeight = layoutInfo.cellWidth / personTemplateAspect;
+
+                if (cellNametagHeight > layoutInfo.cellHeight) {
+                  cellNametagHeight = layoutInfo.cellHeight;
+                  cellNametagWidth = layoutInfo.cellHeight * personTemplateAspect;
+                }
+              }
+
               return (
                 <div
                   key={`${row}-${col}`}
@@ -304,12 +319,12 @@ export function LayoutPreview() {
                     height: `${layoutInfo.cellHeight * previewScale}px`,
                   }}
                 >
-                  {/* 명찰 */}
+                  {/* 명찰 - 실제 PDF와 동일하게 각 템플릿 비율로 계산 */}
                   <div
-                    className="bg-slate-100 border border-slate-300 rounded overflow-hidden flex items-center justify-center"
+                    className="overflow-hidden"
                     style={{
-                      width: `${layoutInfo.nametagWidth * previewScale}px`,
-                      height: `${layoutInfo.nametagHeight * previewScale}px`,
+                      width: `${cellNametagWidth * previewScale}px`,
+                      height: `${cellNametagHeight * previewScale}px`,
                     }}
                   >
                     {personTemplate?.id === 'default-template' ? (
@@ -326,8 +341,8 @@ export function LayoutPreview() {
                           {/* 텍스트 필드 영역 */}
                           <div className="flex-1 relative">
                             {person && textFields.map((field) => {
-                              // 폰트 크기 비례 계산 (기준: 400px 캔버스)
-                              const previewNametagWidth = layoutInfo.nametagWidth * previewScale;
+                              // 폰트 크기 비례 계산 (기준: 400px 캔버스) - 동적 계산된 명찰 크기 사용
+                              const previewNametagWidth = cellNametagWidth * previewScale;
                               const scaledFontSize = Math.max(3, field.style.fontSize * (previewNametagWidth / RENDER_WIDTH));
                               return (
                                 <div
@@ -363,13 +378,13 @@ export function LayoutPreview() {
                         className="w-full h-full bg-center bg-no-repeat relative"
                         style={{
                           backgroundImage: `url(${personTemplate.dataUrl || personTemplate.thumbnailUrl || personTemplate.imageUrl})`,
-                          backgroundSize: 'contain',
+                          backgroundSize: 'cover',
                         }}
                       >
                         {/* 모든 텍스트 필드 렌더링 */}
                         {person && textFields.map((field) => {
-                          // 폰트 크기 비례 계산 (기준: 400px 캔버스)
-                          const previewNametagWidth = layoutInfo.nametagWidth * previewScale;
+                          // 폰트 크기 비례 계산 (기준: 400px 캔버스) - 동적 계산된 명찰 크기 사용
+                          const previewNametagWidth = cellNametagWidth * previewScale;
                           const scaledFontSize = Math.max(3, field.style.fontSize * (previewNametagWidth / RENDER_WIDTH));
                           return (
                             <div
