@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import {
   Download,
   ChevronLeft,
@@ -9,24 +8,40 @@ import {
   Share2,
   Mail,
   FileText,
+  Loader2,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/stores/editor-store';
 import { calculatePageCount } from '@/lib/pdf-generator';
-import { Link } from '@/i18n/routing';
+import { Link, useRouter } from '@/i18n/routing';
 
 export default function ResultPage() {
   const router = useRouter();
   const t = useTranslations('result');
   const { persons, exportConfig, generatedPdfUrl } = useEditorStore();
+  const [isMounted, setIsMounted] = useState(false);
+
+  // 마운트 상태 추적 (hydration 에러 방지)
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Redirect if no PDF
   useEffect(() => {
-    if (!generatedPdfUrl) {
+    if (isMounted && !generatedPdfUrl) {
       router.push('/editor');
     }
-  }, [generatedPdfUrl, router]);
+  }, [generatedPdfUrl, router, isMounted]);
+
+  // 서버/클라이언트 렌더링 일치를 위해 마운트 전에는 로딩 표시
+  if (!isMounted) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 p-8 text-center space-y-6 min-h-screen">
+        <Loader2 className="animate-spin text-slate-400" size={48} />
+      </div>
+    );
+  }
 
   if (!generatedPdfUrl) {
     return (

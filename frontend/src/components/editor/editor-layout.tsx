@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { ChevronLeft, FileDown, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/stores/editor-store';
+import { useAuthStore } from '@/stores/auth-store';
 import { LeftPanel } from './left-panel';
 import { CenterPanel } from './center-panel';
 import { RightPanel } from './right-panel';
@@ -17,7 +17,8 @@ import { RoleDesignGuideModal } from './role-design-guide-modal';
 import { BlankPagesModal } from './blank-pages-modal';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { generatePDF } from '@/lib/pdf-generator';
-import { Link } from '@/i18n/routing';
+import { generatePdfViaBackend, downloadPdf } from '@/lib/pdf-api';
+import { Link, useRouter } from '@/i18n/routing';
 
 export function EditorLayout() {
   const router = useRouter();
@@ -109,13 +110,15 @@ export function EditorLayout() {
   };
 
   // 빈 페이지 설정 후 실제 생성
-  const handleBlankPagesConfirm = (blankPagesData: { blankPages?: number; blankPagesPerTemplate?: Record<string, number> }) => {
+  const handleBlankPagesConfirm = (blankPagesData: { blankPages?: number; blankPagesPerTemplate?: Record<string, number> }, watermarkOptions?: { watermarkEnabled?: boolean; watermarkText?: string }) => {
     setIsBlankPagesModalOpen(false);
-    executeGenerate(blankPagesData);
+    executeGenerate(blankPagesData, watermarkOptions);
   };
 
-  const executeGenerate = async (blankPagesData?: { blankPages?: number; blankPagesPerTemplate?: Record<string, number> }) => {
+  const executeGenerate = async (blankPagesData?: { blankPages?: number; blankPagesPerTemplate?: Record<string, number> }, watermarkOptions?: { watermarkEnabled?: boolean; watermarkText?: string }) => {
     if (!canGenerate()) return;
+
+    const { isAuthenticated } = useAuthStore.getState();
 
     setIsGenerating(true);
     setProgress({ current: 0, total: persons.length });
@@ -126,20 +129,47 @@ export function EditorLayout() {
         ? { ...exportConfig, ...blankPagesData }
         : exportConfig;
 
-      const pdfUrl = await generatePDF(
-        templates,
-        persons,
-        textConfig,
-        finalExportConfig,
-        roleMappings,
-        templateMode === 'multi' ? templateColumn : null,
-        textFields,
-        handleProgress,
-        templateMode === 'single' ? selectedTemplateId : null,
-        designMode === 'default' && templateMode === 'multi' ? roleColors : {}
-      );
-      setGeneratedPdfUrl(pdfUrl);
-      router.push('/result');
+      // 로그인 유저 → BE API, 비로그인 유저 → FE 로직
+      if (isAuthenticated) {
+        // BE API 호출
+        const response = await generatePdfViaBackend(
+          templates,
+          persons,
+          textFields,
+          finalExportConfig,
+          {
+            roleMappings,
+            roleColors: designMode === 'default' && templateMode === 'multi' ? roleColors : {},
+            templateColumn: templateMode === 'multi' ? templateColumn : null,
+            selectedTemplateId: templateMode === 'single' ? selectedTemplateId : null,
+            watermarkEnabled: watermarkOptions?.watermarkEnabled,
+            watermarkText: watermarkOptions?.watermarkText,
+            projectName: 'Untitled Project',
+          }
+        );
+
+        // PDF 다운로드
+        const pdfBlob = await downloadPdf(response.id);
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        setGeneratedPdfUrl(pdfUrl);
+        router.push('/result');
+      } else {
+        // 기존 FE 로직
+        const pdfUrl = await generatePDF(
+          templates,
+          persons,
+          textConfig,
+          finalExportConfig,
+          roleMappings,
+          templateMode === 'multi' ? templateColumn : null,
+          textFields,
+          handleProgress,
+          templateMode === 'single' ? selectedTemplateId : null,
+          designMode === 'default' && templateMode === 'multi' ? roleColors : {}
+        );
+        setGeneratedPdfUrl(pdfUrl);
+        router.push('/result');
+      }
     } catch (error) {
       console.error('PDF generation failed:', error);
       alert(tErrors('pdfGenerationFailed'));
