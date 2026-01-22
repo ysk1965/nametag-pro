@@ -1,21 +1,23 @@
 'use client';
 
 import { useRef } from 'react';
-import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import { ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-
-const benefits = [
-  '무료로 50명까지 사용 가능',
-  '신용카드 등록 불필요',
-  '즉시 시작 가능',
-  '고객 지원 포함',
-];
+import { Link } from '@/i18n/routing';
 
 export function CTASection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const t = useTranslations('cta');
+
+  const benefits = [
+    t('benefits.free50'),
+    t('benefits.noCard'),
+    t('benefits.instant'),
+    t('benefits.support'),
+  ];
 
   return (
     <section className="py-24 relative overflow-hidden">
@@ -66,7 +68,7 @@ export function CTASection() {
             className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-white/30"
           >
             <Sparkles size={16} />
-            지금 무료로 시작하세요
+            {t('badge')}
           </motion.div>
 
           {/* 헤딩 */}
@@ -76,10 +78,10 @@ export function CTASection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
           >
-            이벤트 준비,
+            {t('title')}
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-white">
-              이제 쉽게 하세요
+              {t('titleHighlight')}
             </span>
           </motion.h2>
 
@@ -89,8 +91,7 @@ export function CTASection() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-xl text-blue-100 max-w-2xl mx-auto"
           >
-            수백 장의 명찰을 몇 분 만에 완성하세요.
-            전문 디자이너 없이도 완벽한 결과물을 만들 수 있습니다.
+            {t('subtitle')}
           </motion.p>
 
           {/* 혜택 리스트 */}
@@ -131,7 +132,7 @@ export function CTASection() {
                   size="lg"
                   className="px-10 py-7 text-lg bg-white text-blue-600 hover:bg-blue-50 shadow-xl hover:shadow-2xl transition-all group"
                 >
-                  무료로 시작하기
+                  {t('button')}
                   <motion.span
                     animate={{ x: [0, 5, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
@@ -142,7 +143,7 @@ export function CTASection() {
               </motion.div>
             </Link>
             <p className="text-blue-200 text-sm mt-4">
-              가입 없이 바로 시작 · 설치 불필요
+              {t('noSignup')}
             </p>
           </motion.div>
         </motion.div>

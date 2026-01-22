@@ -2,19 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { X, Layers, Check, AlertCircle, Palette } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 
 // 기본 명찰용 색상 프리셋
 const COLOR_PRESETS = [
-  { color: '#3b82f6', name: '블루' },
-  { color: '#10b981', name: '그린' },
-  { color: '#f59e0b', name: '옐로우' },
-  { color: '#ef4444', name: '레드' },
-  { color: '#8b5cf6', name: '퍼플' },
-  { color: '#ec4899', name: '핑크' },
-  { color: '#6366f1', name: '인디고' },
-  { color: '#f97316', name: '오렌지' },
-  { color: '#64748b', name: '슬레이트' },
+  { color: '#3b82f6', name: 'blue' },
+  { color: '#10b981', name: 'green' },
+  { color: '#f59e0b', name: 'yellow' },
+  { color: '#ef4444', name: 'red' },
+  { color: '#8b5cf6', name: 'purple' },
+  { color: '#ec4899', name: 'pink' },
+  { color: '#6366f1', name: 'indigo' },
+  { color: '#f97316', name: 'orange' },
+  { color: '#64748b', name: 'slate' },
 ];
 
 interface MultiTemplateModalProps {
@@ -24,6 +25,7 @@ interface MultiTemplateModalProps {
 }
 
 export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateModalProps) {
+  const t = useTranslations('editor.multiTemplate');
   const {
     columns,
     templates,
@@ -132,10 +134,10 @@ export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateMod
             </div>
             <div>
               <h3 className="font-bold text-slate-800">
-                {isDefaultMode ? '역할별 색상 설정' : '역할별 디자인 설정'}
+                {isDefaultMode ? t('colorSettingTitle') : t('designSettingTitle')}
               </h3>
               <p className="text-[10px] text-slate-400">
-                {isDefaultMode ? '역할별로 다른 색상 적용' : '역할별로 다른 디자인 적용'}
+                {isDefaultMode ? t('colorSettingDesc') : t('designSettingDesc')}
               </p>
             </div>
           </div>
@@ -151,32 +153,32 @@ export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateMod
             <div className="flex gap-4 items-center">
               {/* 왼쪽: 명단 테이블 예시 */}
               <div className="flex-1 flex flex-col items-center">
-                <p className="text-[10px] font-medium text-slate-400 mb-2">명단 예시</p>
+                <p className="text-[10px] font-medium text-slate-400 mb-2">{t('rosterExample')}</p>
                 <div className="bg-white rounded-lg border border-slate-200 overflow-hidden text-[10px] min-w-[140px]">
                   <table className="w-full">
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-200">
-                        <th className="w-16 px-2 py-1.5 font-bold text-slate-500 text-center">이름</th>
-                        <th className="w-14 px-2 py-1.5 font-bold text-blue-600 bg-blue-50 text-center">직책 ←</th>
+                        <th className="w-16 px-2 py-1.5 font-bold text-slate-500 text-center">{t('exampleName')}</th>
+                        <th className="w-14 px-2 py-1.5 font-bold text-blue-600 bg-blue-50 text-center">{t('exampleRole')} ←</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr className="border-b border-slate-100">
-                        <td className="px-2 py-1.5 text-slate-600 text-center">홍길동</td>
-                        <td className="px-2 py-1.5 text-amber-600 bg-amber-50 text-center">팀장</td>
+                        <td className="px-2 py-1.5 text-slate-600 text-center">{t('examplePerson1')}</td>
+                        <td className="px-2 py-1.5 text-amber-600 bg-amber-50 text-center">{t('exampleLeader')}</td>
                       </tr>
                       <tr className="border-b border-slate-100">
-                        <td className="px-2 py-1.5 text-slate-600 text-center">김철수</td>
-                        <td className="px-2 py-1.5 text-blue-600 bg-blue-50 text-center">팀원</td>
+                        <td className="px-2 py-1.5 text-slate-600 text-center">{t('examplePerson2')}</td>
+                        <td className="px-2 py-1.5 text-blue-600 bg-blue-50 text-center">{t('exampleMember')}</td>
                       </tr>
                       <tr>
-                        <td className="px-2 py-1.5 text-slate-600 text-center">이영희</td>
-                        <td className="px-2 py-1.5 text-blue-600 bg-blue-50 text-center">팀원</td>
+                        <td className="px-2 py-1.5 text-slate-600 text-center">{t('examplePerson3')}</td>
+                        <td className="px-2 py-1.5 text-blue-600 bg-blue-50 text-center">{t('exampleMember')}</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
-                <p className="text-[9px] text-blue-500 mt-1.5 text-center">구분 컬럼 = "직책"</p>
+                <p className="text-[9px] text-blue-500 mt-1.5 text-center">{t('columnExample')}</p>
               </div>
 
               {/* 화살표 */}
@@ -184,34 +186,34 @@ export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateMod
 
               {/* 오른쪽: 결과 명찰 */}
               <div className="flex-1 flex flex-col items-center">
-                <p className="text-[10px] font-medium text-slate-400 mb-2">결과</p>
+                <p className="text-[10px] font-medium text-slate-400 mb-2">{t('result')}</p>
                 <div className="flex flex-col gap-1.5 items-start">
                   <div className="flex items-center gap-2">
                     <div className="w-12 h-7 rounded border border-slate-200 bg-white overflow-hidden shadow-sm">
                       <div className="h-2" style={{ backgroundColor: '#f59e0b' }} />
                       <div className="flex items-center justify-center h-5">
-                        <span className="text-[7px] font-bold text-slate-600">홍길동</span>
+                        <span className="text-[7px] font-bold text-slate-600">{t('examplePerson1')}</span>
                       </div>
                     </div>
-                    <span className="text-[9px] text-amber-600">팀장</span>
+                    <span className="text-[9px] text-amber-600">{t('exampleLeader')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-12 h-7 rounded border border-slate-200 bg-white overflow-hidden shadow-sm">
                       <div className="h-2 bg-blue-500" />
                       <div className="flex items-center justify-center h-5">
-                        <span className="text-[7px] font-bold text-slate-600">김철수</span>
+                        <span className="text-[7px] font-bold text-slate-600">{t('examplePerson2')}</span>
                       </div>
                     </div>
-                    <span className="text-[9px] text-blue-600">팀원</span>
+                    <span className="text-[9px] text-blue-600">{t('exampleMember')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-12 h-7 rounded border border-slate-200 bg-white overflow-hidden shadow-sm">
                       <div className="h-2 bg-blue-500" />
                       <div className="flex items-center justify-center h-5">
-                        <span className="text-[7px] font-bold text-slate-600">이영희</span>
+                        <span className="text-[7px] font-bold text-slate-600">{t('examplePerson3')}</span>
                       </div>
                     </div>
-                    <span className="text-[9px] text-blue-600">팀원</span>
+                    <span className="text-[9px] text-blue-600">{t('exampleMember')}</span>
                   </div>
                 </div>
               </div>
@@ -222,11 +224,11 @@ export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateMod
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-5 rounded-full bg-blue-500 text-white text-xs font-bold flex items-center justify-center">1</span>
-              <span className="text-sm font-bold text-slate-700">구분 컬럼 선택</span>
+              <span className="text-sm font-bold text-slate-700">{t('selectColumn')}</span>
             </div>
             {columns.length === 0 ? (
               <p className="text-xs text-amber-600 bg-amber-50 rounded-lg p-3">
-                먼저 명단을 업로드해주세요
+                {t('uploadRosterFirst')}
               </p>
             ) : (
               <select
@@ -234,7 +236,7 @@ export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateMod
                 onChange={(e) => handleColumnSelect(e.target.value)}
                 className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="">컬럼을 선택하세요</option>
+                <option value="">{t('selectColumnPlaceholder')}</option>
                 {columns.map((col) => (
                   <option key={col} value={col}>
                     {col}
@@ -250,7 +252,7 @@ export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateMod
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-5 h-5 rounded-full bg-blue-500 text-white text-xs font-bold flex items-center justify-center">2</span>
                 <span className="text-sm font-bold text-slate-700">
-                  {isDefaultMode ? '역할별 색상 지정' : '역할별 디자인 지정'}
+                  {isDefaultMode ? t('assignColorPerRole') : t('assignDesignPerRole')}
                 </span>
               </div>
               <div className="space-y-2">
@@ -266,7 +268,7 @@ export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateMod
                         {/* 왼쪽: 역할명 */}
                         <div className="w-24 shrink-0">
                           <span className="text-sm font-bold text-slate-700 block">{role}</span>
-                          <span className="text-xs text-slate-400">({count}명)</span>
+                          <span className="text-xs text-slate-400">{t('personCount', { count })}</span>
                         </div>
 
                         {/* 오른쪽: 색상 선택 */}
@@ -304,7 +306,7 @@ export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateMod
                         {/* 왼쪽: 역할명 */}
                         <div className="w-24 shrink-0">
                           <span className="text-sm font-bold text-slate-700 block">{role}</span>
-                          <span className="text-xs text-slate-400">({count}명)</span>
+                          <span className="text-xs text-slate-400">{t('personCount', { count })}</span>
                         </div>
 
                         {/* 오른쪽: 템플릿 선택 */}
@@ -347,13 +349,13 @@ export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateMod
           )}
 
           {/* 디자인 없음 경고 (커스텀 모드만) */}
-          {!isDefaultMode && templates.filter(t => t.id !== 'default-template').length < 2 && (
+          {!isDefaultMode && templates.filter(tmpl => tmpl.id !== 'default-template').length < 2 && (
             <div className="bg-amber-50 rounded-lg p-3 flex gap-3">
               <AlertCircle size={18} className="text-amber-500 shrink-0 mt-0.5" />
               <div className="text-xs text-amber-700">
-                <p className="font-medium">디자인을 더 추가해주세요</p>
+                <p className="font-medium">{t('addMoreDesigns')}</p>
                 <p className="text-amber-600">
-                  역할별 디자인을 사용하려면 2개 이상의 디자인이 필요합니다.
+                  {t('needTwoDesigns')}
                 </p>
               </div>
             </div>
@@ -366,7 +368,7 @@ export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateMod
             onClick={onClose}
             className="flex-1 py-2.5 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors"
           >
-            취소
+            {t('cancel')}
           </button>
           <button
             onClick={handleSave}
@@ -378,7 +380,7 @@ export function MultiTemplateModal({ isOpen, onClose, onSave }: MultiTemplateMod
             }`}
           >
             <Check size={16} />
-            저장
+            {t('save')}
           </button>
         </div>
       </div>

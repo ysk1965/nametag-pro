@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Download, Sparkles, Users, FileText } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import { Link } from '@/i18n/routing';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
 // 플로팅 요소들
 function FloatingElements() {
@@ -101,6 +103,7 @@ function FloatingElements() {
 function NametagCard3D() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const t = useTranslations('hero');
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -170,10 +173,10 @@ function NametagCard3D() {
             >
               NT
             </motion.div>
-            <div className="text-2xl font-bold text-slate-800">홍길동</div>
-            <div className="text-slate-500 font-medium">참가자</div>
+            <div className="text-2xl font-bold text-slate-800">{t('sampleName')}</div>
+            <div className="text-slate-500 font-medium">{t('sampleRole')}</div>
             <div className="pt-2 border-t border-slate-100">
-              <div className="text-xs text-slate-400">2026 Conference</div>
+              <div className="text-xs text-slate-400">{t('sampleYear')}</div>
             </div>
           </div>
         </motion.div>
@@ -208,12 +211,12 @@ function NametagCard3D() {
             >
               <Download size={20} />
             </motion.div>
-            <div className="font-bold text-slate-800">PDF Ready</div>
+            <div className="font-bold text-slate-800">{t('pdfReady')}</div>
           </div>
           <div className="text-sm text-slate-500">
-            248 nametags generated successfully.
+            {t('pdfReadyDesc', { count: 248 })}
             <br />
-            <span className="text-green-600 font-medium">Ready for print.</span>
+            <span className="text-green-600 font-medium">{t('readyToPrint')}</span>
           </div>
         </motion.div>
       </motion.div>
@@ -242,6 +245,8 @@ export function HeroSection() {
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, -50]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0.5]);
+  const t = useTranslations('hero');
+  const tNav = useTranslations('nav');
 
   return (
     <>
@@ -266,14 +271,15 @@ export function HeroSection() {
           </motion.div>
           <div className="flex items-center gap-6 text-sm font-medium text-slate-600">
             <a href="#features" className="hover:text-blue-600 transition-colors hidden sm:block">
-              Features
+              {tNav('features')}
             </a>
             <a href="#how-it-works" className="hover:text-blue-600 transition-colors hidden sm:block">
-              How it works
+              {tNav('howItWorks')}
             </a>
+            <LanguageSwitcher />
             <Link href="/editor">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button className="shadow-md hover:shadow-lg transition-shadow">Start for Free</Button>
+                <Button className="shadow-md hover:shadow-lg transition-shadow">{tNav('startForFree')}</Button>
               </motion.div>
             </Link>
           </div>
@@ -297,7 +303,7 @@ export function HeroSection() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
               </span>
-              New: Batch PDF Generation 2.0
+              {t('badge')}
             </motion.div>
 
             {/* Main Heading */}
@@ -307,10 +313,10 @@ export function HeroSection() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-5xl lg:text-7xl font-bold leading-tight tracking-tight"
             >
-              Create{' '}
+              {t('titleLine1')}{' '}
               <span className="relative inline-block">
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-500 to-blue-600 animate-gradient">
-                  Perfect
+                  {t('titleHighlight')}
                 </span>
                 <motion.span
                   initial={{ width: 0 }}
@@ -320,7 +326,7 @@ export function HeroSection() {
                 />
               </span>{' '}
               <br className="hidden lg:block" />
-              Nametags in Seconds.
+              {t('titleLine2')}
             </motion.h1>
 
             {/* Description */}
@@ -330,8 +336,7 @@ export function HeroSection() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-xl text-slate-500 max-w-lg leading-relaxed"
             >
-              Upload your guest list and design template. We'll automatically
-              generate high-resolution printable PDFs for your entire event.
+              {t('description')}
             </motion.p>
 
             {/* CTA Buttons */}
@@ -347,7 +352,7 @@ export function HeroSection() {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Button size="lg" className="px-8 py-6 text-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg group">
-                    Create Now
+                    {t('createNow')}
                     <motion.span
                       animate={{ x: [0, 5, 0] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
@@ -360,11 +365,11 @@ export function HeroSection() {
               <div className="text-sm text-slate-400">
                 <span className="flex items-center gap-1">
                   <CheckCircle2 size={14} className="text-green-500" />
-                  No credit card required
+                  {t('noCreditCard')}
                 </span>
                 <span className="flex items-center gap-1">
                   <CheckCircle2 size={14} className="text-green-500" />
-                  Free for up to 50 names
+                  {t('freeLimit')}
                 </span>
               </div>
             </motion.div>
@@ -377,9 +382,9 @@ export function HeroSection() {
               className="flex gap-8 pt-4 border-t border-slate-200"
             >
               {[
-                { value: '10K+', label: 'Events' },
-                { value: '500K+', label: 'Nametags' },
-                { value: '4.9/5', label: 'Rating' },
+                { value: '10K+', label: t('stats.events') },
+                { value: '500K+', label: t('stats.nametags') },
+                { value: '4.9/5', label: t('stats.rating') },
               ].map((stat, index) => (
                 <motion.div
                   key={stat.label}

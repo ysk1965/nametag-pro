@@ -1,0 +1,490 @@
+{
+  "metadata": {
+    "title": "NameTag Pro - 명찰 자동 생성 서비스",
+    "description": "명단만 있으면 명찰 완성. 엑셀 업로드 한 번으로 수백 장의 명찰을 자동 생성하세요.",
+    "keywords": "명찰, 명찰 제작, 이름표, 행사, 컨퍼런스"
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "cancel": "취소",
+    "confirm": "확인",
+    "save": "저장",
+    "delete": "삭제",
+    "edit": "수정",
+    "close": "닫기",
+    "back": "뒤로",
+    "next": "다음",
+    "skip": "건너뛰기"
+  },
+  "nav": {
+    "features": "기능",
+    "howItWorks": "사용 방법",
+    "startForFree": "무료로 시작하기"
+  },
+  "hero": {
+    "badge": "New: 대량 PDF 생성 2.0",
+    "titleLine1": "완벽한",
+    "titleHighlight": "명찰을",
+    "titleLine2": "몇 초 만에.",
+    "description": "명단과 디자인 템플릿을 업로드하세요. 전체 행사를 위한 고해상도 인쇄용 PDF를 자동으로 생성해 드립니다.",
+    "createNow": "지금 만들기",
+    "noCreditCard": "신용카드 불필요",
+    "freeLimit": "50명까지 무료",
+    "stats": {
+      "events": "행사",
+      "nametags": "명찰",
+      "rating": "평점"
+    },
+    "pdfReady": "PDF 준비 완료",
+    "pdfReadyDesc": "{count}개의 명찰이 성공적으로 생성되었습니다.",
+    "readyToPrint": "인쇄 준비 완료",
+    "sampleName": "홍길동",
+    "sampleRole": "참가자",
+    "sampleYear": "2026 Conference"
+  },
+  "features": {
+    "badge": "기능",
+    "title": "이벤트 기획에 필요한",
+    "titleHighlight": "모든 것",
+    "subtitle": "바쁜 이벤트 기획자를 위한 간소화된 워크플로우. 디자인 스킬 없이도 전문적인 명찰을 만들 수 있습니다.",
+    "bulkUpload": {
+      "title": "대량 업로드",
+      "description": "Excel 또는 CSV 명단을 가져오세요. 이름과 역할에 대한 자동 컬럼 매핑을 지원합니다."
+    },
+    "interactiveEditor": {
+      "title": "인터랙티브 에디터",
+      "description": "이름 위치를 드래그 앤 드롭하세요. 브랜드에 맞는 폰트, 크기, 색상을 선택하세요."
+    },
+    "printReadyPdf": {
+      "title": "인쇄용 PDF",
+      "description": "2x2, 2x3, 3x3 그리드 형태의 A4 PDF를 다운로드하세요. 선명한 텍스트를 위한 300dpi 고해상도."
+    },
+    "lightningFast": {
+      "title": "초고속",
+      "description": "수백 개의 명찰을 몇 시간이 아닌 몇 초 만에 생성합니다."
+    },
+    "securePrivate": {
+      "title": "보안 및 개인정보 보호",
+      "description": "데이터는 로컬에서 처리되며 서버에 저장되지 않습니다."
+    },
+    "multiLanguage": {
+      "title": "다국어 지원",
+      "description": "한국어, 영어, 일본어, 중국어 문자를 완벽 지원합니다."
+    },
+    "learnMore": "더 알아보기"
+  },
+  "howItWorks": {
+    "badge": "사용 방법",
+    "title": "3단계로",
+    "titleHighlight": "간단하게",
+    "titleEnd": "완성",
+    "subtitle": "복잡한 과정 없이 누구나 쉽게 전문적인 명찰을 만들 수 있습니다.",
+    "step1": {
+      "number": "01",
+      "title": "명단 업로드",
+      "titleEn": "Upload Your List",
+      "description": "Excel 또는 CSV 파일을 드래그 앤 드롭하세요. 이름, 소속, 역할 등 원하는 정보를 자동으로 인식합니다."
+    },
+    "step2": {
+      "number": "02",
+      "title": "디자인 커스터마이징",
+      "titleEn": "Customize Design",
+      "description": "템플릿을 선택하거나 직접 디자인을 업로드하세요. 텍스트 위치, 폰트, 색상을 자유롭게 조정할 수 있습니다."
+    },
+    "step3": {
+      "number": "03",
+      "title": "PDF 다운로드",
+      "titleEn": "Download PDF",
+      "description": "고해상도 PDF를 한 번에 생성합니다. A4 용지에 맞게 자동 배치되어 바로 인쇄할 수 있습니다."
+    },
+    "completion": "완성! 인쇄만 하면 끝"
+  },
+  "cta": {
+    "badge": "지금 무료로 시작하세요",
+    "title": "이벤트 준비,",
+    "titleHighlight": "이제 쉽게 하세요",
+    "subtitle": "수백 장의 명찰을 몇 분 만에 완성하세요. 전문 디자이너 없이도 완벽한 결과물을 만들 수 있습니다.",
+    "benefits": {
+      "free50": "무료로 50명까지 사용 가능",
+      "noCard": "신용카드 등록 불필요",
+      "instant": "즉시 시작 가능",
+      "support": "고객 지원 포함"
+    },
+    "button": "무료로 시작하기",
+    "noSignup": "가입 없이 바로 시작 · 설치 불필요"
+  },
+  "footer": {
+    "description": "이벤트 기획자를 위한 전문 명찰 생성 도구. 빠르고 쉽게 수백 장의 명찰을 만들 수 있습니다.",
+    "product": "제품",
+    "company": "회사",
+    "legal": "법적 고지",
+    "features": "기능",
+    "howItWorks": "사용 방법",
+    "pricing": "가격",
+    "faq": "FAQ",
+    "about": "소개",
+    "blog": "블로그",
+    "careers": "채용",
+    "contact": "문의",
+    "privacy": "개인정보처리방침",
+    "terms": "이용약관",
+    "cookies": "쿠키 정책",
+    "copyright": "© {year} NameTag Pro. All rights reserved.",
+    "madeWith": "이벤트 기획자를 위해 만들었습니다"
+  },
+  "editor": {
+    "header": {
+      "newProject": "새 프로젝트",
+      "draft": "초안",
+      "generatePdf": "PDF 생성",
+      "editor": "에디터"
+    },
+    "tabs": {
+      "upload": "업로드",
+      "preview": "미리보기",
+      "settings": "설정"
+    },
+    "leftPanel": {
+      "guestList": "1. 명단",
+      "templates": "2. 템플릿",
+      "defaultBadge": "기본 명찰",
+      "myDesign": "내 디자인",
+      "simpleDesign": "심플한 기본 디자인",
+      "imageUpload": "이미지 업로드",
+      "roleDesignSetting": "역할별 디자인 설정",
+      "roleDesignConfigured": "역할별 디자인 설정됨",
+      "roleColorSetting": "역할별 색상 설정",
+      "roleColorConfigured": "역할별 색상 설정됨",
+      "clickToSetDesign": "클릭하여 구분 컬럼과 디자인을 설정하세요",
+      "clickToSetColor": "클릭하여 구분 컬럼과 색상을 설정하세요",
+      "usingDefaultBadge": "기본 명찰 사용 중",
+      "columnBased": "{column} 기준 · {count}개 역할"
+    },
+    "dataUpload": {
+      "importFile": "파일 가져오기",
+      "dropHere": "여기에 놓으세요",
+      "excelCsv": "Excel, CSV",
+      "createManually": "직접 만들기",
+      "manualEntry": "수동 입력"
+    },
+    "dataPreview": {
+      "persons": "{count}명",
+      "andOthers": "({name} 외)",
+      "edit": "편집",
+      "delete": "삭제",
+      "deleteRoster": "명단 삭제",
+      "deleteConfirm": "{count}명의 명단을 삭제하시겠습니까?",
+      "cancel": "취소"
+    },
+    "templateUpload": {
+      "fileTooLarge": "{name}: 파일 크기가 10MB를 초과합니다.",
+      "dropHere": "여기에 놓으세요",
+      "addDesign": "디자인 추가",
+      "formats": "JPG, PNG (max 10MB)"
+    },
+    "templateList": {
+      "default": "기본"
+    },
+    "centerPanel": {
+      "nametagSize": "명찰 크기",
+      "default": "기본값",
+      "preview": "미리보기: {name}",
+      "uploadTemplate": "템플릿을 업로드하여 시작하세요",
+      "dragInstruction": "클릭하여 텍스트 필드를 선택하고, 드래그하여 위치를 조정하세요.",
+      "gridSnap": "({size}mm 그리드 스냅)",
+      "selected": "선택",
+      "noFieldInstruction": "드래그하여 이름 위치를 조정하세요. 사이드바에서 스타일을 설정할 수 있습니다."
+    },
+    "rightPanel": {
+      "textFields": "텍스트 필드",
+      "position": "위치",
+      "font": "폰트",
+      "defaultFonts": "기본 폰트",
+      "uploadedFonts": "업로드한 폰트",
+      "uploadFont": "폰트 업로드",
+      "size": "크기",
+      "bold": "굵게",
+      "fieldHint": "체크된 컬럼이 명찰에 표시됩니다. 클릭하여 스타일 편집",
+      "unsupportedFont": "지원하지 않는 폰트 형식입니다. (TTF, OTF, WOFF, WOFF2만 지원)",
+      "fontLoadFailed": "폰트 로드에 실패했습니다.",
+      "deleteFont": "폰트 삭제"
+    },
+    "manualEntry": {
+      "title": "직접 만들기",
+      "description": "컬럼을 추가하고 데이터를 입력하세요. 컬럼명을 클릭하여 수정할 수 있습니다.",
+      "defaultColumn": "이름",
+      "newColumn": "컬럼{number}",
+      "addColumn": "컬럼",
+      "addRow": "행 추가",
+      "summary": "{columns}개 컬럼 · {rows}개 행",
+      "minDataRequired": "최소 1개 이상의 데이터를 입력해주세요.",
+      "cancel": "취소",
+      "save": "저장"
+    },
+    "rosterEdit": {
+      "title": "명단 편집",
+      "summary": "총 {persons}명 · {columns}개 컬럼",
+      "search": "검색...",
+      "add": "추가",
+      "deleteColumn": "{column} 컬럼 삭제",
+      "actions": "작업",
+      "noSearchResults": "검색 결과가 없습니다",
+      "emptyRoster": "명단이 비어있습니다",
+      "hasChanges": "변경사항이 있습니다",
+      "minColumnRequired": "최소 1개의 컬럼이 필요합니다.",
+      "cancel": "취소",
+      "save": "저장"
+    },
+    "multiTemplate": {
+      "colorSettingTitle": "역할별 색상 설정",
+      "designSettingTitle": "역할별 디자인 설정",
+      "colorSettingDesc": "역할별로 다른 색상 적용",
+      "designSettingDesc": "역할별로 다른 디자인 적용",
+      "rosterExample": "명단 예시",
+      "result": "결과",
+      "exampleName": "이름",
+      "exampleRole": "직책",
+      "exampleLeader": "팀장",
+      "exampleMember": "팀원",
+      "examplePerson1": "홍길동",
+      "examplePerson2": "김철수",
+      "examplePerson3": "이영희",
+      "columnExample": "구분 컬럼 = \"직책\"",
+      "selectColumn": "구분 컬럼 선택",
+      "selectColumnPlaceholder": "컬럼을 선택하세요",
+      "assignColorPerRole": "역할별 색상 지정",
+      "assignDesignPerRole": "역할별 디자인 지정",
+      "uploadRosterFirst": "먼저 명단을 업로드해주세요",
+      "personCount": "({count}명)",
+      "addMoreDesigns": "디자인을 더 추가해주세요",
+      "needTwoDesigns": "역할별 디자인을 사용하려면 2개 이상의 디자인이 필요합니다.",
+      "cancel": "취소",
+      "save": "저장",
+      "colors": {
+        "blue": "블루",
+        "green": "그린",
+        "yellow": "옐로우",
+        "red": "레드",
+        "purple": "퍼플",
+        "pink": "핑크",
+        "indigo": "인디고",
+        "orange": "오렌지",
+        "slate": "슬레이트"
+      }
+    },
+    "exportSettings": {
+      "title": "출력 설정",
+      "paperSize": "용지 크기",
+      "arrangementMode": "배열 방식",
+      "grid": "그리드",
+      "fixedSize": "고정 크기",
+      "layout": "레이아웃",
+      "perPage": "{count}장/페이지",
+      "pageMargin": "페이지 여백 ({value}mm)",
+      "nametagGap": "명찰 간격 ({value}mm)",
+      "nametagSize": "명찰 크기",
+      "original": "원본",
+      "businessCard": "명함",
+      "card": "카드",
+      "large": "대형",
+      "small": "소형",
+      "width": "가로 (mm)",
+      "height": "세로 (mm)",
+      "lockRatio": "비율 고정",
+      "unlockRatio": "비율 고정 해제",
+      "blankNametags": "빈 명찰 추가 (수동 작업용)",
+      "totalCount": "총 {count}개",
+      "unit": "개",
+      "perTemplateSettings": "템플릿별 설정",
+      "blankPagesPerTemplateDesc": "각 템플릿별로 빈 명찰이 추가됩니다",
+      "blankPagesAddedDesc": "PDF 끝에 빈 명찰이 추가됩니다",
+      "preview": "미리보기",
+      "generateNametags": "{count}명 명찰 생성하기",
+      "plusBlank": "(+빈 {count}개)",
+      "blankPagesPerTemplateTitle": "템플릿별 빈 명찰 설정",
+      "totalBlankNametags": "총 빈 명찰: {count}개",
+      "done": "완료"
+    },
+    "progress": {
+      "generating": "PDF 생성 중...",
+      "processing": "{current} / {total} 명찰 처리 중",
+      "blankPages": "(+빈 {count}개)",
+      "pleaseWait": "잠시만 기다려주세요. 창을 닫지 마세요."
+    },
+    "templateSelection": {
+      "title": "명찰 디자인을 선택하세요",
+      "subtitle": "기본 제공 디자인을 사용하거나, 직접 만든 이미지를 업로드할 수 있어요",
+      "defaultNametag": "기본 명찰",
+      "quickAndEasy": "빠르고 간편하게",
+      "myDesign": "내 디자인",
+      "uploadImage": "이미지 업로드",
+      "defaultFeatures": "기본 명찰 특징",
+      "defaultFeature1": "깔끔한 디자인의 명찰을 바로 사용할 수 있어요",
+      "defaultFeature2": "역할(직분, 소속 등)에 따라 다른 색상을 지정할 수 있어요",
+      "defaultFeature3": "이름, 소속 등 텍스트 위치와 스타일을 자유롭게 조정해요",
+      "customFeatures": "내 디자인 특징",
+      "customFeature1": "직접 만든 이미지(JPG, PNG)를 명찰 배경으로 사용해요",
+      "customFeature2": "역할별로 다른 디자인 이미지를 지정할 수 있어요",
+      "customFeature3": "브랜드 아이덴티티를 반영한 명찰을 만들 수 있어요",
+      "dropHere": "여기에 놓으세요",
+      "uploadDesign": "디자인 이미지 업로드",
+      "fileFormats": "JPG, PNG (최대 10MB) · 여러 이미지 선택 가능",
+      "uploadedDesigns": "업로드된 디자인 {count}개",
+      "nextStep": "다음 단계로",
+      "later": "나중에 설정할게요"
+    },
+    "roleDesignGuide": {
+      "uploadTitle": "역할별 디자인을 설정할 수 있어요",
+      "mappingTitle": "역할별 디자인 매핑",
+      "uploadSubtitle": "직분이나 소속에 따라 다른 디자인을 적용해보세요",
+      "mappingSubtitle": "각 역할에 적용할 디자인을 선택하세요",
+      "rosterExample": "명단 예시",
+      "result": "결과",
+      "exampleName": "이름",
+      "exampleRole": "직책",
+      "examplePerson1": "홍길동",
+      "examplePerson2": "김철수",
+      "examplePerson3": "이영희",
+      "exampleLeader": "팀장",
+      "exampleMember": "팀원",
+      "uploadedDesigns": "업로드된 디자인 ({count}개)",
+      "add": "추가",
+      "dropHere": "여기에 놓으세요",
+      "uploadDesign": "디자인 이미지 업로드",
+      "fileFormats": "JPG, PNG (여러 개 선택 가능)",
+      "tip1": "역할(직분, 소속 등)에 따라 다른 디자인 이미지를 지정할 수 있어요",
+      "tip2": "이미지를 여러 개 업로드한 후 역할별로 매칭하면 돼요",
+      "tip3": "나중에 왼쪽 패널에서도 추가할 수 있어요",
+      "selectColumn": "구분 컬럼 선택",
+      "uploadRosterFirst": "먼저 명단을 업로드해주세요",
+      "selectColumnPlaceholder": "컬럼을 선택하세요",
+      "assignDesignPerRole": "역할별 디자인 지정",
+      "personCount": "({count}명)",
+      "next": "다음",
+      "done": "완료",
+      "skip": "건너뛰기",
+      "save": "저장"
+    },
+    "blankPages": {
+      "title": "명찰을 생성할 준비가 되었어요!",
+      "subtitle": "{count}명의 명찰이 PDF로 생성됩니다",
+      "addBlankNametags": "빈 명찰 추가",
+      "forManualWork": "수동 작업용 (선택사항)",
+      "plusCount": "+{count}개",
+      "unit": "개",
+      "generate": "{count}명 명찰 생성하기",
+      "generateWithBlank": "{count}명 명찰 생성하기 (+빈 {blankCount}개)"
+    },
+    "onboarding": {
+      "title": "명단을 준비해주세요",
+      "subtitle": "명찰에 표시할 이름과 정보를 불러오거나 직접 입력하세요",
+      "importFile": "파일 가져오기",
+      "dropHere": "여기에 놓으세요",
+      "excelCsv": "Excel, CSV",
+      "createManually": "직접 만들기",
+      "manualEntry": "수동 입력",
+      "later": "나중에 할게요"
+    },
+    "templateInfo": {
+      "default": {
+        "title": "기본 명찰",
+        "description": "심플하고 깔끔한 기본 명찰 디자인을 제공합니다.",
+        "features": {
+          "noUpload": "별도 이미지 업로드 없이 바로 사용",
+          "header": "상단 헤더에 \"NAME TAG\" 텍스트 표시",
+          "roleColor": "역할별로 다른 색상 지정 가능",
+          "textFree": "이름, 소속 등 텍스트 자유롭게 배치"
+        },
+        "tip": "빠르게 명찰을 만들고 싶을 때 추천합니다."
+      },
+      "custom": {
+        "title": "내 디자인",
+        "description": "직접 디자인한 이미지를 명찰 배경으로 사용합니다.",
+        "features": {
+          "formats": "JPG, PNG 이미지 업로드 지원",
+          "multiDesign": "여러 디자인을 업로드하여 역할별 적용",
+          "ratio": "원본 이미지 비율 유지 또는 고정 크기 설정",
+          "textFree": "텍스트 위치, 크기, 색상 자유롭게 조정"
+        },
+        "tip": "브랜드 아이덴티티를 반영한 명찰을 만들 때 추천합니다."
+      },
+      "mainFeatures": "주요 기능"
+    },
+    "templateColumn": {
+      "title": "템플릿 구분 컬럼",
+      "description": "이 컬럼의 값에 따라 다른 템플릿이 적용됩니다."
+    },
+    "errors": {
+      "pdfGenerationFailed": "PDF 생성 중 오류가 발생했습니다.",
+      "noDataInFile": "파일에 데이터가 없습니다."
+    }
+  },
+  "result": {
+    "noPdfFound": "PDF를 찾을 수 없습니다",
+    "goBackToEditor": "에디터로 돌아가서 먼저 명찰을 생성해 주세요.",
+    "backToEditor": "에디터로 돌아가기",
+    "exportResult": "내보내기 결과",
+    "downloadPdf": "PDF 다운로드",
+    "yourNametagsReady": "명찰이 준비되었습니다!",
+    "generatedDescription": "{count}개의 명찰을 {layout} 레이아웃으로 {pages}페이지에 걸쳐 생성했습니다.",
+    "projectSummary": "프로젝트 요약",
+    "totalNametags": "총 명찰 수",
+    "pages": "페이지",
+    "layout": "레이아웃",
+    "paperSize": "용지 크기",
+    "resolution": "해상도",
+    "share": "공유",
+    "emailMe": "이메일로 보내기",
+    "printingTips": "인쇄 팁",
+    "printingTip1": "100% 크기로 인쇄하세요 (\"페이지에 맞춤\"은 사용하지 마세요).",
+    "printingTip2": "내구성을 위해 고품질 카드지(200gsm+)를 사용하세요.",
+    "printingTip3": "대량 인쇄 전 잉크/토너 잔량을 확인하세요.",
+    "createNewProject": "새 프로젝트 만들기"
+  },
+  "languageSwitcher": {
+    "korean": "한국어",
+    "english": "English"
+  },
+  "privacy": {
+    "title": "개인정보처리방침",
+    "backToHome": "홈으로",
+    "lastUpdated": "최종 수정일",
+    "section1": {
+      "title": "1. 개인정보의 처리 목적",
+      "content": "NameTag Pro(이하 '서비스')는 명찰 생성 서비스를 제공하기 위해 필요한 최소한의 개인정보를 처리합니다. 서비스는 사용자가 업로드한 명단 데이터를 명찰 생성 목적으로만 사용하며, 서버에 저장하지 않습니다."
+    },
+    "section2": {
+      "title": "2. 처리하는 개인정보 항목",
+      "content": "서비스는 다음과 같은 개인정보를 처리합니다:",
+      "item1": "명단 데이터: 이름, 소속, 직책 등 사용자가 업로드한 정보 (브라우저에서만 처리, 서버 미저장)",
+      "item2": "서비스 이용 기록: 접속 로그, 브라우저 정보 (서비스 개선 목적)",
+      "item3": "쿠키: 언어 설정 등 사용자 환경 설정 저장"
+    },
+    "section3": {
+      "title": "3. 개인정보의 처리 및 보유 기간",
+      "content": "명단 데이터는 사용자의 브라우저에서만 처리되며, 서버로 전송되거나 저장되지 않습니다. 브라우저를 종료하거나 페이지를 새로고침하면 모든 데이터가 삭제됩니다. 서비스 이용 기록은 서비스 개선을 위해 익명화된 형태로 수집될 수 있으며, 수집일로부터 1년간 보관 후 파기합니다."
+    },
+    "section4": {
+      "title": "4. 개인정보의 제3자 제공",
+      "content": "서비스는 사용자의 개인정보를 제3자에게 제공하지 않습니다. 다만, 법령에 의해 요구되는 경우에는 관련 법령에 따라 개인정보를 제공할 수 있습니다."
+    },
+    "section5": {
+      "title": "5. 개인정보의 파기",
+      "content": "명단 데이터는 브라우저에서 처리되므로 별도의 파기 절차가 필요하지 않습니다. 사용자가 브라우저를 종료하거나 페이지를 벗어나면 자동으로 삭제됩니다. 서버에 저장된 서비스 이용 기록은 보유 기간 만료 시 지체 없이 파기합니다."
+    },
+    "section6": {
+      "title": "6. 정보주체의 권리",
+      "content": "사용자는 언제든지 자신의 개인정보에 대한 열람, 정정, 삭제, 처리정지를 요청할 수 있습니다. 명단 데이터의 경우 브라우저에서만 처리되므로 사용자가 직접 관리할 수 있습니다."
+    },
+    "section7": {
+      "title": "7. 쿠키의 사용",
+      "content": "서비스는 사용자 경험 향상을 위해 쿠키를 사용합니다. 쿠키는 언어 설정 등 사용자 환경 설정을 저장하는 데 사용됩니다. 사용자는 브라우저 설정을 통해 쿠키 사용을 거부할 수 있으나, 이 경우 서비스 이용에 제한이 있을 수 있습니다."
+    },
+    "contact": {
+      "title": "문의처",
+      "content": "개인정보 처리에 관한 문의사항이 있으시면 아래로 연락해 주세요.",
+      "email": "이메일"
+    }
+  }
+}

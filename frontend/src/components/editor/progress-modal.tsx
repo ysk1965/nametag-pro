@@ -1,6 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface ProgressModalProps {
   isOpen: boolean;
@@ -16,9 +17,11 @@ export function ProgressModal({
   progress,
   current,
   total,
-  message = 'PDF 생성 중...',
+  message,
   blankPages = 0,
 }: ProgressModalProps) {
+  const t = useTranslations('editor.progress');
+  const displayMessage = message || t('generating');
   if (!isOpen) return null;
 
   return (
@@ -43,12 +46,12 @@ export function ProgressModal({
 
         {/* 메시지 */}
         <h3 className="text-lg font-bold text-center text-slate-800 mb-2">
-          {message}
+          {displayMessage}
         </h3>
         <p className="text-sm text-center text-slate-500 mb-6">
-          {current} / {total} 명찰 처리 중
+          {t('processing', { current, total })}
           {blankPages > 0 && (
-            <span className="text-blue-500"> (+빈 {blankPages}개)</span>
+            <span className="text-blue-500"> {t('blankPages', { count: blankPages })}</span>
           )}
         </p>
 
@@ -62,7 +65,7 @@ export function ProgressModal({
 
         {/* 안내 */}
         <p className="text-xs text-center text-slate-400 mt-4">
-          잠시만 기다려주세요. 창을 닫지 마세요.
+          {t('pleaseWait')}
         </p>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { Sparkles, FileImage, X, ArrowRight, Check, Upload, Palette } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 import { generateId } from '@/lib/utils';
 import type { Template } from '@/types';
@@ -15,6 +16,7 @@ interface TemplateSelectionModalProps {
 }
 
 export function TemplateSelectionModal({ isOpen, onClose, onUploadComplete }: TemplateSelectionModalProps) {
+  const t = useTranslations('editor.templateSelection');
   const {
     setDesignMode,
     setTemplateMode,
@@ -134,7 +136,7 @@ export function TemplateSelectionModal({ isOpen, onClose, onUploadComplete }: Te
                 transition={{ delay: 0.2 }}
                 className="text-xl font-bold text-slate-800 mb-2"
               >
-                명찰 디자인을 선택하세요
+                {t('title')}
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
@@ -142,7 +144,7 @@ export function TemplateSelectionModal({ isOpen, onClose, onUploadComplete }: Te
                 transition={{ delay: 0.25 }}
                 className="text-sm text-slate-500"
               >
-                기본 제공 디자인을 사용하거나, 직접 만든 이미지를 업로드할 수 있어요
+                {t('subtitle')}
               </motion.p>
             </div>
 
@@ -177,9 +179,9 @@ export function TemplateSelectionModal({ isOpen, onClose, onUploadComplete }: Te
                     <span className={`text-sm font-bold block mb-1 ${
                       selectedMode === 'default' ? 'text-blue-700' : 'text-slate-700'
                     }`}>
-                      기본 명찰
+                      {t('defaultNametag')}
                     </span>
-                    <span className="text-xs text-slate-400">빠르고 간편하게</span>
+                    <span className="text-xs text-slate-400">{t('quickAndEasy')}</span>
                   </div>
                 </motion.button>
 
@@ -211,9 +213,9 @@ export function TemplateSelectionModal({ isOpen, onClose, onUploadComplete }: Te
                     <span className={`text-sm font-bold block mb-1 ${
                       selectedMode === 'custom' ? 'text-purple-700' : 'text-slate-700'
                     }`}>
-                      내 디자인
+                      {t('myDesign')}
                     </span>
-                    <span className="text-xs text-slate-400">이미지 업로드</span>
+                    <span className="text-xs text-slate-400">{t('uploadImage')}</span>
                   </div>
                 </motion.button>
               </div>
@@ -230,20 +232,20 @@ export function TemplateSelectionModal({ isOpen, onClose, onUploadComplete }: Te
                   >
                     <h4 className="font-bold text-blue-800 text-sm mb-2 flex items-center gap-2">
                       <Sparkles size={16} />
-                      기본 명찰 특징
+                      {t('defaultFeatures')}
                     </h4>
                     <ul className="space-y-1.5 text-xs text-blue-700">
                       <li className="flex items-start gap-2">
                         <span className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-                        깔끔한 디자인의 명찰을 바로 사용할 수 있어요
+                        {t('defaultFeature1')}
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-                        역할(직분, 소속 등)에 따라 다른 색상을 지정할 수 있어요
+                        {t('defaultFeature2')}
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-                        이름, 소속 등 텍스트 위치와 스타일을 자유롭게 조정해요
+                        {t('defaultFeature3')}
                       </li>
                     </ul>
                   </motion.div>
@@ -260,20 +262,20 @@ export function TemplateSelectionModal({ isOpen, onClose, onUploadComplete }: Te
                     <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
                       <h4 className="font-bold text-purple-800 text-sm mb-2 flex items-center gap-2">
                         <FileImage size={16} />
-                        내 디자인 특징
+                        {t('customFeatures')}
                       </h4>
                       <ul className="space-y-1.5 text-xs text-purple-700">
                         <li className="flex items-start gap-2">
                           <span className="w-1 h-1 rounded-full bg-purple-500 mt-1.5 shrink-0" />
-                          직접 만든 이미지(JPG, PNG)를 명찰 배경으로 사용해요
+                          {t('customFeature1')}
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="w-1 h-1 rounded-full bg-purple-500 mt-1.5 shrink-0" />
-                          역할별로 다른 디자인 이미지를 지정할 수 있어요
+                          {t('customFeature2')}
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="w-1 h-1 rounded-full bg-purple-500 mt-1.5 shrink-0" />
-                          브랜드 아이덴티티를 반영한 명찰을 만들 수 있어요
+                          {t('customFeature3')}
                         </li>
                       </ul>
                     </div>
@@ -291,10 +293,10 @@ export function TemplateSelectionModal({ isOpen, onClose, onUploadComplete }: Te
                       <div className="py-2">
                         <Upload size={24} className="mx-auto text-slate-400 mb-2" />
                         <p className="text-sm text-slate-600 font-medium">
-                          {isDragActive ? '여기에 놓으세요' : '디자인 이미지 업로드'}
+                          {isDragActive ? t('dropHere') : t('uploadDesign')}
                         </p>
                         <p className="text-xs text-slate-400 mt-1">
-                          JPG, PNG (최대 10MB) · 여러 이미지 선택 가능
+                          {t('fileFormats')}
                         </p>
                       </div>
                     </div>
@@ -304,7 +306,7 @@ export function TemplateSelectionModal({ isOpen, onClose, onUploadComplete }: Te
                       <div className="bg-green-50 border border-green-200 rounded-xl p-3">
                         <p className="text-xs text-green-700 font-medium flex items-center gap-1 mb-2">
                           <Check size={14} />
-                          업로드된 디자인 {templates.filter(t => t.id !== 'default-template').length}개
+                          {t('uploadedDesigns', { count: templates.filter(tmpl => tmpl.id !== 'default-template').length })}
                         </p>
                         <div className="flex gap-2 flex-wrap">
                           {templates.filter(t => t.id !== 'default-template').map((template) => (
@@ -341,7 +343,7 @@ export function TemplateSelectionModal({ isOpen, onClose, onUploadComplete }: Te
                     : 'bg-purple-500 hover:bg-purple-600'
                 }`}
               >
-                다음 단계로
+                {t('nextStep')}
                 <ArrowRight size={18} />
               </motion.button>
 
@@ -353,7 +355,7 @@ export function TemplateSelectionModal({ isOpen, onClose, onUploadComplete }: Te
                 onClick={onClose}
                 className="mt-3 w-full py-2 text-sm text-slate-400 hover:text-slate-600 transition-colors"
               >
-                나중에 설정할게요
+                {t('later')}
               </motion.button>
             </div>
           </motion.div>

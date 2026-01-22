@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Settings2, FileImage, Sparkles, Info, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { TemplateUpload } from './template-upload';
 import { TemplateList } from './template-list';
 import { DataUpload } from './data-upload';
@@ -20,28 +21,30 @@ function TemplateInfoModal({
   onClose: () => void;
   type: 'default' | 'custom';
 }) {
+  const t = useTranslations('editor.templateInfo');
+
   const content = type === 'default' ? {
-    title: '기본 명찰',
+    title: t('default.title'),
     icon: <Sparkles size={24} className="text-blue-600" />,
-    description: '심플하고 깔끔한 기본 명찰 디자인을 제공합니다.',
+    description: t('default.description'),
     features: [
-      '별도 이미지 업로드 없이 바로 사용',
-      '상단 헤더에 "NAME TAG" 텍스트 표시',
-      '역할별로 다른 색상 지정 가능',
-      '이름, 소속 등 텍스트 자유롭게 배치',
+      t('default.features.noUpload'),
+      t('default.features.header'),
+      t('default.features.roleColor'),
+      t('default.features.textFree'),
     ],
-    tip: '빠르게 명찰을 만들고 싶을 때 추천합니다.',
+    tip: t('default.tip'),
   } : {
-    title: '내 디자인',
+    title: t('custom.title'),
     icon: <FileImage size={24} className="text-blue-600" />,
-    description: '직접 디자인한 이미지를 명찰 배경으로 사용합니다.',
+    description: t('custom.description'),
     features: [
-      'JPG, PNG 이미지 업로드 지원',
-      '여러 디자인을 업로드하여 역할별 적용',
-      '원본 이미지 비율 유지 또는 고정 크기 설정',
-      '텍스트 위치, 크기, 색상 자유롭게 조정',
+      t('custom.features.formats'),
+      t('custom.features.multiDesign'),
+      t('custom.features.ratio'),
+      t('custom.features.textFree'),
     ],
-    tip: '브랜드 아이덴티티를 반영한 명찰을 만들 때 추천합니다.',
+    tip: t('custom.tip'),
   };
 
   return (
@@ -79,7 +82,7 @@ function TemplateInfoModal({
 
             {/* Features */}
             <div className="px-6 py-4">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">주요 기능</h4>
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('mainFeatures')}</h4>
               <ul className="space-y-2">
                 {content.features.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-2 text-sm text-slate-600">
@@ -106,6 +109,7 @@ function TemplateInfoModal({
 }
 
 export function LeftPanel() {
+  const t = useTranslations('editor.leftPanel');
   const {
     templates,
     persons,
@@ -137,7 +141,7 @@ export function LeftPanel() {
       {/* Guest List Section - 먼저 명단 업로드 */}
       <section>
         <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 block">
-          1. 명단
+          {t('guestList')}
         </label>
         {persons.length > 0 ? <DataPreview /> : <DataUpload />}
       </section>
@@ -145,7 +149,7 @@ export function LeftPanel() {
       {/* Templates Section */}
       <section>
         <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 block">
-          2. 템플릿
+          {t('templates')}
         </label>
 
         {/* 기본 명찰 vs 내 디자인 선택 */}
@@ -178,10 +182,10 @@ export function LeftPanel() {
             <span className={`text-sm font-bold block ${
               designMode === 'default' ? 'text-blue-700' : 'text-slate-700'
             }`}>
-              기본 명찰
+              {t('defaultBadge')}
             </span>
             <span className="text-[10px] text-slate-400">
-              심플한 기본 디자인
+              {t('simpleDesign')}
             </span>
           </div>
           <div
@@ -212,10 +216,10 @@ export function LeftPanel() {
             <span className={`text-sm font-bold block ${
               designMode === 'custom' ? 'text-blue-700' : 'text-slate-700'
             }`}>
-              내 디자인
+              {t('myDesign')}
             </span>
             <span className="text-[10px] text-slate-400">
-              이미지 업로드
+              {t('imageUpload')}
             </span>
           </div>
         </div>
@@ -236,17 +240,17 @@ export function LeftPanel() {
                 <span className={`text-xs font-medium ${
                   isMultiTemplateConfigured ? 'text-purple-700' : 'text-amber-700'
                 }`}>
-                  {isMultiTemplateConfigured ? '역할별 디자인 설정됨' : '역할별 디자인 설정'}
+                  {isMultiTemplateConfigured ? t('roleDesignConfigured') : t('roleDesignSetting')}
                 </span>
                 <Settings2 size={14} className={isMultiTemplateConfigured ? 'text-purple-400' : 'text-amber-400'} />
               </div>
               {isMultiTemplateConfigured ? (
                 <p className="text-[10px] text-purple-600">
-                  {templateColumn} 기준 · {roleCounts.length}개 역할
+                  {t('columnBased', { column: templateColumn, count: roleCounts.length })}
                 </p>
               ) : (
                 <p className="text-[10px] text-amber-600">
-                  클릭하여 구분 컬럼과 디자인을 설정하세요
+                  {t('clickToSetDesign')}
                 </p>
               )}
             </button>
@@ -274,17 +278,17 @@ export function LeftPanel() {
                 <span className={`text-xs font-medium ${
                   isMultiTemplateConfigured ? 'text-purple-700' : 'text-amber-700'
                 }`}>
-                  {isMultiTemplateConfigured ? '역할별 색상 설정됨' : '역할별 색상 설정'}
+                  {isMultiTemplateConfigured ? t('roleColorConfigured') : t('roleColorSetting')}
                 </span>
                 <Settings2 size={14} className={isMultiTemplateConfigured ? 'text-purple-400' : 'text-amber-400'} />
               </div>
               {isMultiTemplateConfigured ? (
                 <p className="text-[10px] text-purple-600">
-                  {templateColumn} 기준 · {roleCounts.length}개 역할
+                  {t('columnBased', { column: templateColumn, count: roleCounts.length })}
                 </p>
               ) : (
                 <p className="text-[10px] text-amber-600">
-                  클릭하여 구분 컬럼과 색상을 설정하세요
+                  {t('clickToSetColor')}
                 </p>
               )}
             </button>
@@ -303,7 +307,7 @@ export function LeftPanel() {
                 </div>
               </div>
               <div className="px-3 py-2 bg-white border-t border-blue-200">
-                <p className="text-xs text-blue-700 font-medium">기본 명찰 사용 중</p>
+                <p className="text-xs text-blue-700 font-medium">{t('usingDefaultBadge')}</p>
               </div>
             </div>
           </>

@@ -5,6 +5,7 @@ import { FileText, PenLine, X, ArrowRight } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
+import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 import { generateId } from '@/lib/utils';
 import type { Person } from '@/types';
@@ -17,6 +18,8 @@ interface OnboardingModalProps {
 
 export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   const { setPersons, persons } = useEditorStore();
+  const t = useTranslations('editor.onboarding');
+  const tErrors = useTranslations('editor.errors');
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
@@ -51,7 +54,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
         const jsonData = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
 
         if (jsonData.length === 0) {
-          alert('파일에 데이터가 없습니다.');
+          alert(tErrors('noDataInFile'));
           return;
         }
 
@@ -67,7 +70,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
       };
       reader.readAsArrayBuffer(file);
     },
-    [setPersons]
+    [setPersons, tErrors]
   );
 
   const handleUpload = useCallback(
@@ -158,7 +161,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                   transition={{ delay: 0.2 }}
                   className="text-xl font-bold text-slate-800 mb-2"
                 >
-                  명단을 준비해주세요
+                  {t('title')}
                 </motion.h2>
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
@@ -166,7 +169,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                   transition={{ delay: 0.25 }}
                   className="text-sm text-slate-500"
                 >
-                  명찰에 표시할 이름과 정보를 불러오거나 직접 입력하세요
+                  {t('subtitle')}
                 </motion.p>
               </div>
 
@@ -204,9 +207,9 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                       </div>
                       <div className="text-center">
                         <span className={`text-sm font-bold block mb-1 ${isDragActive ? 'text-blue-600' : 'text-slate-700'}`}>
-                          {isDragActive ? '여기에 놓으세요' : '파일 가져오기'}
+                          {isDragActive ? t('dropHere') : t('importFile')}
                         </span>
-                        <span className="text-xs text-slate-400">Excel, CSV</span>
+                        <span className="text-xs text-slate-400">{t('excelCsv')}</span>
                       </div>
                     </label>
                     </div>
@@ -226,8 +229,8 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                       <PenLine size={28} className="text-slate-400 group-hover:text-green-600" />
                     </div>
                     <div className="text-center">
-                      <span className="text-sm font-bold text-slate-700 block mb-1">직접 만들기</span>
-                      <span className="text-xs text-slate-400">수동 입력</span>
+                      <span className="text-sm font-bold text-slate-700 block mb-1">{t('createManually')}</span>
+                      <span className="text-xs text-slate-400">{t('manualEntry')}</span>
                     </div>
                   </motion.button>
                 </div>
@@ -240,7 +243,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                   onClick={handleClose}
                   className="mt-6 w-full py-3 text-sm text-slate-400 hover:text-slate-600 transition-colors flex items-center justify-center gap-1"
                 >
-                  나중에 할게요
+                  {t('later')}
                   <ArrowRight size={14} />
                 </motion.button>
               </div>

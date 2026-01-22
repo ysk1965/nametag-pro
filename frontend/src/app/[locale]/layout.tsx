@@ -70,20 +70,11 @@ export async function generateMetadata({
       siteName: 'NameTag Pro',
       locale: locale === 'ko' ? 'ko_KR' : 'en_US',
       type: 'website',
-      images: [
-        {
-          url: '/og-image.png',
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: ['/og-image.png'],
     },
     robots: {
       index: true,
@@ -120,6 +111,8 @@ export default async function LocaleLayout({
       <head>
         {/* 네이버 서치어드바이저 소유권 확인 */}
         <meta name="naver-site-verification" content="ba81e38c2cfdc8ae3565f3b30f3da13cc9aea436" />
+        {/* Google Search Console 소유권 확인 */}
+        <meta name="google-site-verification" content="-2wBKQqsKcrOmdFoXdW69efavlfFDSRtexthCX-RQmc" />
         {/* Pretendard 폰트 (CDN) */}
         <link
           rel="stylesheet"

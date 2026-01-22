@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 import { Type, Upload, X, Check, ChevronDown, Bold } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,6 +27,7 @@ const FONTS = [
 
 
 export function RightPanel() {
+  const t = useTranslations('editor.rightPanel');
   const {
     columns,
     textFields,
@@ -72,7 +74,7 @@ export function RightPanel() {
       if (!file) return;
 
       if (!isSupportedFontFile(file)) {
-        alert('지원하지 않는 폰트 형식입니다. (TTF, OTF, WOFF, WOFF2만 지원)');
+        alert(t('unsupportedFont'));
         return;
       }
 
@@ -81,7 +83,7 @@ export function RightPanel() {
         await registerFont(customFont);
         addCustomFont({ ...customFont, loaded: true });
       } catch (error) {
-        alert(error instanceof Error ? error.message : '폰트 로드에 실패했습니다.');
+        alert(error instanceof Error ? error.message : t('fontLoadFailed'));
       }
 
       // 입력 초기화
@@ -128,7 +130,7 @@ export function RightPanel() {
       {columns.length > 0 && (
         <section>
           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 block">
-            텍스트 필드
+            {t('textFields')}
           </label>
           <div className="space-y-2">
             {columns.map((column) => {
@@ -211,7 +213,7 @@ export function RightPanel() {
                         <div className="pt-2 pb-3 px-3 ml-7 border-l-2 border-blue-200 space-y-3">
                           {/* 위치 - 한 줄로 */}
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-slate-400 w-6">위치</span>
+                            <span className="text-[10px] text-slate-400 w-6">{t('position')}</span>
                             <div className="flex items-center gap-1">
                               <span className="text-[10px] text-slate-400">X</span>
                               <input
@@ -255,13 +257,13 @@ export function RightPanel() {
 
                           {/* 폰트 - 한 줄로 */}
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-slate-400 w-6">폰트</span>
+                            <span className="text-[10px] text-slate-400 w-6">{t('font')}</span>
                             <select
                               value={field.style.fontFamily}
                               onChange={(e) => handleStyleChange(field.id, { fontFamily: e.target.value })}
                               className="flex-1 border border-slate-200 rounded px-2 py-1 text-xs bg-white text-slate-700 focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                             >
-                              <optgroup label="기본 폰트">
+                              <optgroup label={t('defaultFonts')}>
                                 {FONTS.map((font) => (
                                   <option key={font.value} value={font.value}>
                                     {font.label}
@@ -269,7 +271,7 @@ export function RightPanel() {
                                 ))}
                               </optgroup>
                               {customFonts.length > 0 && (
-                                <optgroup label="업로드한 폰트">
+                                <optgroup label={t('uploadedFonts')}>
                                   {customFonts.map((font) => (
                                     <option key={font.id} value={font.fontFamily}>
                                       {font.name}
@@ -281,7 +283,7 @@ export function RightPanel() {
                             <button
                               onClick={() => fontInputRef.current?.click()}
                               className="w-7 h-7 border border-dashed border-slate-300 rounded flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors"
-                              title="폰트 업로드"
+                              title={t('uploadFont')}
                             >
                               <Upload size={12} className="text-slate-500" />
                             </button>
@@ -289,7 +291,7 @@ export function RightPanel() {
 
                           {/* 크기, 굵기, 색상 - 한 줄로 */}
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-slate-400 w-6">크기</span>
+                            <span className="text-[10px] text-slate-400 w-6">{t('size')}</span>
                             {/* 크기 슬라이더 */}
                             <div className="flex-1">
                               <input
@@ -318,7 +320,7 @@ export function RightPanel() {
                                   ? 'bg-blue-500 border-blue-500 text-white'
                                   : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
                               }`}
-                              title="굵게"
+                              title={t('bold')}
                             >
                               <Bold size={14} />
                             </button>
@@ -346,7 +348,7 @@ export function RightPanel() {
             })}
           </div>
           <p className="mt-3 text-[10px] text-slate-400">
-            체크된 컬럼이 명찰에 표시됩니다. 클릭하여 스타일 편집
+            {t('fieldHint')}
           </p>
         </section>
       )}
@@ -355,7 +357,7 @@ export function RightPanel() {
       {customFonts.length > 0 && (
         <section>
           <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 block">
-            업로드한 폰트
+            {t('uploadedFonts')}
           </label>
           <div className="space-y-1">
             {customFonts.map((font) => (
@@ -372,7 +374,7 @@ export function RightPanel() {
                 <button
                   onClick={() => handleRemoveFont(font.id)}
                   className="p-1 hover:bg-red-100 rounded transition-colors ml-2"
-                  title="폰트 삭제"
+                  title={t('deleteFont')}
                 >
                   <X size={14} className="text-red-500" />
                 </button>

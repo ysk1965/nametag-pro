@@ -2,6 +2,7 @@
 
 import { useRef, useCallback, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Upload } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 
 // 그리드 설정 (mm 기준)
@@ -11,6 +12,7 @@ const GRID_SIZE_MM = 1.5; // 1.5mm 단위 정사각형 그리드 (더 촘촘하�
 const RENDER_WIDTH = 400;
 
 export function CenterPanel() {
+  const t = useTranslations('editor.centerPanel');
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const {
@@ -403,7 +405,7 @@ export function CenterPanel() {
         const isChanged = exportConfig.fixedWidth !== defaultDimensions.width || exportConfig.fixedHeight !== defaultDimensions.height;
         return (
           <div className="mb-4 flex items-center gap-3 bg-white/90 backdrop-blur px-4 py-2.5 rounded-xl shadow-sm shrink-0">
-            <span className="text-xs font-medium text-slate-500">명찰 크기</span>
+            <span className="text-xs font-medium text-slate-500">{t('nametagSize')}</span>
             <div className="flex items-center gap-1.5">
               <input
                 type="number"
@@ -434,7 +436,7 @@ export function CenterPanel() {
                   : 'text-slate-400 hover:text-slate-500'
               }`}
             >
-              기본값
+              {t('default')}
             </button>
           </div>
         );
@@ -450,7 +452,7 @@ export function CenterPanel() {
           <ChevronLeft size={18} />
         </button>
         <span className="text-sm font-bold w-40 text-center truncate">
-          Preview: {previewName}
+          {t('preview', { name: previewName })}
         </span>
         <button
           onClick={handleNext}
@@ -541,7 +543,7 @@ export function CenterPanel() {
         {!currentTemplate && (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-4 border-4 border-dashed border-slate-300 m-4 rounded-xl">
             <Upload size={48} />
-            <p className="font-bold">Upload a template to start</p>
+            <p className="font-bold">{t('uploadTemplate')}</p>
           </div>
         )}
 
@@ -626,13 +628,13 @@ export function CenterPanel() {
       <div className="mt-4 text-xs text-slate-500 font-medium text-center shrink-0">
         {textFields.length > 0 ? (
           <>
-            클릭하여 텍스트 필드를 선택하고, 드래그하여 위치를 조정하세요.
-            <span className="text-blue-500 ml-1">({GRID_SIZE_MM}mm 그리드 스냅)</span>
+            {t('dragInstruction')}
+            <span className="text-blue-500 ml-1">{t('gridSnap', { size: GRID_SIZE_MM })}</span>
             <br />
             <span className="text-slate-400">
               {selectedTextFieldId && textFields.find(f => f.id === selectedTextFieldId) && (
                 <>
-                  선택: {textFields.find(f => f.id === selectedTextFieldId)!.column} ·
+                  {t('selected')}: {textFields.find(f => f.id === selectedTextFieldId)!.column} ·
                   X {(textFields.find(f => f.id === selectedTextFieldId)!.position.x * exportConfig.fixedWidth / 100).toFixed(1)}mm,
                   Y {(exportConfig.fixedHeight - textFields.find(f => f.id === selectedTextFieldId)!.position.y * exportConfig.fixedHeight / 100).toFixed(1)}mm
                 </>
@@ -641,7 +643,7 @@ export function CenterPanel() {
           </>
         ) : (
           <>
-            Drag to position the name. Use the sidebar to style and layout.
+            {t('noFieldInstruction')}
           </>
         )}
       </div>

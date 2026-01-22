@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/stores/editor-store';
 import { generateId } from '@/lib/utils';
@@ -14,11 +15,13 @@ interface ManualEntryModalProps {
 
 export function ManualEntryModal({ isOpen, onClose }: ManualEntryModalProps) {
   const { setPersons } = useEditorStore();
+  const t = useTranslations('editor.manualEntry');
 
   // 기본 컬럼: 이름
-  const [columns, setColumns] = useState<string[]>(['이름']);
+  const defaultColumn = t('defaultColumn');
+  const [columns, setColumns] = useState<string[]>([defaultColumn]);
   // 기본 행: 빈 데이터 1개
-  const [rows, setRows] = useState<Record<string, string>[]>([{ '이름': '' }]);
+  const [rows, setRows] = useState<Record<string, string>[]>([{ [defaultColumn]: '' }]);
   // 새 행 추가 시 포커스 이동을 위한 상태
   const [focusNewRow, setFocusNewRow] = useState(false);
   const lastRowFirstInputRef = useRef<HTMLInputElement>(null);
@@ -32,10 +35,10 @@ export function ManualEntryModal({ isOpen, onClose }: ManualEntryModalProps) {
   }, [focusNewRow, rows.length]);
 
   const handleAddColumn = useCallback(() => {
-    const newColumnName = `컬럼${columns.length + 1}`;
+    const newColumnName = t('newColumn', { number: columns.length + 1 });
     setColumns([...columns, newColumnName]);
     setRows(rows.map(row => ({ ...row, [newColumnName]: '' })));
-  }, [columns, rows]);
+  }, [columns, rows, t]);
 
   const handleRemoveColumn = useCallback((index: number) => {
     if (columns.length <= 1) return; // 최소 1개 컬럼 유지
@@ -100,7 +103,7 @@ export function ManualEntryModal({ isOpen, onClose }: ManualEntryModalProps) {
     );
 
     if (validRows.length === 0) {
-      alert('최소 1개 이상의 데이터를 입력해주세요.');
+      alert(t('minDataRequired'));
       return;
     }
 
@@ -114,16 +117,16 @@ export function ManualEntryModal({ isOpen, onClose }: ManualEntryModalProps) {
 
     // 모달 닫기 및 초기화
     onClose();
-    setColumns(['이름']);
-    setRows([{ '이름': '' }]);
-  }, [columns, rows, setPersons, onClose]);
+    setColumns([defaultColumn]);
+    setRows([{ [defaultColumn]: '' }]);
+  }, [columns, rows, setPersons, onClose, defaultColumn]);
 
   const handleClose = useCallback(() => {
     onClose();
     // 초기화
-    setColumns(['이름']);
-    setRows([{ '이름': '' }]);
-  }, [onClose]);
+    setColumns([defaultColumn]);
+    setRows([{ [defaultColumn]: '' }]);
+  }, [onClose, defaultColumn]);
 
   if (!isOpen) return null;
 
@@ -139,7 +142,7 @@ export function ManualEntryModal({ isOpen, onClose }: ManualEntryModalProps) {
       <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col m-4">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-bold">직접 만들기</h2>
+          <h2 className="text-lg font-bold">{t('title')}</h2>
           <button
             onClick={handleClose}
             className="p-1 hover:bg-slate-100 rounded"
@@ -151,7 +154,7 @@ export function ManualEntryModal({ isOpen, onClose }: ManualEntryModalProps) {
         {/* Content */}
         <div className="flex-1 overflow-auto p-4">
           <p className="text-sm text-slate-500 mb-4">
-            컬럼을 추가하고 데이터를 입력하세요. 컬럼명을 클릭하여 수정할 수 있습니다.
+            {t('description')}
           </p>
 
           {/* Table */}
@@ -186,7 +189,7 @@ export function ManualEntryModal({ isOpen, onClose }: ManualEntryModalProps) {
                       className="w-full flex items-center justify-center gap-1 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded font-medium"
                     >
                       <Plus size={14} />
-                      컬럼
+                      {t('addColumn')}
                     </button>
                   </th>
                 </tr>
@@ -237,21 +240,21 @@ export function ManualEntryModal({ isOpen, onClose }: ManualEntryModalProps) {
             className="mt-3 w-full flex items-center justify-center gap-2 py-2 border-2 border-dashed border-slate-200 rounded-lg text-sm text-slate-500 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
           >
             <Plus size={16} />
-            행 추가
+            {t('addRow')}
           </button>
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between p-4 border-t bg-slate-50">
           <span className="text-sm text-slate-500">
-            {columns.length}개 컬럼 · {rows.length}개 행
+            {t('summary', { columns: columns.length, rows: rows.length })}
           </span>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleClose}>
-              취소
+              {t('cancel')}
             </Button>
             <Button onClick={handleSave}>
-              저장
+              {t('save')}
             </Button>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X, FileDown, Link2, Link2Off, FileText, Minus, Plus, Settings2, Grid3X3, Ruler } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 import { LayoutPreview } from './layout-preview';
 import Image from 'next/image';
@@ -19,6 +20,7 @@ export function ExportSettingsModal({
   onGenerate,
   isGenerating,
 }: ExportSettingsModalProps) {
+  const t = useTranslations('editor.exportSettings');
   const { exportConfig, setExportConfig, persons, templates, designMode } = useEditorStore();
   const [lockAspectRatio, setLockAspectRatio] = useState(true);
   const [showBlankPagesModal, setShowBlankPagesModal] = useState(false);
@@ -73,19 +75,19 @@ export function ExportSettingsModal({
 
   // 프리셋 목록
   const presets = [
-    ...(originalSize ? [{ w: originalSize.w, h: originalSize.h, label: '원본' }] : []),
-    { w: 90, h: 55, label: '명함' },
-    { w: 86, h: 54, label: '카드' },
-    { w: 100, h: 70, label: '대형' },
-    { w: 75, h: 50, label: '소형' },
+    ...(originalSize ? [{ w: originalSize.w, h: originalSize.h, label: t('original') }] : []),
+    { w: 90, h: 55, label: t('businessCard') },
+    { w: 86, h: 54, label: t('card') },
+    { w: 100, h: 70, label: t('large') },
+    { w: 75, h: 50, label: t('small') },
   ];
 
   // 레이아웃 옵션
   const layoutOptions = [
-    { value: '2x2' as const, label: '2×2', desc: '4장/페이지' },
-    { value: '3x3' as const, label: '3×3', desc: '9장/페이지' },
-    { value: '2x4' as const, label: '2×4', desc: '8장/페이지' },
-    { value: '2x3' as const, label: '2×3', desc: '6장/페이지' },
+    { value: '2x2' as const, label: '2×2', desc: t('perPage', { count: 4 }) },
+    { value: '3x3' as const, label: '3×3', desc: t('perPage', { count: 9 }) },
+    { value: '2x4' as const, label: '2×4', desc: t('perPage', { count: 8 }) },
+    { value: '2x3' as const, label: '2×3', desc: t('perPage', { count: 6 }) },
   ];
 
   return (
@@ -97,7 +99,7 @@ export function ExportSettingsModal({
       <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden flex flex-col">
         {/* 헤더 */}
         <div className="px-5 py-4 border-b flex items-center justify-between shrink-0">
-          <h3 className="font-bold text-lg text-slate-800">출력 설정</h3>
+          <h3 className="font-bold text-lg text-slate-800">{t('title')}</h3>
           <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded">
             <X size={20} />
           </button>
@@ -111,7 +113,7 @@ export function ExportSettingsModal({
               {/* Paper Size */}
               <div>
                 <label className="text-xs font-medium text-slate-600 mb-2 block">
-                  용지 크기
+                  {t('paperSize')}
                 </label>
                 <div className="flex gap-2">
                   {(['A4', 'Letter'] as const).map((size) => (
@@ -133,7 +135,7 @@ export function ExportSettingsModal({
               {/* 크기 모드 탭 */}
               <div>
                 <label className="text-xs font-medium text-slate-600 mb-2 block">
-                  배열 방식
+                  {t('arrangementMode')}
                 </label>
                 <div className="flex gap-1 p-1 bg-slate-100 rounded-lg">
                   <button
@@ -145,7 +147,7 @@ export function ExportSettingsModal({
                     }`}
                   >
                     <Grid3X3 size={14} />
-                    그리드
+                    {t('grid')}
                   </button>
                   <button
                     onClick={() => setExportConfig({ sizeMode: 'fixed' })}
@@ -156,7 +158,7 @@ export function ExportSettingsModal({
                     }`}
                   >
                     <Ruler size={14} />
-                    고정 크기
+                    {t('fixedSize')}
                   </button>
                 </div>
               </div>
@@ -167,7 +169,7 @@ export function ExportSettingsModal({
                   {/* 레이아웃 선택 */}
                   <div>
                     <label className="text-xs font-medium text-slate-600 mb-2 block">
-                      레이아웃
+                      {t('layout')}
                     </label>
                     <div className="grid grid-cols-4 gap-2">
                       {layoutOptions.map((option) => (
@@ -191,7 +193,7 @@ export function ExportSettingsModal({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-xs font-medium text-slate-600 mb-2 block">
-                        페이지 여백 ({exportConfig.margin}mm)
+                        {t('pageMargin', { value: exportConfig.margin })}
                       </label>
                       <input
                         type="range"
@@ -205,7 +207,7 @@ export function ExportSettingsModal({
                     </div>
                     <div>
                       <label className="text-xs font-medium text-slate-600 mb-2 block">
-                        명찰 간격 ({exportConfig.gridGap}mm)
+                        {t('nametagGap', { value: exportConfig.gridGap })}
                       </label>
                       <input
                         type="range"
@@ -227,7 +229,7 @@ export function ExportSettingsModal({
                   {/* 명찰 크기 */}
                   <div>
                     <label className="text-xs font-medium text-slate-600 mb-2 block">
-                      명찰 크기
+                      {t('nametagSize')}
                     </label>
                     <div className="bg-slate-50 rounded-lg p-3 space-y-3">
                       {/* 프리셋 버튼 */}
@@ -253,7 +255,7 @@ export function ExportSettingsModal({
                       <div className="flex items-end gap-2">
                         <div className="flex-1">
                           <label className="text-[10px] font-medium text-slate-500 mb-1 block">
-                            가로 (mm)
+                            {t('width')}
                           </label>
                           <input
                             type="number"
@@ -282,14 +284,14 @@ export function ExportSettingsModal({
                               ? 'bg-blue-50 border-blue-300 text-blue-600'
                               : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
                           }`}
-                          title={lockAspectRatio ? '비율 고정 해제' : '비율 고정'}
+                          title={lockAspectRatio ? t('unlockRatio') : t('lockRatio')}
                         >
                           {lockAspectRatio ? <Link2 size={16} /> : <Link2Off size={16} />}
                         </button>
 
                         <div className="flex-1">
                           <label className="text-[10px] font-medium text-slate-500 mb-1 block">
-                            세로 (mm)
+                            {t('height')}
                           </label>
                           <input
                             type="number"
@@ -316,7 +318,7 @@ export function ExportSettingsModal({
                   {/* 여백 */}
                   <div>
                     <label className="text-xs font-medium text-slate-600 mb-2 block">
-                      페이지 여백 ({exportConfig.margin}mm)
+                      {t('pageMargin', { value: exportConfig.margin })}
                     </label>
                     <input
                       type="range"
@@ -334,7 +336,7 @@ export function ExportSettingsModal({
               {/* Blank Nametags */}
               <div>
                 <label className="text-xs font-medium text-slate-600 mb-2 block">
-                  빈 명찰 추가 (수동 작업용)
+                  {t('blankNametags')}
                 </label>
                 <div className="bg-slate-50 rounded-lg p-3">
                   {hasMultipleTemplates ? (
@@ -344,7 +346,7 @@ export function ExportSettingsModal({
                         <div className="flex items-center gap-3">
                           <FileText size={16} className="text-slate-400" />
                           <span className="text-sm text-slate-600">
-                            총 <span className="font-bold text-slate-700">{getTotalBlankPages()}</span>개
+                            {t('totalCount', { count: getTotalBlankPages() })}
                           </span>
                         </div>
                         <button
@@ -352,12 +354,12 @@ export function ExportSettingsModal({
                           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
                         >
                           <Settings2 size={14} />
-                          템플릿별 설정
+                          {t('perTemplateSettings')}
                         </button>
                       </div>
                       {getTotalBlankPages() > 0 && (
                         <p className="text-[10px] text-slate-400 mt-2">
-                          각 템플릿별로 빈 명찰이 추가됩니다
+                          {t('blankPagesPerTemplateDesc')}
                         </p>
                       )}
                     </>
@@ -384,11 +386,11 @@ export function ExportSettingsModal({
                             <Plus size={14} />
                           </button>
                         </div>
-                        <span className="text-xs text-slate-500">개</span>
+                        <span className="text-xs text-slate-500">{t('unit')}</span>
                       </div>
                       {(exportConfig.blankPages || 0) > 0 && (
                         <p className="text-[10px] text-slate-400 mt-2">
-                          PDF 끝에 빈 명찰이 추가됩니다
+                          {t('blankPagesAddedDesc')}
                         </p>
                       )}
                     </>
@@ -400,7 +402,7 @@ export function ExportSettingsModal({
             {/* 오른쪽: 미리보기 */}
             <div className="w-64 shrink-0">
               <label className="text-xs font-medium text-slate-600 mb-2 block">
-                미리보기
+                {t('preview')}
               </label>
               <LayoutPreview />
             </div>
@@ -415,10 +417,10 @@ export function ExportSettingsModal({
             className="w-full py-3 rounded-lg bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <FileDown size={18} />
-            {persons.length}명 명찰 생성하기
+            {t('generateNametags', { count: persons.length })}
             {getTotalBlankPages() > 0 && (
               <span className="text-blue-200 text-xs">
-                (+빈 {getTotalBlankPages()}개)
+                {t('plusBlank', { count: getTotalBlankPages() })}
               </span>
             )}
           </button>
@@ -432,7 +434,7 @@ export function ExportSettingsModal({
           <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 max-h-[80vh] overflow-hidden flex flex-col">
             {/* 헤더 */}
             <div className="px-5 py-4 border-b flex items-center justify-between shrink-0">
-              <h3 className="font-bold text-base text-slate-800">템플릿별 빈 명찰 설정</h3>
+              <h3 className="font-bold text-base text-slate-800">{t('blankPagesPerTemplateTitle')}</h3>
               <button onClick={() => setShowBlankPagesModal(false)} className="p-1 hover:bg-slate-100 rounded">
                 <X size={18} />
               </button>
@@ -503,13 +505,13 @@ export function ExportSettingsModal({
             <div className="px-4 py-3 border-t bg-slate-50 shrink-0">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-slate-600">
-                  총 빈 명찰: <span className="font-bold text-slate-800">{getTotalBlankPages()}개</span>
+                  {t('totalBlankNametags', { count: getTotalBlankPages() })}
                 </span>
                 <button
                   onClick={() => setShowBlankPagesModal(false)}
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
                 >
-                  완료
+                  {t('done')}
                 </button>
               </div>
             </div>

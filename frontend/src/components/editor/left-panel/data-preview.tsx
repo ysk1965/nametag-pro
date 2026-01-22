@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { Trash2, Edit3, Users, AlertTriangle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 import { RosterEditModal } from './roster-edit-modal';
 
 export function DataPreview() {
   const { persons, columns, textFields, clearPersons } = useEditorStore();
+  const t = useTranslations('editor.dataPreview');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -25,11 +27,11 @@ export function DataPreview() {
           <div className="flex items-center gap-2">
             <Users size={14} className="text-slate-400" />
             <span className="text-sm font-bold text-slate-700">
-              {persons.length}명
+              {t('persons', { count: persons.length })}
             </span>
             {firstPersonName && (
               <span className="text-xs text-slate-400">
-                ({firstPersonName} 외)
+                {t('andOthers', { name: firstPersonName })}
               </span>
             )}
           </div>
@@ -37,14 +39,14 @@ export function DataPreview() {
             <button
               onClick={() => setIsModalOpen(true)}
               className="text-slate-400 hover:text-blue-500 transition-colors p-1.5 hover:bg-slate-100 rounded"
-              title="편집"
+              title={t('edit')}
             >
               <Edit3 size={14} />
             </button>
             <button
               onClick={() => setIsDeleteModalOpen(true)}
               className="text-slate-400 hover:text-red-500 transition-colors p-1.5 hover:bg-slate-100 rounded"
-              title="삭제"
+              title={t('delete')}
             >
               <Trash2 size={14} />
             </button>
@@ -67,16 +69,16 @@ export function DataPreview() {
               <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-3">
                 <AlertTriangle size={24} className="text-red-500" />
               </div>
-              <h3 className="font-bold text-slate-800 mb-1">명단 삭제</h3>
+              <h3 className="font-bold text-slate-800 mb-1">{t('deleteRoster')}</h3>
               <p className="text-sm text-slate-500 mb-4">
-                {persons.length}명의 명단을 삭제하시겠습니까?
+                {t('deleteConfirm', { count: persons.length })}
               </p>
               <div className="flex gap-2 w-full">
                 <button
                   onClick={() => setIsDeleteModalOpen(false)}
                   className="flex-1 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                 >
-                  취소
+                  {t('cancel')}
                 </button>
                 <button
                   onClick={() => {
@@ -85,7 +87,7 @@ export function DataPreview() {
                   }}
                   className="flex-1 py-2 rounded-lg bg-red-500 text-sm font-medium text-white hover:bg-red-600 transition-colors"
                 >
-                  삭제
+                  {t('delete')}
                 </button>
               </div>
             </div>

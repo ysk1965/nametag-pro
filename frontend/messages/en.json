@@ -1,0 +1,490 @@
+{
+  "metadata": {
+    "title": "NameTag Pro - Automatic Nametag Generation Service",
+    "description": "Just upload your list and get nametags. Generate hundreds of nametags automatically with a single Excel upload.",
+    "keywords": "nametag, badge, name badge, event, conference"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip"
+  },
+  "nav": {
+    "features": "Features",
+    "howItWorks": "How it Works",
+    "startForFree": "Start for Free"
+  },
+  "hero": {
+    "badge": "New: Batch PDF Generation 2.0",
+    "titleLine1": "Create",
+    "titleHighlight": "Perfect",
+    "titleLine2": "Nametags in Seconds.",
+    "description": "Upload your guest list and design template. We'll automatically generate high-resolution printable PDFs for your entire event.",
+    "createNow": "Create Now",
+    "noCreditCard": "No credit card required",
+    "freeLimit": "Free for up to 50 names",
+    "stats": {
+      "events": "Events",
+      "nametags": "Nametags",
+      "rating": "Rating"
+    },
+    "pdfReady": "PDF Ready",
+    "pdfReadyDesc": "{count} nametags generated successfully.",
+    "readyToPrint": "Ready for print.",
+    "sampleName": "John Doe",
+    "sampleRole": "Attendee",
+    "sampleYear": "2026 Conference"
+  },
+  "features": {
+    "badge": "Features",
+    "title": "Everything you need for",
+    "titleHighlight": "event planning",
+    "subtitle": "Streamlined workflow designed for busy event organizers. Create professional nametags without any design skills.",
+    "bulkUpload": {
+      "title": "Bulk Upload",
+      "description": "Import your Excel or CSV list. We support automatic column mapping for names and roles."
+    },
+    "interactiveEditor": {
+      "title": "Interactive Editor",
+      "description": "Drag and drop the name position. Choose fonts, sizes, and colors that match your branding."
+    },
+    "printReadyPdf": {
+      "title": "Print-Ready PDF",
+      "description": "Download A4 PDFs with 2x2, 2x3, or 3x3 grids. High 300dpi resolution for crisp text."
+    },
+    "lightningFast": {
+      "title": "Lightning Fast",
+      "description": "Generate hundreds of nametags in seconds, not hours."
+    },
+    "securePrivate": {
+      "title": "Secure & Private",
+      "description": "Your data is processed locally and never stored on our servers."
+    },
+    "multiLanguage": {
+      "title": "Multi-language",
+      "description": "Full support for Korean, English, Japanese, and Chinese characters."
+    },
+    "learnMore": "Learn more"
+  },
+  "howItWorks": {
+    "badge": "How it Works",
+    "title": "Complete in",
+    "titleHighlight": "3 Simple",
+    "titleEnd": "Steps",
+    "subtitle": "Anyone can easily create professional nametags without any complicated process.",
+    "step1": {
+      "number": "01",
+      "title": "Upload Your List",
+      "titleEn": "Upload Your List",
+      "description": "Drag and drop your Excel or CSV file. It automatically recognizes names, affiliations, and roles."
+    },
+    "step2": {
+      "number": "02",
+      "title": "Customize Design",
+      "titleEn": "Customize Design",
+      "description": "Choose a template or upload your own design. Freely adjust text position, font, and color."
+    },
+    "step3": {
+      "number": "03",
+      "title": "Download PDF",
+      "titleEn": "Download PDF",
+      "description": "Generate high-resolution PDFs at once. Automatically arranged to fit A4 paper, ready to print."
+    },
+    "completion": "Done! Just print it"
+  },
+  "cta": {
+    "badge": "Start for free now",
+    "title": "Event Preparation,",
+    "titleHighlight": "Made Easy",
+    "subtitle": "Create hundreds of nametags in minutes. Get perfect results without a professional designer.",
+    "benefits": {
+      "free50": "Free for up to 50 names",
+      "noCard": "No credit card required",
+      "instant": "Start instantly",
+      "support": "Customer support included"
+    },
+    "button": "Start for Free",
+    "noSignup": "No signup required · No installation needed"
+  },
+  "footer": {
+    "description": "Professional nametag generation tool for event planners. Quickly and easily create hundreds of nametags.",
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "features": "Features",
+    "howItWorks": "How it Works",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "about": "About",
+    "blog": "Blog",
+    "careers": "Careers",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "cookies": "Cookies",
+    "copyright": "© {year} NameTag Pro. All rights reserved.",
+    "madeWith": "Made for event organizers"
+  },
+  "editor": {
+    "header": {
+      "newProject": "New Project",
+      "draft": "Draft",
+      "generatePdf": "Generate PDF",
+      "editor": "Editor"
+    },
+    "tabs": {
+      "upload": "Upload",
+      "preview": "Preview",
+      "settings": "Settings"
+    },
+    "leftPanel": {
+      "guestList": "1. Guest List",
+      "templates": "2. Templates",
+      "defaultBadge": "Default Badge",
+      "myDesign": "My Design",
+      "simpleDesign": "Simple default design",
+      "imageUpload": "Image Upload",
+      "roleDesignSetting": "Role Design Settings",
+      "roleDesignConfigured": "Role design configured",
+      "roleColorSetting": "Role Color Settings",
+      "roleColorConfigured": "Role color configured",
+      "clickToSetDesign": "Click to set column and design",
+      "clickToSetColor": "Click to set column and color",
+      "usingDefaultBadge": "Using default badge",
+      "columnBased": "{column} based · {count} roles"
+    },
+    "dataUpload": {
+      "importFile": "Import File",
+      "dropHere": "Drop here",
+      "excelCsv": "Excel, CSV",
+      "createManually": "Create Manually",
+      "manualEntry": "Manual Entry"
+    },
+    "dataPreview": {
+      "persons": "{count} people",
+      "andOthers": "({name} and others)",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteRoster": "Delete Roster",
+      "deleteConfirm": "Are you sure you want to delete {count} people?",
+      "cancel": "Cancel"
+    },
+    "templateUpload": {
+      "fileTooLarge": "{name}: File size exceeds 10MB.",
+      "dropHere": "Drop here",
+      "addDesign": "Add Design",
+      "formats": "JPG, PNG (max 10MB)"
+    },
+    "templateList": {
+      "default": "Default"
+    },
+    "centerPanel": {
+      "nametagSize": "Nametag Size",
+      "default": "Default",
+      "preview": "Preview: {name}",
+      "uploadTemplate": "Upload a template to start",
+      "dragInstruction": "Click to select text field, drag to adjust position.",
+      "gridSnap": "({size}mm grid snap)",
+      "selected": "Selected",
+      "noFieldInstruction": "Drag to position the name. Use the sidebar to style and layout."
+    },
+    "rightPanel": {
+      "textFields": "Text Fields",
+      "position": "Position",
+      "font": "Font",
+      "defaultFonts": "Default Fonts",
+      "uploadedFonts": "Uploaded Fonts",
+      "uploadFont": "Upload Font",
+      "size": "Size",
+      "bold": "Bold",
+      "fieldHint": "Checked columns will be displayed on nametags. Click to edit style",
+      "unsupportedFont": "Unsupported font format. (TTF, OTF, WOFF, WOFF2 only)",
+      "fontLoadFailed": "Failed to load font.",
+      "deleteFont": "Delete font"
+    },
+    "manualEntry": {
+      "title": "Create Manually",
+      "description": "Add columns and enter data. Click on column name to edit.",
+      "defaultColumn": "Name",
+      "newColumn": "Column{number}",
+      "addColumn": "Column",
+      "addRow": "Add Row",
+      "summary": "{columns} columns · {rows} rows",
+      "minDataRequired": "Please enter at least one data entry.",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "rosterEdit": {
+      "title": "Edit Roster",
+      "summary": "Total {persons} people · {columns} columns",
+      "search": "Search...",
+      "add": "Add",
+      "deleteColumn": "Delete {column} column",
+      "actions": "Actions",
+      "noSearchResults": "No results found",
+      "emptyRoster": "Roster is empty",
+      "hasChanges": "You have unsaved changes",
+      "minColumnRequired": "At least one column is required.",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "multiTemplate": {
+      "colorSettingTitle": "Role Color Settings",
+      "designSettingTitle": "Role Design Settings",
+      "colorSettingDesc": "Apply different colors per role",
+      "designSettingDesc": "Apply different designs per role",
+      "rosterExample": "Roster Example",
+      "result": "Result",
+      "exampleName": "Name",
+      "exampleRole": "Role",
+      "exampleLeader": "Leader",
+      "exampleMember": "Member",
+      "examplePerson1": "John Doe",
+      "examplePerson2": "Jane Smith",
+      "examplePerson3": "Bob Wilson",
+      "columnExample": "Category column = \"Role\"",
+      "selectColumn": "Select Category Column",
+      "selectColumnPlaceholder": "Select a column",
+      "assignColorPerRole": "Assign Colors per Role",
+      "assignDesignPerRole": "Assign Designs per Role",
+      "uploadRosterFirst": "Please upload a roster first",
+      "personCount": "({count} people)",
+      "addMoreDesigns": "Please add more designs",
+      "needTwoDesigns": "You need at least 2 designs to use role-based designs.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "colors": {
+        "blue": "Blue",
+        "green": "Green",
+        "yellow": "Yellow",
+        "red": "Red",
+        "purple": "Purple",
+        "pink": "Pink",
+        "indigo": "Indigo",
+        "orange": "Orange",
+        "slate": "Slate"
+      }
+    },
+    "exportSettings": {
+      "title": "Export Settings",
+      "paperSize": "Paper Size",
+      "arrangementMode": "Layout Mode",
+      "grid": "Grid",
+      "fixedSize": "Fixed Size",
+      "layout": "Layout",
+      "perPage": "{count} per page",
+      "pageMargin": "Page Margin ({value}mm)",
+      "nametagGap": "Nametag Gap ({value}mm)",
+      "nametagSize": "Nametag Size",
+      "original": "Original",
+      "businessCard": "Business Card",
+      "card": "Card",
+      "large": "Large",
+      "small": "Small",
+      "width": "Width (mm)",
+      "height": "Height (mm)",
+      "lockRatio": "Lock ratio",
+      "unlockRatio": "Unlock ratio",
+      "blankNametags": "Add Blank Nametags (for manual use)",
+      "totalCount": "Total {count}",
+      "unit": "",
+      "perTemplateSettings": "Per-template settings",
+      "blankPagesPerTemplateDesc": "Blank nametags will be added per template",
+      "blankPagesAddedDesc": "Blank nametags will be added at the end of PDF",
+      "preview": "Preview",
+      "generateNametags": "Generate {count} Nametags",
+      "plusBlank": "(+{count} blank)",
+      "blankPagesPerTemplateTitle": "Blank Nametags per Template",
+      "totalBlankNametags": "Total blank nametags: {count}",
+      "done": "Done"
+    },
+    "progress": {
+      "generating": "Generating PDF...",
+      "processing": "Processing {current} / {total} nametags",
+      "blankPages": "(+{count} blank)",
+      "pleaseWait": "Please wait. Don't close this window."
+    },
+    "templateSelection": {
+      "title": "Choose Your Nametag Design",
+      "subtitle": "Use our default design or upload your own custom images",
+      "defaultNametag": "Default Badge",
+      "quickAndEasy": "Quick and simple",
+      "myDesign": "My Design",
+      "uploadImage": "Image upload",
+      "defaultFeatures": "Default Badge Features",
+      "defaultFeature1": "Use a clean design immediately",
+      "defaultFeature2": "Assign different colors by role (title, department, etc.)",
+      "defaultFeature3": "Freely adjust text position and style",
+      "customFeatures": "My Design Features",
+      "customFeature1": "Use your own images (JPG, PNG) as nametag background",
+      "customFeature2": "Assign different design images by role",
+      "customFeature3": "Create nametags that reflect your brand identity",
+      "dropHere": "Drop here",
+      "uploadDesign": "Upload Design Image",
+      "fileFormats": "JPG, PNG (max 10MB) · Multiple images allowed",
+      "uploadedDesigns": "{count} designs uploaded",
+      "nextStep": "Next Step",
+      "later": "I'll set it up later"
+    },
+    "roleDesignGuide": {
+      "uploadTitle": "Set Up Role-based Designs",
+      "mappingTitle": "Role Design Mapping",
+      "uploadSubtitle": "Apply different designs based on role or department",
+      "mappingSubtitle": "Select design to apply for each role",
+      "rosterExample": "Roster Example",
+      "result": "Result",
+      "exampleName": "Name",
+      "exampleRole": "Role",
+      "examplePerson1": "John Doe",
+      "examplePerson2": "Jane Smith",
+      "examplePerson3": "Bob Wilson",
+      "exampleLeader": "Leader",
+      "exampleMember": "Member",
+      "uploadedDesigns": "Uploaded Designs ({count})",
+      "add": "Add",
+      "dropHere": "Drop here",
+      "uploadDesign": "Upload Design Image",
+      "fileFormats": "JPG, PNG (multiple selection allowed)",
+      "tip1": "Assign different design images by role (title, department, etc.)",
+      "tip2": "Upload multiple images and match them to roles",
+      "tip3": "You can also add more from the left panel later",
+      "selectColumn": "Select Category Column",
+      "uploadRosterFirst": "Please upload a roster first",
+      "selectColumnPlaceholder": "Select a column",
+      "assignDesignPerRole": "Assign Designs per Role",
+      "personCount": "({count} people)",
+      "next": "Next",
+      "done": "Done",
+      "skip": "Skip",
+      "save": "Save"
+    },
+    "blankPages": {
+      "title": "Ready to Generate Nametags!",
+      "subtitle": "{count} nametags will be generated as PDF",
+      "addBlankNametags": "Add Blank Nametags",
+      "forManualWork": "For manual use (optional)",
+      "plusCount": "+{count}",
+      "unit": "",
+      "generate": "Generate {count} Nametags",
+      "generateWithBlank": "Generate {count} Nametags (+{blankCount} blank)"
+    },
+    "onboarding": {
+      "title": "Prepare Your Guest List",
+      "subtitle": "Import or manually enter names and information for your nametags",
+      "importFile": "Import File",
+      "dropHere": "Drop here",
+      "excelCsv": "Excel, CSV",
+      "createManually": "Create Manually",
+      "manualEntry": "Manual Entry",
+      "later": "I'll do it later"
+    },
+    "templateInfo": {
+      "default": {
+        "title": "Default Badge",
+        "description": "Provides a simple and clean default nametag design.",
+        "features": {
+          "noUpload": "Use immediately without uploading images",
+          "header": "\"NAME TAG\" text displayed in header",
+          "roleColor": "Different colors can be assigned per role",
+          "textFree": "Freely arrange name, affiliation, and other text"
+        },
+        "tip": "Recommended when you want to create nametags quickly."
+      },
+      "custom": {
+        "title": "My Design",
+        "description": "Use your own designed image as the nametag background.",
+        "features": {
+          "formats": "Supports JPG, PNG image uploads",
+          "multiDesign": "Upload multiple designs for different roles",
+          "ratio": "Maintain original aspect ratio or set fixed size",
+          "textFree": "Freely adjust text position, size, and color"
+        },
+        "tip": "Recommended when creating nametags that reflect your brand identity."
+      },
+      "mainFeatures": "Main Features"
+    },
+    "templateColumn": {
+      "title": "Template Category Column",
+      "description": "Different templates will be applied based on the values in this column."
+    },
+    "errors": {
+      "pdfGenerationFailed": "An error occurred while generating PDF.",
+      "noDataInFile": "No data found in the file."
+    }
+  },
+  "result": {
+    "noPdfFound": "No PDF found",
+    "goBackToEditor": "Please go back to the editor and generate your nametags first.",
+    "backToEditor": "Back to Editor",
+    "exportResult": "Export Result",
+    "downloadPdf": "Download PDF",
+    "yourNametagsReady": "Your nametags are ready!",
+    "generatedDescription": "We've generated {count} nametags distributed across {pages} printable pages using your {layout} layout.",
+    "projectSummary": "Project Summary",
+    "totalNametags": "Total Nametags",
+    "pages": "Pages",
+    "layout": "Layout",
+    "paperSize": "Paper Size",
+    "resolution": "Resolution",
+    "share": "Share",
+    "emailMe": "Email Me",
+    "printingTips": "Printing Tips",
+    "printingTip1": "Make sure to print at 100% scale (don't \"fit to page\").",
+    "printingTip2": "Use high-quality cardstock (200gsm+) for better durability.",
+    "printingTip3": "Check your ink/toner levels before starting a large batch.",
+    "createNewProject": "Create New Project"
+  },
+  "languageSwitcher": {
+    "korean": "한국어",
+    "english": "English"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "backToHome": "Back to Home",
+    "lastUpdated": "Last Updated",
+    "section1": {
+      "title": "1. Purpose of Processing Personal Information",
+      "content": "NameTag Pro (hereinafter referred to as 'Service') processes the minimum necessary personal information to provide the nametag generation service. The Service uses the roster data uploaded by users solely for the purpose of generating nametags and does not store it on our servers."
+    },
+    "section2": {
+      "title": "2. Personal Information Collected",
+      "content": "The Service processes the following personal information:",
+      "item1": "Roster data: Name, affiliation, title, and other information uploaded by users (processed only in the browser, not stored on servers)",
+      "item2": "Service usage records: Access logs, browser information (for service improvement purposes)",
+      "item3": "Cookies: Storing user preferences such as language settings"
+    },
+    "section3": {
+      "title": "3. Processing and Retention Period",
+      "content": "Roster data is processed only in the user's browser and is not transmitted to or stored on our servers. All data is deleted when the browser is closed or the page is refreshed. Service usage records may be collected in anonymized form for service improvement and are retained for one year from the date of collection before being destroyed."
+    },
+    "section4": {
+      "title": "4. Disclosure to Third Parties",
+      "content": "The Service does not provide users' personal information to third parties. However, personal information may be provided in accordance with applicable laws when required by law."
+    },
+    "section5": {
+      "title": "5. Destruction of Personal Information",
+      "content": "Roster data is processed in the browser, so no separate destruction procedure is required. It is automatically deleted when the user closes the browser or navigates away from the page. Service usage records stored on servers are destroyed without delay when the retention period expires."
+    },
+    "section6": {
+      "title": "6. Rights of Data Subjects",
+      "content": "Users may request access to, correction of, deletion of, or suspension of processing of their personal information at any time. For roster data, users can manage it directly as it is only processed in the browser."
+    },
+    "section7": {
+      "title": "7. Use of Cookies",
+      "content": "The Service uses cookies to enhance user experience. Cookies are used to store user preferences such as language settings. Users may refuse to use cookies through browser settings, but this may limit the use of the Service."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "content": "If you have any questions regarding the processing of personal information, please contact us below.",
+      "email": "Email"
+    }
+  }
+}

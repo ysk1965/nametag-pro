@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, FileDown, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/stores/editor-store';
 import { LeftPanel } from './left-panel';
@@ -17,9 +17,12 @@ import { RoleDesignGuideModal } from './role-design-guide-modal';
 import { BlankPagesModal } from './blank-pages-modal';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { generatePDF } from '@/lib/pdf-generator';
+import { Link } from '@/i18n/routing';
 
 export function EditorLayout() {
   const router = useRouter();
+  const t = useTranslations('editor');
+  const tErrors = useTranslations('editor.errors');
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const [activeTab, setActiveTab] = useState<'upload' | 'preview' | 'settings'>('upload');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -139,13 +142,13 @@ export function EditorLayout() {
       router.push('/result');
     } catch (error) {
       console.error('PDF generation failed:', error);
-      alert('PDF 생성 중 오류가 발생했습니다.');
+      alert(tErrors('pdfGenerationFailed'));
     } finally {
       setIsGenerating(false);
     }
   };
 
-  
+
   const progressPercent = progress.total > 0 ? (progress.current / progress.total) * 100 : 0;
 
   // 빈 명찰 총합 계산
@@ -166,9 +169,9 @@ export function EditorLayout() {
               <ChevronLeft />
             </Link>
             <div className="flex items-center gap-2">
-              <h1 className="font-bold text-lg">New Project</h1>
+              <h1 className="font-bold text-lg">{t('header.newProject')}</h1>
               <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded border uppercase font-semibold">
-                Draft
+                {t('header.draft')}
               </span>
             </div>
           </div>
@@ -182,7 +185,7 @@ export function EditorLayout() {
             ) : (
               <FileDown size={20} />
             )}
-            Generate PDF
+            {t('header.generatePdf')}
           </Button>
         </header>
 
@@ -254,13 +257,13 @@ export function EditorLayout() {
         <Link href="/" className="text-slate-400 hover:text-slate-600">
           <ChevronLeft size={20} />
         </Link>
-        <h1 className="font-bold">Editor</h1>
+        <h1 className="font-bold">{t('header.editor')}</h1>
         <Button
           size="sm"
           disabled={!canGenerate() || isGenerating}
           onClick={handleOpenExportModal}
         >
-          {isGenerating ? <Loader2 className="animate-spin" size={16} /> : 'Generate'}
+          {isGenerating ? <Loader2 className="animate-spin" size={16} /> : t('header.generatePdf').split(' ')[0]}
         </Button>
       </header>
 
@@ -283,7 +286,7 @@ export function EditorLayout() {
                 : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            {tab}
+            {t(`tabs.${tab}`)}
           </button>
         ))}
       </nav>

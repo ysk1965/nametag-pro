@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Download,
@@ -11,12 +10,15 @@ import {
   Mail,
   FileText,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/stores/editor-store';
 import { calculatePageCount } from '@/lib/pdf-generator';
+import { Link } from '@/i18n/routing';
 
 export default function ResultPage() {
   const router = useRouter();
+  const t = useTranslations('result');
   const { persons, exportConfig, generatedPdfUrl } = useEditorStore();
 
   // Redirect if no PDF
@@ -32,13 +34,11 @@ export default function ResultPage() {
         <div className="bg-red-50 text-red-600 p-4 rounded-full">
           <FileText size={48} />
         </div>
-        <h2 className="text-2xl font-bold">No PDF found</h2>
-        <p className="text-slate-500">
-          Please go back to the editor and generate your nametags first.
-        </p>
+        <h2 className="text-2xl font-bold">{t('noPdfFound')}</h2>
+        <p className="text-slate-500">{t('goBackToEditor')}</p>
         <Link href="/editor">
           <Button className="gap-2">
-            <ChevronLeft size={20} /> Back to Editor
+            <ChevronLeft size={20} /> {t('backToEditor')}
           </Button>
         </Link>
       </div>
@@ -55,12 +55,12 @@ export default function ResultPage() {
           <Link href="/editor" className="text-slate-400 hover:text-slate-600">
             <ChevronLeft />
           </Link>
-          <h1 className="font-bold text-lg">Export Result</h1>
+          <h1 className="font-bold text-lg">{t('exportResult')}</h1>
         </div>
         <a href={generatedPdfUrl} download="nametags.pdf">
           <Button className="gap-2">
             <Download size={20} />
-            Download PDF
+            {t('downloadPdf')}
           </Button>
         </a>
       </header>
@@ -73,11 +73,14 @@ export default function ResultPage() {
             <CheckCircle2 size={40} />
           </div>
           <h2 className="text-3xl font-bold tracking-tight">
-            Your nametags are ready!
+            {t('yourNametagsReady')}
           </h2>
           <p className="text-slate-500 text-lg max-w-xl mx-auto">
-            We've generated {persons.length} nametags distributed across{' '}
-            {pageCount} printable pages using your {exportConfig.layout} layout.
+            {t('generatedDescription', {
+              count: persons.length,
+              pages: pageCount,
+              layout: exportConfig.layout,
+            })}
           </p>
         </div>
 
@@ -95,26 +98,28 @@ export default function ResultPage() {
           {/* Summary */}
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-2xl border space-y-6">
-              <h3 className="font-bold text-lg border-b pb-4">Project Summary</h3>
+              <h3 className="font-bold text-lg border-b pb-4">
+                {t('projectSummary')}
+              </h3>
               <div className="space-y-4">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">Total Nametags</span>
+                  <span className="text-slate-400">{t('totalNametags')}</span>
                   <span className="font-bold">{persons.length}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">Pages</span>
+                  <span className="text-slate-400">{t('pages')}</span>
                   <span className="font-bold">{pageCount}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">Layout</span>
+                  <span className="text-slate-400">{t('layout')}</span>
                   <span className="font-bold">{exportConfig.layout}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">Paper Size</span>
+                  <span className="text-slate-400">{t('paperSize')}</span>
                   <span className="font-bold">{exportConfig.paperSize}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">Resolution</span>
+                  <span className="text-slate-400">{t('resolution')}</span>
                   <span className="font-bold">{exportConfig.dpi} DPI</span>
                 </div>
               </div>
@@ -123,32 +128,27 @@ export default function ResultPage() {
             {/* Actions */}
             <div className="grid grid-cols-2 gap-4">
               <Button variant="outline" className="gap-2">
-                <Share2 size={18} /> Share
+                <Share2 size={18} /> {t('share')}
               </Button>
               <Button variant="outline" className="gap-2">
-                <Mail size={18} /> Email Me
+                <Mail size={18} /> {t('emailMe')}
               </Button>
             </div>
 
             {/* Printing tips */}
             <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100 space-y-4">
-              <h4 className="font-bold text-blue-900">Printing Tips</h4>
+              <h4 className="font-bold text-blue-900">{t('printingTips')}</h4>
               <ul className="text-sm text-blue-800 space-y-2 list-disc pl-4">
-                <li>
-                  Make sure to print at <strong>100% scale</strong> (don't "fit
-                  to page").
-                </li>
-                <li>
-                  Use high-quality cardstock (200gsm+) for better durability.
-                </li>
-                <li>Check your ink/toner levels before starting a large batch.</li>
+                <li>{t('printingTip1')}</li>
+                <li>{t('printingTip2')}</li>
+                <li>{t('printingTip3')}</li>
               </ul>
             </div>
 
             {/* New project */}
             <Link href="/editor" className="block">
               <Button variant="secondary" className="w-full">
-                Create New Project
+                {t('createNewProject')}
               </Button>
             </Link>
           </div>

@@ -3,57 +3,7 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Upload, Edit, Download, Zap, Shield, Globe, ArrowRight } from 'lucide-react';
-
-const features = [
-  {
-    icon: Upload,
-    title: 'Bulk Upload',
-    description:
-      'Import your Excel or CSV list. We support automatic column mapping for names and roles.',
-    color: 'from-blue-500 to-blue-600',
-    bgColor: 'bg-blue-50',
-    shadowColor: 'shadow-blue-500/20',
-  },
-  {
-    icon: Edit,
-    title: 'Interactive Editor',
-    description:
-      'Drag and drop the name position. Choose fonts, sizes, and colors that match your branding.',
-    color: 'from-purple-500 to-purple-600',
-    bgColor: 'bg-purple-50',
-    shadowColor: 'shadow-purple-500/20',
-  },
-  {
-    icon: Download,
-    title: 'Print-Ready PDF',
-    description:
-      'Download A4 PDFs with 2x2, 2x3, or 3x3 grids. High 300dpi resolution for crisp text.',
-    color: 'from-amber-500 to-orange-500',
-    bgColor: 'bg-amber-50',
-    shadowColor: 'shadow-amber-500/20',
-  },
-];
-
-const additionalFeatures = [
-  {
-    icon: Zap,
-    title: 'Lightning Fast',
-    description: 'Generate hundreds of nametags in seconds, not hours.',
-    color: 'text-yellow-500',
-  },
-  {
-    icon: Shield,
-    title: 'Secure & Private',
-    description: 'Your data is processed locally and never stored on our servers.',
-    color: 'text-green-500',
-  },
-  {
-    icon: Globe,
-    title: 'Multi-language',
-    description: 'Full support for Korean, English, Japanese, and Chinese characters.',
-    color: 'text-blue-500',
-  },
-];
+import { useTranslations } from 'next-intl';
 
 // 애니메이션 설정
 const containerVariants = {
@@ -80,7 +30,16 @@ const itemVariants = {
   },
 };
 
-function FeatureCard({ feature, index }: { feature: typeof features[0]; index: number }) {
+interface Feature {
+  icon: typeof Upload;
+  titleKey: string;
+  descriptionKey: string;
+  color: string;
+  bgColor: string;
+  shadowColor: string;
+}
+
+function FeatureCard({ feature, index, t }: { feature: Feature; index: number; t: (key: string) => string }) {
   return (
     <motion.div
       variants={itemVariants}
@@ -106,9 +65,9 @@ function FeatureCard({ feature, index }: { feature: typeof features[0]; index: n
         >
           <feature.icon size={28} className="text-white" />
         </motion.div>
-        <h3 className="text-xl font-bold mb-3 text-slate-800">{feature.title}</h3>
+        <h3 className="text-xl font-bold mb-3 text-slate-800">{t(`${feature.titleKey}.title`)}</h3>
         <p className="text-slate-500 leading-relaxed">
-          {feature.description}
+          {t(`${feature.titleKey}.description`)}
         </p>
 
         {/* 화살표 아이콘 */}
@@ -117,7 +76,7 @@ function FeatureCard({ feature, index }: { feature: typeof features[0]; index: n
           whileHover={{ x: 5 }}
           className="mt-4 flex items-center gap-2 text-sm font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"
         >
-          Learn more <ArrowRight size={16} />
+          {t('learnMore')} <ArrowRight size={16} />
         </motion.div>
       </div>
     </motion.div>
@@ -127,6 +86,52 @@ function FeatureCard({ feature, index }: { feature: typeof features[0]; index: n
 export function FeaturesSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const t = useTranslations('features');
+
+  const features: Feature[] = [
+    {
+      icon: Upload,
+      titleKey: 'bulkUpload',
+      descriptionKey: 'bulkUpload',
+      color: 'from-blue-500 to-blue-600',
+      bgColor: 'bg-blue-50',
+      shadowColor: 'shadow-blue-500/20',
+    },
+    {
+      icon: Edit,
+      titleKey: 'interactiveEditor',
+      descriptionKey: 'interactiveEditor',
+      color: 'from-purple-500 to-purple-600',
+      bgColor: 'bg-purple-50',
+      shadowColor: 'shadow-purple-500/20',
+    },
+    {
+      icon: Download,
+      titleKey: 'printReadyPdf',
+      descriptionKey: 'printReadyPdf',
+      color: 'from-amber-500 to-orange-500',
+      bgColor: 'bg-amber-50',
+      shadowColor: 'shadow-amber-500/20',
+    },
+  ];
+
+  const additionalFeatures = [
+    {
+      icon: Zap,
+      titleKey: 'lightningFast',
+      color: 'text-yellow-500',
+    },
+    {
+      icon: Shield,
+      titleKey: 'securePrivate',
+      color: 'text-green-500',
+    },
+    {
+      icon: Globe,
+      titleKey: 'multiLanguage',
+      color: 'text-blue-500',
+    },
+  ];
 
   return (
     <section id="features" className="py-24 bg-gradient-to-b from-slate-50 via-white to-slate-50 relative overflow-hidden">
@@ -151,17 +156,16 @@ export function FeaturesSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="inline-block bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-semibold"
           >
-            Features
+            {t('badge')}
           </motion.span>
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-            Everything you need for{' '}
+            {t('title')}{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-              event planning
+              {t('titleHighlight')}
             </span>
           </h2>
           <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-            Streamlined workflow designed for busy event organizers.
-            Create professional nametags without any design skills.
+            {t('subtitle')}
           </p>
         </motion.div>
 
@@ -174,7 +178,7 @@ export function FeaturesSection() {
           style={{ perspective: '1000px' }}
         >
           {features.map((feature, index) => (
-            <FeatureCard key={feature.title} feature={feature} index={index} />
+            <FeatureCard key={feature.titleKey} feature={feature} index={index} t={t} />
           ))}
         </motion.div>
 
@@ -187,7 +191,7 @@ export function FeaturesSection() {
         >
           {additionalFeatures.map((feature, index) => (
             <motion.div
-              key={feature.title}
+              key={feature.titleKey}
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
@@ -197,8 +201,8 @@ export function FeaturesSection() {
                 <feature.icon size={24} />
               </div>
               <div>
-                <h4 className="font-bold text-slate-800">{feature.title}</h4>
-                <p className="text-sm text-slate-500">{feature.description}</p>
+                <h4 className="font-bold text-slate-800">{t(`${feature.titleKey}.title`)}</h4>
+                <p className="text-sm text-slate-500">{t(`${feature.titleKey}.description`)}</p>
               </div>
             </motion.div>
           ))}

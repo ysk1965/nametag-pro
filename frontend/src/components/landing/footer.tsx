@@ -1,28 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Github, Twitter, Mail, Heart } from 'lucide-react';
-
-const footerLinks = {
-  product: [
-    { label: 'Features', href: '#features' },
-    { label: 'How it Works', href: '#how-it-works' },
-    { label: 'Pricing', href: '#' },
-    { label: 'FAQ', href: '#' },
-  ],
-  company: [
-    { label: 'About', href: '#' },
-    { label: 'Blog', href: '#' },
-    { label: 'Careers', href: '#' },
-    { label: 'Contact', href: '#' },
-  ],
-  legal: [
-    { label: 'Privacy', href: '#' },
-    { label: 'Terms', href: '#' },
-    { label: 'Cookies', href: '#' },
-  ],
-};
+import { useTranslations } from 'next-intl';
+import { Link, usePathname } from '@/i18n/routing';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
 const socialLinks = [
   { icon: Github, href: '#', label: 'GitHub' },
@@ -31,6 +13,29 @@ const socialLinks = [
 ];
 
 export function Footer() {
+  const t = useTranslations('footer');
+  const currentYear = new Date().getFullYear();
+
+  const footerLinks = {
+    product: [
+      { label: t('features'), href: '#features', isExternal: true },
+      { label: t('howItWorks'), href: '#how-it-works', isExternal: true },
+      { label: t('pricing'), href: '#', isExternal: true },
+      { label: t('faq'), href: '#', isExternal: true },
+    ],
+    company: [
+      { label: t('about'), href: '#', isExternal: true },
+      { label: t('blog'), href: '#', isExternal: true },
+      { label: t('careers'), href: '#', isExternal: true },
+      { label: t('contact'), href: '#', isExternal: true },
+    ],
+    legal: [
+      { label: t('privacy'), href: '/privacy', isExternal: false },
+      { label: t('terms'), href: '#', isExternal: true },
+      { label: t('cookies'), href: '#', isExternal: true },
+    ],
+  };
+
   return (
     <footer className="bg-slate-900 text-white pt-16 pb-8 relative overflow-hidden">
       {/* 배경 그라데이션 */}
@@ -51,10 +56,9 @@ export function Footer() {
               <span className="text-xl font-bold">NameTag Pro</span>
             </motion.div>
             <p className="text-slate-400 max-w-sm leading-relaxed">
-              이벤트 기획자를 위한 전문 명찰 생성 도구.
-              빠르고 쉽게 수백 장의 명찰을 만들 수 있습니다.
+              {t('description')}
             </p>
-            <div className="flex gap-4">
+            <div className="flex items-center gap-4">
               {socialLinks.map((social) => (
                 <motion.a
                   key={social.label}
@@ -67,12 +71,15 @@ export function Footer() {
                   <social.icon size={18} className="text-slate-400" />
                 </motion.a>
               ))}
+              <div className="ml-2">
+                <LanguageSwitcher variant="footer" />
+              </div>
             </div>
           </div>
 
           {/* 링크 섹션들 */}
           <div>
-            <h4 className="font-semibold text-white mb-4">Product</h4>
+            <h4 className="font-semibold text-white mb-4">{t('product')}</h4>
             <ul className="space-y-3">
               {footerLinks.product.map((link) => (
                 <li key={link.label}>
@@ -88,7 +95,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold text-white mb-4">Company</h4>
+            <h4 className="font-semibold text-white mb-4">{t('company')}</h4>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.label}>
@@ -104,16 +111,25 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold text-white mb-4">Legal</h4>
+            <h4 className="font-semibold text-white mb-4">{t('legal')}</h4>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-slate-400 hover:text-white transition-colors text-sm"
-                  >
-                    {link.label}
-                  </a>
+                  {link.isExternal ? (
+                    <a
+                      href={link.href}
+                      className="text-slate-400 hover:text-white transition-colors text-sm"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className="text-slate-400 hover:text-white transition-colors text-sm"
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -123,10 +139,10 @@ export function Footer() {
         {/* 하단 카피라이트 */}
         <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-slate-500 text-sm">
-            © 2026 NameTag Pro. All rights reserved.
+            {t('copyright', { year: currentYear })}
           </div>
           <div className="flex items-center gap-1 text-slate-500 text-sm">
-            Made with <Heart size={14} className="text-red-500 mx-1" /> for event organizers
+            {t('madeWith')} <Heart size={14} className="text-red-500 mx-1" />
           </div>
         </div>
       </div>

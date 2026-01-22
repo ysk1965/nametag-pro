@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, Plus, Minus, ArrowRight, X, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 
 interface BlankPagesModalProps {
@@ -12,6 +13,7 @@ interface BlankPagesModalProps {
 }
 
 export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalProps) {
+  const t = useTranslations('editor.blankPages');
   const { exportConfig, setExportConfig, persons, templates } = useEditorStore();
 
   // 커스텀 템플릿만 필터링
@@ -131,7 +133,7 @@ export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalP
                 transition={{ delay: 0.2 }}
                 className="text-xl font-bold text-slate-800 mb-2"
               >
-                명찰을 생성할 준비가 되었어요!
+                {t('title')}
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
@@ -139,7 +141,7 @@ export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalP
                 transition={{ delay: 0.25 }}
                 className="text-sm text-slate-500"
               >
-                {persons.length}명의 명찰이 PDF로 생성됩니다
+                {t('subtitle', { count: persons.length })}
               </motion.p>
             </div>
 
@@ -162,14 +164,14 @@ export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalP
                       <FileText size={16} className="text-slate-500" />
                     </div>
                     <div className="text-left">
-                      <p className="text-sm font-medium text-slate-700">빈 명찰 추가</p>
-                      <p className="text-xs text-slate-400">수동 작업용 (선택사항)</p>
+                      <p className="text-sm font-medium text-slate-700">{t('addBlankNametags')}</p>
+                      <p className="text-xs text-slate-400">{t('forManualWork')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {totalBlankPages > 0 && (
                       <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                        +{totalBlankPages}개
+                        {t('plusCount', { count: totalBlankPages })}
                       </span>
                     )}
                     {isBlankSectionOpen ? (
@@ -258,7 +260,7 @@ export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalP
                             </button>
                             <div className="w-16 text-center">
                               <span className="text-2xl font-bold text-slate-700">{singleBlankPages}</span>
-                              <span className="text-xs text-slate-400 block">개</span>
+                              <span className="text-xs text-slate-400 block">{t('unit')}</span>
                             </div>
                             <button
                               onClick={() => handleIncrement()}
@@ -285,8 +287,8 @@ export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalP
                 className="w-full py-4 rounded-xl font-bold text-white bg-blue-500 hover:bg-blue-600 flex items-center justify-center gap-2 transition-all text-lg"
               >
                 {totalBlankPages > 0
-                  ? `${persons.length}명 명찰 생성하기 (+빈 ${totalBlankPages}개)`
-                  : `${persons.length}명 명찰 생성하기`
+                  ? t('generateWithBlank', { count: persons.length, blankCount: totalBlankPages })
+                  : t('generate', { count: persons.length })
                 }
                 <ArrowRight size={20} />
               </motion.button>

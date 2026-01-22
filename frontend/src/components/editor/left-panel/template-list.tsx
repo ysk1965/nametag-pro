@@ -1,6 +1,7 @@
 'use client';
 
 import { Trash2, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 
 interface TemplateListProps {
@@ -9,6 +10,7 @@ interface TemplateListProps {
 
 export function TemplateList({ showDefaultTemplate = true }: TemplateListProps) {
   const { templates, selectedTemplateId, removeTemplate, selectTemplate } = useEditorStore();
+  const t = useTranslations('editor.templateList');
 
   // 표시할 템플릿 필터링
   const displayTemplates = showDefaultTemplate
@@ -55,7 +57,7 @@ export function TemplateList({ showDefaultTemplate = true }: TemplateListProps) 
             {/* 기본 뱃지 */}
             {isDefault && (
               <span className="absolute bottom-2 left-2 text-[10px] font-bold bg-slate-600 text-white px-1.5 py-0.5 rounded">
-                기본
+                {t('default')}
               </span>
             )}
             {/* 삭제 버튼 */}

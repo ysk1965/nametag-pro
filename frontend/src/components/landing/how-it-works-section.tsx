@@ -3,40 +3,42 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Upload, Palette, Download, CheckCircle, ArrowRight } from 'lucide-react';
-
-const steps = [
-  {
-    number: '01',
-    icon: Upload,
-    title: '명단 업로드',
-    titleEn: 'Upload Your List',
-    description: 'Excel 또는 CSV 파일을 드래그 앤 드롭하세요. 이름, 소속, 역할 등 원하는 정보를 자동으로 인식합니다.',
-    color: 'from-blue-500 to-cyan-500',
-    bgColor: 'bg-blue-500',
-  },
-  {
-    number: '02',
-    icon: Palette,
-    title: '디자인 커스터마이징',
-    titleEn: 'Customize Design',
-    description: '템플릿을 선택하거나 직접 디자인을 업로드하세요. 텍스트 위치, 폰트, 색상을 자유롭게 조정할 수 있습니다.',
-    color: 'from-purple-500 to-pink-500',
-    bgColor: 'bg-purple-500',
-  },
-  {
-    number: '03',
-    icon: Download,
-    title: 'PDF 다운로드',
-    titleEn: 'Download PDF',
-    description: '고해상도 PDF를 한 번에 생성합니다. A4 용지에 맞게 자동 배치되어 바로 인쇄할 수 있습니다.',
-    color: 'from-green-500 to-emerald-500',
-    bgColor: 'bg-green-500',
-  },
-];
+import { useTranslations } from 'next-intl';
 
 export function HowItWorksSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const t = useTranslations('howItWorks');
+
+  const steps = [
+    {
+      number: t('step1.number'),
+      icon: Upload,
+      title: t('step1.title'),
+      titleEn: t('step1.titleEn'),
+      description: t('step1.description'),
+      color: 'from-blue-500 to-cyan-500',
+      bgColor: 'bg-blue-500',
+    },
+    {
+      number: t('step2.number'),
+      icon: Palette,
+      title: t('step2.title'),
+      titleEn: t('step2.titleEn'),
+      description: t('step2.description'),
+      color: 'from-purple-500 to-pink-500',
+      bgColor: 'bg-purple-500',
+    },
+    {
+      number: t('step3.number'),
+      icon: Download,
+      title: t('step3.title'),
+      titleEn: t('step3.titleEn'),
+      description: t('step3.description'),
+      color: 'from-green-500 to-emerald-500',
+      bgColor: 'bg-green-500',
+    },
+  ];
 
   return (
     <section id="how-it-works" className="py-24 bg-white relative overflow-hidden">
@@ -58,17 +60,17 @@ export function HowItWorksSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="inline-block bg-purple-100 text-purple-700 px-4 py-1.5 rounded-full text-sm font-semibold"
           >
-            How it Works
+            {t('badge')}
           </motion.span>
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-            3단계로{' '}
+            {t('title')}{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
-              간단하게
+              {t('titleHighlight')}
             </span>{' '}
-            완성
+            {t('titleEnd')}
           </h2>
           <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-            복잡한 과정 없이 누구나 쉽게 전문적인 명찰을 만들 수 있습니다.
+            {t('subtitle')}
           </p>
         </motion.div>
 
@@ -140,7 +142,7 @@ export function HowItWorksSection() {
             className="inline-flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 px-6 py-3 rounded-full"
           >
             <CheckCircle size={20} />
-            <span className="font-semibold">완성! 인쇄만 하면 끝</span>
+            <span className="font-semibold">{t('completion')}</span>
           </motion.div>
         </motion.div>
       </div>

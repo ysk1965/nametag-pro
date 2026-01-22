@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { X, Plus, Trash2, Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 import { Button } from '@/components/ui/button';
 import { generateId } from '@/lib/utils';
@@ -13,6 +14,7 @@ interface RosterEditModalProps {
 }
 
 export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
+  const t = useTranslations('editor.rosterEdit');
   const { persons, columns, setPersons, setColumns } = useEditorStore();
   const [editedPersons, setEditedPersons] = useState<Person[]>([]);
   const [editedColumns, setEditedColumns] = useState<string[]>([]);
@@ -80,7 +82,7 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
   const handleDeleteColumn = useCallback((columnToDelete: string) => {
     // 최소 1개 컬럼은 유지
     if (editedColumns.length <= 1) {
-      alert('최소 1개의 컬럼이 필요합니다.');
+      alert(t('minColumnRequired'));
       return;
     }
 
@@ -127,9 +129,9 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
         {/* 헤더 */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <div>
-            <h2 className="text-lg font-bold text-slate-800">명단 편집</h2>
+            <h2 className="text-lg font-bold text-slate-800">{t('title')}</h2>
             <p className="text-sm text-slate-500">
-              총 {editedPersons.length}명 · {editedColumns.length}개 컬럼
+              {t('summary', { persons: editedPersons.length, columns: editedColumns.length })}
             </p>
           </div>
           <button
@@ -147,7 +149,7 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="검색..."
+              placeholder={t('search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-white text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -157,7 +159,7 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
           {/* 추가 버튼 */}
           <Button variant="outline" size="sm" onClick={handleAdd} className="gap-1">
             <Plus size={16} />
-            추가
+            {t('add')}
           </Button>
         </div>
 
@@ -179,7 +181,7 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
                       <button
                         onClick={() => handleDeleteColumn(col)}
                         className="p-0.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
-                        title={`${col} 컬럼 삭제`}
+                        title={t('deleteColumn', { column: col })}
                       >
                         <X size={14} />
                       </button>
@@ -187,7 +189,7 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
                   </th>
                 ))}
                 <th className="px-4 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider w-16">
-                  작업
+                  {t('actions')}
                 </th>
               </tr>
             </thead>
@@ -221,7 +223,7 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
               {filteredPersons.length === 0 && (
                 <tr>
                   <td colSpan={editedColumns.length + 2} className="px-6 py-12 text-center text-slate-400">
-                    {searchQuery ? '검색 결과가 없습니다' : '명단이 비어있습니다'}
+                    {searchQuery ? t('noSearchResults') : t('emptyRoster')}
                   </td>
                 </tr>
               )}
@@ -233,15 +235,15 @@ export function RosterEditModal({ isOpen, onClose }: RosterEditModalProps) {
         <div className="flex items-center justify-between px-6 py-4 border-t bg-slate-50">
           <div className="text-sm text-slate-500">
             {hasChanges && (
-              <span className="text-amber-600 font-medium">변경사항이 있습니다</span>
+              <span className="text-amber-600 font-medium">{t('hasChanges')}</span>
             )}
           </div>
           <div className="flex gap-3">
             <Button variant="outline" onClick={onClose}>
-              취소
+              {t('cancel')}
             </Button>
             <Button onClick={handleSave} disabled={!hasChanges}>
-              저장
+              {t('save')}
             </Button>
           </div>
         </div>

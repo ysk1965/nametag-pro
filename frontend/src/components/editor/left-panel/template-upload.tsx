@@ -3,18 +3,20 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 import { generateId } from '@/lib/utils';
 import type { Template } from '@/types';
 
 export function TemplateUpload() {
   const { addTemplates, templates, setExportConfig } = useEditorStore();
+  const t = useTranslations('editor.templateUpload');
 
   const processFiles = useCallback(
     (files: File[]) => {
       files.forEach((file) => {
         if (file.size > 10 * 1024 * 1024) {
-          alert(`${file.name}: 파일 크기가 10MB를 초과합니다.`);
+          alert(t('fileTooLarge', { name: file.name }));
           return;
         }
 
@@ -118,9 +120,9 @@ export function TemplateUpload() {
           <Upload size={20} className={isDragActive ? 'text-blue-600' : 'text-slate-500 group-hover:text-blue-600'} />
         </div>
         <span className={`text-xs font-bold ${isDragActive ? 'text-blue-600' : 'text-slate-500 group-hover:text-blue-600'}`}>
-          {isDragActive ? '여기에 놓으세요' : 'Add Design'}
+          {isDragActive ? t('dropHere') : t('addDesign')}
         </span>
-        <span className="text-[10px] text-slate-400">JPG, PNG (max 10MB)</span>
+        <span className="text-[10px] text-slate-400">{t('formats')}</span>
       </label>
     </div>
   );

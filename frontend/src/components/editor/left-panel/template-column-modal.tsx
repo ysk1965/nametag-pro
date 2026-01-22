@@ -1,6 +1,7 @@
 'use client';
 
 import { X, Type, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface TemplateColumnModalProps {
   isOpen: boolean;
@@ -17,6 +18,8 @@ export function TemplateColumnModal({
   selectedColumn,
   onSelect,
 }: TemplateColumnModalProps) {
+  const t = useTranslations('editor.templateColumn');
+
   if (!isOpen) return null;
 
   const handleSelect = (col: string) => {
@@ -34,13 +37,13 @@ export function TemplateColumnModal({
         {/* 헤더 */}
         <div className="px-4 py-3 border-b">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-slate-800">템플릿 구분 컬럼</h3>
+            <h3 className="font-bold text-slate-800">{t('title')}</h3>
             <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded">
               <X size={18} />
             </button>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            이 컬럼의 값에 따라 다른 템플릿이 적용됩니다.
+            {t('description')}
           </p>
         </div>
 

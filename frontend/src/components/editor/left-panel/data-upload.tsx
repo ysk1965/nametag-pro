@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { FileText, PenLine } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 import { generateId } from '@/lib/utils';
 import type { Person } from '@/types';
@@ -12,6 +13,8 @@ import { ManualEntryModal } from './manual-entry-modal';
 export function DataUpload() {
   const { setPersons } = useEditorStore();
   const [showManualEntry, setShowManualEntry] = useState(false);
+  const t = useTranslations('editor.dataUpload');
+  const tErrors = useTranslations('editor.errors');
 
   const processFile = useCallback(
     (file: File) => {
@@ -27,7 +30,7 @@ export function DataUpload() {
         const jsonData = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
 
         if (jsonData.length === 0) {
-          alert('파일에 데이터가 없습니다.');
+          alert(tErrors('noDataInFile'));
           return;
         }
 
@@ -102,9 +105,9 @@ export function DataUpload() {
             </div>
             <div className="text-center">
               <span className="text-xs font-bold block">
-                {isDragActive ? '여기에 놓으세요' : '파일 가져오기'}
+                {isDragActive ? t('dropHere') : t('importFile')}
               </span>
-              <span className="text-[10px] text-slate-400">Excel, CSV</span>
+              <span className="text-[10px] text-slate-400">{t('excelCsv')}</span>
             </div>
           </label>
         </div>
@@ -118,8 +121,8 @@ export function DataUpload() {
             <PenLine size={20} className="text-slate-500 group-hover:text-green-600" />
           </div>
           <div className="text-center">
-            <span className="text-xs font-bold block">직접 만들기</span>
-            <span className="text-[10px] text-slate-400">수동 입력</span>
+            <span className="text-xs font-bold block">{t('createManually')}</span>
+            <span className="text-[10px] text-slate-400">{t('manualEntry')}</span>
           </div>
         </button>
       </div>
