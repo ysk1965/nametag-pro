@@ -8,7 +8,7 @@ import { useEditorStore } from '@/stores/editor-store';
 interface BlankPagesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (blankPagesData: { blankPages?: number; blankPagesPerTemplate?: Record<string, number> }) => void;
 }
 
 export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalProps) {
@@ -73,14 +73,16 @@ export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalP
     : singleBlankPages;
 
   const handleGenerate = () => {
-    if (hasMultipleTemplates) {
-      // 다중 템플릿: 템플릿별 빈 페이지 저장
-      setExportConfig({ blankPagesPerTemplate: templateBlankPages });
-    } else {
-      // 단일 템플릿: 전체 빈 페이지 저장
-      setExportConfig({ blankPages: singleBlankPages });
-    }
-    onConfirm();
+    // 빈 명찰 데이터 생성
+    const blankPagesData = hasMultipleTemplates
+      ? { blankPagesPerTemplate: templateBlankPages }
+      : { blankPages: singleBlankPages };
+
+    // 스토어에도 저장 (다음 사용을 위해)
+    setExportConfig(blankPagesData);
+
+    // onConfirm에 데이터 직접 전달 (상태 업데이트 비동기 이슈 해결)
+    onConfirm(blankPagesData);
   };
 
   return (

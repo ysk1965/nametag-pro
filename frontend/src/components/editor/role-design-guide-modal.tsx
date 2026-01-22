@@ -11,9 +11,10 @@ import type { Template } from '@/types';
 interface RoleDesignGuideModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialStep?: 'upload' | 'mapping';
 }
 
-export function RoleDesignGuideModal({ isOpen, onClose }: RoleDesignGuideModalProps) {
+export function RoleDesignGuideModal({ isOpen, onClose, initialStep = 'upload' }: RoleDesignGuideModalProps) {
   const {
     templates,
     addTemplates,
@@ -38,11 +39,11 @@ export function RoleDesignGuideModal({ isOpen, onClose }: RoleDesignGuideModalPr
   // 모달 열릴 때 상태 초기화
   useEffect(() => {
     if (isOpen) {
-      setStep('upload');
+      setStep(initialStep);
       setSelectedColumn(templateColumn);
       setLocalMappings({ ...roleMappings });
     }
-  }, [isOpen, templateColumn, roleMappings]);
+  }, [isOpen, templateColumn, roleMappings, initialStep]);
 
   // 컬럼 선택 시 역할 목록 계산
   const getRolesForColumn = (column: string | null) => {

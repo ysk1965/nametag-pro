@@ -61,6 +61,60 @@ export function LayoutPreview() {
   // 역할별 색상 모드인지 확인
   const isRoleColorMode = designMode === 'default' && templateMode === 'multi';
 
+  // 비율을 간단한 정수비로 변환하는 함수
+  const simplifyRatio = (width: number, height: number): string => {
+    // GCD 계산
+    const gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b);
+
+    // 소수점 처리를 위해 100배 후 반올림
+    const w = Math.round(width * 100);
+    const h = Math.round(height * 100);
+    const divisor = gcd(w, h);
+
+    let ratioW = w / divisor;
+    let ratioH = h / divisor;
+
+    // 비율이 너무 크면 간단한 소수로 표시
+    if (ratioW > 20 || ratioH > 20) {
+      const ratio = width / height;
+      // 일반적인 비율 근사값 찾기
+      const commonRatios = [
+        { w: 1, h: 1, r: 1 },
+        { w: 4, h: 3, r: 4/3 },
+        { w: 3, h: 4, r: 3/4 },
+        { w: 16, h: 9, r: 16/9 },
+        { w: 9, h: 16, r: 9/16 },
+        { w: 3, h: 2, r: 3/2 },
+        { w: 2, h: 3, r: 2/3 },
+        { w: 5, h: 4, r: 5/4 },
+        { w: 4, h: 5, r: 4/5 },
+        { w: 2, h: 1, r: 2 },
+        { w: 1, h: 2, r: 0.5 },
+      ];
+
+      // 가장 가까운 일반 비율 찾기
+      let closest = commonRatios[0];
+      let minDiff = Math.abs(ratio - closest.r);
+      for (const cr of commonRatios) {
+        const diff = Math.abs(ratio - cr.r);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closest = cr;
+        }
+      }
+
+      // 근사값이 5% 이내면 사용
+      if (minDiff / ratio < 0.05) {
+        return `${closest.w}:${closest.h}`;
+      }
+
+      // 그렇지 않으면 소수점 비율 표시
+      return `${ratio.toFixed(2)}:1`;
+    }
+
+    return `${ratioW}:${ratioH}`;
+  };
+
   const layoutInfo = useMemo(() => {
     const paper = PAPER_SIZES[exportConfig.paperSize];
     const margin = exportConfig.margin;
@@ -166,9 +220,14 @@ export function LayoutPreview() {
           <span className={`text-xs font-medium ${layoutInfo.isFixed ? 'text-green-600' : 'text-blue-600'}`}>
             {layoutInfo.isFixed ? '고정 크기' : '그리드 레이아웃'}
           </span>
-          <span className={`text-lg font-bold ${layoutInfo.isFixed ? 'text-green-700' : 'text-blue-700'}`}>
-            {layoutInfo.nametagWidth.toFixed(1)} × {layoutInfo.nametagHeight.toFixed(1)} mm
-          </span>
+          <div className="text-right">
+            <span className={`text-lg font-bold ${layoutInfo.isFixed ? 'text-green-700' : 'text-blue-700'}`}>
+              {layoutInfo.nametagWidth.toFixed(1)} × {layoutInfo.nametagHeight.toFixed(1)} mm
+            </span>
+            <span className={`text-xs ml-2 px-1.5 py-0.5 rounded ${layoutInfo.isFixed ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
+              {simplifyRatio(layoutInfo.nametagWidth, layoutInfo.nametagHeight)}
+            </span>
+          </div>
         </div>
         <div className={`text-[10px] ${layoutInfo.isFixed ? 'text-green-600' : 'text-blue-500'}`}>
           {layoutInfo.isFixed ? (
@@ -304,7 +363,7 @@ export function LayoutPreview() {
                         className="w-full h-full bg-center bg-no-repeat relative"
                         style={{
                           backgroundImage: `url(${personTemplate.dataUrl || personTemplate.thumbnailUrl || personTemplate.imageUrl})`,
-                          backgroundSize: '100% 100%',
+                          backgroundSize: 'contain',
                         }}
                       >
                         {/* 모든 텍스트 필드 렌더링 */}

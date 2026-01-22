@@ -27,6 +27,7 @@ export function EditorLayout() {
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(true);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [isRoleGuideModalOpen, setIsRoleGuideModalOpen] = useState(false);
+  const [roleGuideInitialStep, setRoleGuideInitialStep] = useState<'upload' | 'mapping'>('upload');
   const [isBlankPagesModalOpen, setIsBlankPagesModalOpen] = useState(false);
   const [hasShownTemplateModal, setHasShownTemplateModal] = useState(false);
   const [prevPersonsCount, setPrevPersonsCount] = useState(0);
@@ -70,20 +71,24 @@ export function EditorLayout() {
     setPrevPersonsCount(persons.length);
   }, [persons.length, prevPersonsCount, hasShownTemplateModal, templates]);
 
-  // 첫 번째 커스텀 템플릿이 추가되면 역할별 디자인 안내 모달 표시
+  // 템플릿 선택 모달에서 업로드 완료 시 역할별 디자인 모달 표시
+  const handleTemplateUploadComplete = useCallback((uploadedCount: number) => {
+    // 업로드된 이미지 개수에 따라 초기 step 결정
+    // 2개 이상이면 바로 매핑 단계로
+    const initialStep = uploadedCount >= 2 ? 'mapping' : 'upload';
+    setRoleGuideInitialStep(initialStep);
+
+    // 약간의 딜레이 후 모달 표시
+    setTimeout(() => {
+      setIsRoleGuideModalOpen(true);
+    }, 100);
+  }, []);
+
+  // 커스텀 템플릿 수 추적 (외부에서 추가된 경우 대응)
   useEffect(() => {
     const customTemplateCount = templates.filter(t => t.id !== 'default-template').length;
-
-    // 0 -> 1로 변할 때만 모달 표시
-    if (customTemplateCount === 1 && prevCustomTemplateCount === 0) {
-      // 디자인 선택 모달이 닫히는 것을 기다림
-      const timer = setTimeout(() => {
-        setIsRoleGuideModalOpen(true);
-      }, 100);
-      return () => clearTimeout(timer);
-    }
     setPrevCustomTemplateCount(customTemplateCount);
-  }, [templates, prevCustomTemplateCount]);
+  }, [templates]);
 
   const handleProgress = useCallback((current: number, total: number) => {
     setProgress({ current, total });
@@ -101,23 +106,28 @@ export function EditorLayout() {
   };
 
   // 빈 페이지 설정 후 실제 생성
-  const handleBlankPagesConfirm = () => {
+  const handleBlankPagesConfirm = (blankPagesData: { blankPages?: number; blankPagesPerTemplate?: Record<string, number> }) => {
     setIsBlankPagesModalOpen(false);
-    executeGenerate();
+    executeGenerate(blankPagesData);
   };
 
-  const executeGenerate = async () => {
+  const executeGenerate = async (blankPagesData?: { blankPages?: number; blankPagesPerTemplate?: Record<string, number> }) => {
     if (!canGenerate()) return;
 
     setIsGenerating(true);
     setProgress({ current: 0, total: persons.length });
 
     try {
+      // 빈 명찰 데이터를 exportConfig에 병합
+      const finalExportConfig = blankPagesData
+        ? { ...exportConfig, ...blankPagesData }
+        : exportConfig;
+
       const pdfUrl = await generatePDF(
         templates,
         persons,
         textConfig,
-        exportConfig,
+        finalExportConfig,
         roleMappings,
         templateMode === 'multi' ? templateColumn : null,
         textFields,
@@ -216,12 +226,14 @@ export function EditorLayout() {
         <TemplateSelectionModal
           isOpen={isTemplateModalOpen}
           onClose={() => setIsTemplateModalOpen(false)}
+          onUploadComplete={handleTemplateUploadComplete}
         />
 
         {/* Role Design Guide Modal */}
         <RoleDesignGuideModal
           isOpen={isRoleGuideModalOpen}
           onClose={() => setIsRoleGuideModalOpen(false)}
+          initialStep={roleGuideInitialStep}
         />
 
         {/* Blank Pages Modal */}
@@ -303,12 +315,14 @@ export function EditorLayout() {
       <TemplateSelectionModal
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
+        onUploadComplete={handleTemplateUploadComplete}
       />
 
       {/* Role Design Guide Modal */}
       <RoleDesignGuideModal
         isOpen={isRoleGuideModalOpen}
         onClose={() => setIsRoleGuideModalOpen(false)}
+        initialStep={roleGuideInitialStep}
       />
 
       {/* Blank Pages Modal */}

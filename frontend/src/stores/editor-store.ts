@@ -265,7 +265,7 @@ export const useEditorStore = create<EditorStore>()(
                 ...state.exportConfig,
                 fixedWidth: width,
                 fixedHeight: height,
-                sizeMode: 'fixed',  // 고정 크기 모드 활성화
+                // sizeMode는 기본값 'grid' 유지
               };
             }
 

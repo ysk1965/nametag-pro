@@ -11,11 +11,11 @@ import type { Template } from '@/types';
 interface TemplateSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onUploadComplete?: (uploadedCount: number) => void;
 }
 
-export function TemplateSelectionModal({ isOpen, onClose }: TemplateSelectionModalProps) {
+export function TemplateSelectionModal({ isOpen, onClose, onUploadComplete }: TemplateSelectionModalProps) {
   const {
-    designMode,
     setDesignMode,
     setTemplateMode,
     addTemplates,
@@ -28,47 +28,54 @@ export function TemplateSelectionModal({ isOpen, onClose }: TemplateSelectionMod
     setSelectedMode(mode);
   };
 
-  const processImageFile = useCallback((file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
+  const processMultipleFiles = useCallback((files: File[]) => {
+    const newTemplates: Template[] = [];
+    let processed = 0;
 
-      // 이미지 크기 확인 후 바로 템플릿 추가
-      const img = new Image();
-      img.onload = () => {
-        const newTemplate: Template = {
-          id: generateId(),
-          fileName: file.name,
-          imageUrl: dataUrl,
-          dataUrl: dataUrl,
-          width: img.width,
-          height: img.height,
-          role: null,
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        const img = new Image();
+        img.onload = () => {
+          newTemplates.push({
+            id: generateId(),
+            fileName: file.name,
+            imageUrl: dataUrl,
+            dataUrl: dataUrl,
+            width: img.width,
+            height: img.height,
+            role: null,
+          });
+          processed++;
+
+          // 모든 파일이 처리되면 템플릿 추가
+          if (processed === files.length) {
+            setDesignMode('custom');
+            setTemplateMode(newTemplates.length > 1 ? 'multi' : 'single');
+            addTemplates(newTemplates);
+            onClose();
+            // 업로드 완료 콜백 호출
+            onUploadComplete?.(newTemplates.length);
+          }
         };
-
-        setDesignMode('custom');
-        setTemplateMode('single');
-        addTemplates([newTemplate]);
-
-        // 이미지 업로드 즉시 모달 닫기
-        onClose();
+        img.src = dataUrl;
       };
-      img.src = dataUrl;
-    };
-    reader.readAsDataURL(file);
-  }, [setDesignMode, setTemplateMode, addTemplates, templates, onClose]);
+      reader.readAsDataURL(file);
+    });
+  }, [setDesignMode, setTemplateMode, addTemplates, onClose, onUploadComplete]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
       if (acceptedFiles.length > 0) {
-        processImageFile(acceptedFiles[0]);
+        processMultipleFiles(acceptedFiles);
       }
     },
     accept: {
       'image/jpeg': ['.jpg', '.jpeg'],
       'image/png': ['.png'],
     },
-    multiple: false,
+    multiple: true,
   });
 
   const handleConfirm = useCallback(() => {
@@ -271,35 +278,48 @@ export function TemplateSelectionModal({ isOpen, onClose }: TemplateSelectionMod
                       </ul>
                     </div>
 
-                    {/* 이미지 업로드 영역 (커스텀 템플릿이 없을 때만 표시) */}
-                    {!hasCustomTemplates && (
-                      <div
-                        {...getRootProps()}
-                        className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
-                          isDragActive
-                            ? 'border-purple-500 bg-purple-50'
-                            : 'border-slate-300 hover:border-purple-400 hover:bg-purple-50'
-                        }`}
-                      >
-                        <input {...getInputProps()} />
-                        <div className="py-2">
-                          <Upload size={24} className="mx-auto text-slate-400 mb-2" />
-                          <p className="text-sm text-slate-600 font-medium">
-                            {isDragActive ? '여기에 놓으세요' : '디자인 이미지 업로드'}
-                          </p>
-                          <p className="text-xs text-slate-400 mt-1">
-                            JPG, PNG (최대 10MB)
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {hasCustomTemplates && (
-                      <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
-                        <p className="text-xs text-green-700 font-medium flex items-center justify-center gap-1">
-                          <Check size={14} />
-                          이미 업로드된 디자인이 있습니다
+                    {/* 이미지 업로드 영역 - 항상 표시 */}
+                    <div
+                      {...getRootProps()}
+                      className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
+                        isDragActive
+                          ? 'border-purple-500 bg-purple-50'
+                          : 'border-slate-300 hover:border-purple-400 hover:bg-purple-50'
+                      }`}
+                    >
+                      <input {...getInputProps()} />
+                      <div className="py-2">
+                        <Upload size={24} className="mx-auto text-slate-400 mb-2" />
+                        <p className="text-sm text-slate-600 font-medium">
+                          {isDragActive ? '여기에 놓으세요' : '디자인 이미지 업로드'}
                         </p>
+                        <p className="text-xs text-slate-400 mt-1">
+                          JPG, PNG (최대 10MB) · 여러 이미지 선택 가능
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* 기존 업로드된 디자인 표시 */}
+                    {hasCustomTemplates && (
+                      <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+                        <p className="text-xs text-green-700 font-medium flex items-center gap-1 mb-2">
+                          <Check size={14} />
+                          업로드된 디자인 {templates.filter(t => t.id !== 'default-template').length}개
+                        </p>
+                        <div className="flex gap-2 flex-wrap">
+                          {templates.filter(t => t.id !== 'default-template').map((template) => (
+                            <div
+                              key={template.id}
+                              className="w-12 h-8 rounded border border-green-200 overflow-hidden"
+                              style={{
+                                backgroundImage: `url(${template.dataUrl || template.imageUrl})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                              }}
+                              title={template.fileName}
+                            />
+                          ))}
+                        </div>
                       </div>
                     )}
                   </motion.div>

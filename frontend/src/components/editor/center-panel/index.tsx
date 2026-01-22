@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Upload } from 'lucide-react';
 import { useEditorStore } from '@/stores/editor-store';
 
 // 그리드 설정 (mm 기준)
-const GRID_SIZE_MM = 2.5; // 2.5mm 단위 정사각형 그리드
+const GRID_SIZE_MM = 1.5; // 1.5mm 단위 정사각형 그리드 (더 촘촘하게)
 
 // PDF 렌더링과 동일한 기준 너비 (pdf-generator.ts와 일치해야 함)
 const RENDER_WIDTH = 400;
@@ -227,17 +227,21 @@ export function CenterPanel() {
     ? currentPerson.data[textFields[0].column] || 'Example'
     : 'Example Name';
 
-  // 그리드에 스냅하는 함수 (X, Y 별도)
+  // 그리드에 스냅하는 함수 (중앙 기준, X, Y 별도)
   const snapToGridX = useCallback((value: number): number => {
     if (!snapToGrid) return value;
-    const nearestGrid = Math.round(value / gridStepX) * gridStepX;
-    return nearestGrid;
+    // 중앙(50%)을 기준으로 스냅
+    const offsetFromCenter = value - 50;
+    const snappedOffset = Math.round(offsetFromCenter / gridStepX) * gridStepX;
+    return 50 + snappedOffset;
   }, [snapToGrid, gridStepX]);
 
   const snapToGridY = useCallback((value: number): number => {
     if (!snapToGrid) return value;
-    const nearestGrid = Math.round(value / gridStepY) * gridStepY;
-    return nearestGrid;
+    // 중앙(50%)을 기준으로 스냅
+    const offsetFromCenter = value - 50;
+    const snappedOffset = Math.round(offsetFromCenter / gridStepY) * gridStepY;
+    return 50 + snappedOffset;
   }, [snapToGrid, gridStepY]);
 
   const handleDrag = useCallback(
@@ -318,18 +322,31 @@ export function CenterPanel() {
     setSelectedSampleIndex(Math.min(maxIndex, selectedSampleIndex + 1));
   };
 
-  // 그리드 라인 생성 (정사각형 mm 기준)
+  // 그리드 라인 생성 (중앙 기준, 정사각형 mm 기준)
   const verticalGridLines: number[] = [];
   const horizontalGridLines: number[] = [];
 
-  // 세로선 (X축 방향으로 5mm 간격)
-  for (let mm = GRID_SIZE_MM; mm < exportConfig.fixedWidth; mm += GRID_SIZE_MM) {
-    verticalGridLines.push((mm / exportConfig.fixedWidth) * 100);
+  const centerXMm = exportConfig.fixedWidth / 2;
+  const centerYMm = exportConfig.fixedHeight / 2;
+
+  // 세로선 (중앙에서 좌우로 확장)
+  for (let mm = centerXMm; mm >= 0; mm -= GRID_SIZE_MM) {
+    const pos = (mm / exportConfig.fixedWidth) * 100;
+    if (pos >= 0 && pos <= 100) verticalGridLines.push(pos);
+  }
+  for (let mm = centerXMm + GRID_SIZE_MM; mm <= exportConfig.fixedWidth; mm += GRID_SIZE_MM) {
+    const pos = (mm / exportConfig.fixedWidth) * 100;
+    if (pos >= 0 && pos <= 100) verticalGridLines.push(pos);
   }
 
-  // 가로선 (Y축 방향으로 5mm 간격)
-  for (let mm = GRID_SIZE_MM; mm < exportConfig.fixedHeight; mm += GRID_SIZE_MM) {
-    horizontalGridLines.push((mm / exportConfig.fixedHeight) * 100);
+  // 가로선 (중앙에서 상하로 확장)
+  for (let mm = centerYMm; mm >= 0; mm -= GRID_SIZE_MM) {
+    const pos = (mm / exportConfig.fixedHeight) * 100;
+    if (pos >= 0 && pos <= 100) horizontalGridLines.push(pos);
+  }
+  for (let mm = centerYMm + GRID_SIZE_MM; mm <= exportConfig.fixedHeight; mm += GRID_SIZE_MM) {
+    const pos = (mm / exportConfig.fixedHeight) * 100;
+    if (pos >= 0 && pos <= 100) horizontalGridLines.push(pos);
   }
 
   return (
