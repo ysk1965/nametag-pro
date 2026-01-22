@@ -1,5 +1,30 @@
 # Documentation Changelog
 
+## [2025-01-22]
+
+### Tech v1.1.0
+- Added: next-intl (다국어 지원)
+- Added: @sentry/nextjs (에러 트래킹)
+- Added: i18n 설정 가이드
+- Added: SEO 설정 (sitemap, robots, JSON-LD)
+- Added: Sentry 설정 가이드
+
+### IA v1.1.0
+- Changed: 폴더 구조 재구성 (`[locale]` 기반 라우팅)
+- Added: `frontend/messages/` 번역 파일 폴더
+- Added: `frontend/src/i18n/` 국제화 설정 폴더
+- Added: `frontend/src/components/seo/` SEO 컴포넌트
+- Added: `frontend/src/middleware.ts` i18n 미들웨어
+- Added: sitemap.ts, robots.ts 동적 생성 파일
+
+### Wireframe v1.1.0
+- Added: LanguageSwitcher 컴포넌트 (2가지 변형)
+- Added: FAQSection 컴포넌트 (아코디언)
+- Added: HowItWorksSection 컴포넌트
+- Changed: 컴포넌트 계층 구조 업데이트
+
+---
+
 ## [2025-01-21]
 
 ### Initial Release (v1.0.0)

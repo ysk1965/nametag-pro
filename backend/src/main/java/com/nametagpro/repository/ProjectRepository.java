@@ -17,4 +17,11 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
     List<Project> findBySessionIdOrderByCreatedAtDesc(String sessionId);
 
     void deleteBySessionIdAndCreatedAtBefore(String sessionId, LocalDateTime before);
+
+    // User 기반 쿼리 (로그인 사용자용)
+    Optional<Project> findByUserIdAndId(UUID userId, UUID id);
+
+    List<Project> findByUserIdOrderByCreatedAtDesc(UUID userId);
+
+    List<Project> findBySessionIdAndUserIsNull(String sessionId);
 }

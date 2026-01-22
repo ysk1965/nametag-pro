@@ -133,6 +133,21 @@
     "copyright": "© {year} NameTag Pro. All rights reserved.",
     "madeWith": "Made for event organizers"
   },
+  "faq": {
+    "badge": "FAQ",
+    "title": "Have Questions?",
+    "subtitle": "Here are the most frequently asked questions.",
+    "q1": "Is NameTag Pro free?",
+    "a1": "Yes, you can use it completely free for up to 50 people. No credit card required. For larger groups, paid plans are available.",
+    "q2": "What file formats are supported?",
+    "a2": "For rosters, we support Excel (.xlsx, .xls) and CSV files. For design templates, you can upload JPG and PNG images.",
+    "q3": "Can I adjust the nametag size?",
+    "a3": "Yes, we support various sizes from business card size (90x50mm) to large badges (100x150mm). You can also enter custom dimensions.",
+    "q4": "How many nametags can I create at once?",
+    "a4": "Free plan allows up to 50 people, while paid plans have no limits. Hundreds of nametags can be generated as PDF in seconds.",
+    "q5": "Can I apply different designs per role?",
+    "a5": "Yes, you can automatically apply different designs or colors based on a specific column in your roster (e.g., job title, department)."
+  },
   "editor": {
     "header": {
       "newProject": "New Project",
@@ -374,7 +389,13 @@
       "plusCount": "+{count}",
       "unit": "",
       "generate": "Generate {count} Nametags",
-      "generateWithBlank": "Generate {count} Nametags (+{blankCount} blank)"
+      "generateWithBlank": "Generate {count} Nametags (+{blankCount} blank)",
+      "watermark": {
+        "title": "Watermark",
+        "subtitle": "Add watermark to PDF",
+        "enable": "Enable watermark",
+        "text": "Watermark text"
+      }
     },
     "onboarding": {
       "title": "Prepare Your Guest List",
@@ -446,6 +467,38 @@
     "korean": "한국어",
     "english": "English"
   },
+  "auth": {
+    "login": "Login",
+    "register": "Sign Up",
+    "logout": "Logout",
+    "loading": "Processing...",
+    "googleLogin": "Continue with Google",
+    "or": "or",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email format",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "passwordRequired": "Password is required",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "passwordPattern": "Password must contain letters and numbers",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Enter your password again",
+    "confirmPasswordRequired": "Password confirmation is required",
+    "passwordMismatch": "Passwords do not match",
+    "name": "Name",
+    "namePlaceholder": "Enter your name",
+    "nameRequired": "Name is required",
+    "nameTooLong": "Name cannot exceed 50 characters",
+    "loginButton": "Login",
+    "registerButton": "Sign Up",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "loginFailed": "Login failed",
+    "registerFailed": "Registration failed",
+    "myProjects": "My Projects"
+  },
   "privacy": {
     "title": "Privacy Policy",
     "backToHome": "Back to Home",
@@ -486,5 +539,24 @@
       "content": "If you have any questions regarding the processing of personal information, please contact us below.",
       "email": "Email"
     }
+  },
+  "pdfRecords": {
+    "title": "My PDF Records",
+    "newPdf": "Create New PDF",
+    "noRecords": "No PDF records",
+    "noRecordsDesc": "Your PDF records will appear here after you generate nametags.",
+    "createFirst": "Create First PDF",
+    "recordsCount": "{count} PDF records",
+    "untitled": "Untitled",
+    "nametagCount": "{count} nametags",
+    "pageCount": "{count} pages",
+    "hasWatermark": "Watermark",
+    "expiresIn": "Expires in {days} days",
+    "download": "Download",
+    "loadError": "Failed to load PDF records",
+    "downloadError": "Failed to download PDF",
+    "deleteError": "Failed to delete PDF record",
+    "deleteConfirm": "Are you sure you want to delete this PDF record?",
+    "retry": "Retry"
   }
 }

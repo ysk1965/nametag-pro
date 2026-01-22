@@ -26,6 +26,10 @@ public class Project {
     @Column(name = "session_id")
     private String sessionId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Column(nullable = false)
     private String name;
 

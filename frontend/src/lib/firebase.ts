@@ -1,5 +1,6 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
+import { getAuth, Auth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,6 +15,7 @@ const firebaseConfig = {
 // Firebase 앱 초기화 (싱글톤)
 let app: FirebaseApp | undefined;
 let analytics: Analytics | undefined;
+let auth: Auth | undefined;
 
 export function getFirebaseApp(): FirebaseApp {
   if (!app && getApps().length === 0) {
@@ -35,6 +37,31 @@ export async function getFirebaseAnalytics(): Promise<Analytics | null> {
     }
   }
   return analytics || null;
+}
+
+export function getFirebaseAuth(): Auth {
+  if (!auth) {
+    const app = getFirebaseApp();
+    auth = getAuth(app);
+  }
+  return auth;
+}
+
+export async function signInWithGoogle(): Promise<string> {
+  const auth = getFirebaseAuth();
+  const provider = new GoogleAuthProvider();
+  provider.addScope('email');
+  provider.addScope('profile');
+
+  const result = await signInWithPopup(auth, provider);
+  const idToken = await result.user.getIdToken();
+
+  return idToken;
+}
+
+export async function signOutFromFirebase(): Promise<void> {
+  const auth = getFirebaseAuth();
+  await signOut(auth);
 }
 
 // 페이지 뷰 트래킹

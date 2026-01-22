@@ -30,7 +30,15 @@
       "Bash(git commit:*)",
       "Bash(gh run list:*)",
       "Bash(gh run view:*)",
-      "Bash(git check-ignore:*)"
+      "Bash(git check-ignore:*)",
+      "WebSearch",
+      "WebFetch(domain:next-intl.dev)",
+      "Bash(npm ls:*)",
+      "Bash(tree:*)",
+      "Bash(./gradlew build:*)",
+      "Bash(./gradlew compileJava:*)",
+      "Bash(./gradlew clean:*)",
+      "Bash(git diff:*)"
     ]
   }
 }

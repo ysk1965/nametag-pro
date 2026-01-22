@@ -1,20 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sparkles, Plus, Minus, ArrowRight, X, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Plus, Minus, ArrowRight, X, FileText, ChevronDown, ChevronUp, Droplets } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
+import { useAuthStore } from '@/stores/auth-store';
 
 interface BlankPagesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (blankPagesData: { blankPages?: number; blankPagesPerTemplate?: Record<string, number> }) => void;
+  onConfirm: (blankPagesData: { blankPages?: number; blankPagesPerTemplate?: Record<string, number> }, watermarkOptions?: { watermarkEnabled?: boolean; watermarkText?: string }) => void;
 }
 
 export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalProps) {
   const t = useTranslations('editor.blankPages');
   const { exportConfig, setExportConfig, persons, templates } = useEditorStore();
+  const { isAuthenticated } = useAuthStore();
 
   // 커스텀 템플릿만 필터링
   const customTemplates = templates.filter(t => t.id !== 'default-template');
@@ -22,6 +24,11 @@ export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalP
 
   // 빈 페이지 섹션 열림 상태
   const [isBlankSectionOpen, setIsBlankSectionOpen] = useState(false);
+
+  // 워터마크 섹션 열림 상태 (로그인 유저만)
+  const [isWatermarkSectionOpen, setIsWatermarkSectionOpen] = useState(false);
+  const [watermarkEnabled, setWatermarkEnabled] = useState(false);
+  const [watermarkText, setWatermarkText] = useState('');
 
   // 템플릿별 빈 페이지 수 (multi mode일 때)
   const [templateBlankPages, setTemplateBlankPages] = useState<Record<string, number>>({});
@@ -44,6 +51,9 @@ export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalP
         initial[t.id] = existingBlankPages[t.id] || 0;
       });
       setTemplateBlankPages(initial);
+      // 워터마크 초기화
+      setWatermarkEnabled(false);
+      setWatermarkText('');
     }
   }, [isOpen]);
 
@@ -83,8 +93,13 @@ export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalP
     // 스토어에도 저장 (다음 사용을 위해)
     setExportConfig(blankPagesData);
 
+    // 워터마크 옵션 (로그인 유저만)
+    const watermarkOptions = isAuthenticated && watermarkEnabled
+      ? { watermarkEnabled: true, watermarkText: watermarkText || 'NametagPro' }
+      : undefined;
+
     // onConfirm에 데이터 직접 전달 (상태 업데이트 비동기 이슈 해결)
-    onConfirm(blankPagesData);
+    onConfirm(blankPagesData, watermarkOptions);
   };
 
   return (
@@ -275,6 +290,90 @@ export function BlankPagesModal({ isOpen, onClose, onConfirm }: BlankPagesModalP
                   )}
                 </AnimatePresence>
               </motion.div>
+
+              {/* 워터마크 섹션 (로그인 유저만 표시) */}
+              {isAuthenticated && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35 }}
+                  className="border border-slate-200 rounded-xl overflow-hidden mt-4"
+                >
+                  {/* 토글 헤더 */}
+                  <button
+                    onClick={() => setIsWatermarkSectionOpen(!isWatermarkSectionOpen)}
+                    className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                        <Droplets size={16} className="text-purple-500" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-slate-700">{t('watermark.title') || '워터마크'}</p>
+                        <p className="text-xs text-slate-400">{t('watermark.subtitle') || 'PDF에 워터마크 추가'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {watermarkEnabled && (
+                        <span className="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
+                          ON
+                        </span>
+                      )}
+                      {isWatermarkSectionOpen ? (
+                        <ChevronUp size={20} className="text-slate-400" />
+                      ) : (
+                        <ChevronDown size={20} className="text-slate-400" />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* 접힘 내용 */}
+                  <AnimatePresence>
+                    {isWatermarkSectionOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-4 pt-0 border-t border-slate-100 space-y-3">
+                          {/* 활성화 토글 */}
+                          <div className="flex items-center justify-between mt-3">
+                            <span className="text-sm text-slate-600">{t('watermark.enable') || '워터마크 사용'}</span>
+                            <button
+                              onClick={() => setWatermarkEnabled(!watermarkEnabled)}
+                              className={`relative w-12 h-6 rounded-full transition-colors ${
+                                watermarkEnabled ? 'bg-purple-500' : 'bg-slate-200'
+                              }`}
+                            >
+                              <span
+                                className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                                  watermarkEnabled ? 'translate-x-7' : 'translate-x-1'
+                                }`}
+                              />
+                            </button>
+                          </div>
+
+                          {/* 워터마크 텍스트 입력 */}
+                          {watermarkEnabled && (
+                            <div className="space-y-2">
+                              <label className="text-sm text-slate-600">{t('watermark.text') || '워터마크 텍스트'}</label>
+                              <input
+                                type="text"
+                                value={watermarkText}
+                                onChange={(e) => setWatermarkText(e.target.value)}
+                                placeholder="NametagPro"
+                                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              )}
             </div>
 
             {/* Footer */}

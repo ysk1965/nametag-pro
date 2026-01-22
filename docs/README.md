@@ -2,18 +2,18 @@
 
 > **NameTag Pro** - 명찰 대량 생성 웹 애플리케이션
 >
-> Last updated: 2025-01-21
+> Last updated: 2025-01-22
 
 ## Documents
 
 | Type | Latest | Last Updated | History |
 |------|--------|--------------|---------|
-| [IA](./IA/latest.md) | v1.0.0 | 2025-01-21 | [versions](./IA/) |
-| [Wireframe](./Wireframe/latest.md) | v1.0.0 | 2025-01-21 | [versions](./Wireframe/) |
+| [IA](./IA/latest.md) | v1.1.0 | 2025-01-22 | [versions](./IA/) |
+| [Wireframe](./Wireframe/latest.md) | v1.1.0 | 2025-01-22 | [versions](./Wireframe/) |
 | [Design](./Design/latest.md) | v1.0.0 | 2025-01-21 | [versions](./Design/) |
 | [ERD](./ERD/latest.md) | v1.0.0 | 2025-01-21 | [versions](./ERD/) |
 | [API](./API/latest.md) | v1.0.0 | 2025-01-21 | [versions](./API/) |
-| [Tech](./Tech/latest.md) | v1.0.0 | 2025-01-21 | [versions](./Tech/) |
+| [Tech](./Tech/latest.md) | v1.1.0 | 2025-01-22 | [versions](./Tech/) |
 
 ## Quick Links
 

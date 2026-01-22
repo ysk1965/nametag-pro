@@ -22,6 +22,12 @@ public class GlobalExceptionHandler {
             .body(ApiErrorResponse.of("NOT_FOUND", e.getMessage()));
     }
 
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<ApiErrorResponse> handleAuth(AuthException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(ApiErrorResponse.of("AUTH_ERROR", e.getMessage()));
+    }
+
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ApiErrorResponse> handleValidation(ValidationException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

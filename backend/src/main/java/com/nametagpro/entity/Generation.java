@@ -21,8 +21,12 @@ public class Generation {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", nullable = false)
+    @JoinColumn(name = "project_id")
     private Project project;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     private String pdfUrl;
 
@@ -36,6 +40,34 @@ public class Generation {
     @Column(nullable = false)
     @Builder.Default
     private GenerationStatus status = GenerationStatus.PROCESSING;
+
+    // JSON 데이터 필드 (PDF 재생성용)
+    @Column(columnDefinition = "jsonb")
+    private String templateData;
+
+    @Column(columnDefinition = "jsonb")
+    private String personsData;
+
+    @Column(columnDefinition = "jsonb")
+    private String textFieldsData;
+
+    @Column(columnDefinition = "jsonb")
+    private String exportConfigData;
+
+    @Column(columnDefinition = "jsonb")
+    private String roleMappingsData;
+
+    @Column(columnDefinition = "jsonb")
+    private String roleColorsData;
+
+    // 워터마크 설정
+    @Builder.Default
+    private Boolean watermarkEnabled = false;
+
+    private String watermarkText;
+
+    // 프로젝트 이름 (목록 표시용)
+    private String projectName;
 
     private LocalDateTime expiresAt;
 
