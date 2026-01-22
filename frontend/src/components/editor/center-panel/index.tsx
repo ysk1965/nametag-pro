@@ -83,7 +83,11 @@ export function CenterPanel() {
 
     // 원본 템플릿 크기 가져오기
     const originalSize = getOriginalTemplateSize();
-    const aspectRatio = originalSize.width / originalSize.height;
+
+    // sizeMode가 fixed면 fixedWidth/fixedHeight 비율 사용, 아니면 템플릿 원본 비율 사용
+    const aspectRatio = exportConfig.sizeMode === 'fixed'
+      ? exportConfig.fixedWidth / exportConfig.fixedHeight
+      : originalSize.width / originalSize.height;
 
     // 컨테이너에 fit-contain으로 맞추기 (최대 크기 제한 없음)
     let width: number;
@@ -102,14 +106,14 @@ export function CenterPanel() {
       width = height * aspectRatio;
     }
 
-    // 원본 크기보다 크게 확대하지 않음 (선명도 유지)
-    if (width > originalSize.width || height > originalSize.height) {
+    // 원본 크기보다 크게 확대하지 않음 (선명도 유지) - sizeMode가 fixed가 아닐 때만
+    if (exportConfig.sizeMode !== 'fixed' && (width > originalSize.width || height > originalSize.height)) {
       width = originalSize.width;
       height = originalSize.height;
     }
 
     return { width, height };
-  }, [containerSize, getOriginalTemplateSize]);
+  }, [containerSize, getOriginalTemplateSize, exportConfig.sizeMode, exportConfig.fixedWidth, exportConfig.fixedHeight]);
 
   // mm 기준 그리드 계산
   const gridStepX = (GRID_SIZE_MM / exportConfig.fixedWidth) * 100; // X축 그리드 간격 (%)

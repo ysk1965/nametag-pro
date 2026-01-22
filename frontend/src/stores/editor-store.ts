@@ -630,7 +630,9 @@ export const useEditorStore = create<EditorStore>()(
         partialize: (state) => ({
           textConfig: state.textConfig,
           exportConfig: state.exportConfig,
-          customFonts: state.customFonts,
+          // customFonts의 dataUrl은 너무 커서 localStorage 한도를 초과할 수 있으므로 제외
+          // 페이지 새로고침 시 폰트를 다시 업로드해야 함
+          customFonts: state.customFonts.map(({ dataUrl, ...rest }) => ({ ...rest, dataUrl: '' })),
         }),
         onRehydrateStorage: () => (state) => {
           // 리하이드레이션 후 기본 템플릿이 없으면 추가

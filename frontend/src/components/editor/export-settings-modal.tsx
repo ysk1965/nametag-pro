@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, FileDown, Link2, Link2Off, FileText, Minus, Plus, Settings2, Grid3X3, Ruler } from 'lucide-react';
+import { X, FileDown, FileText, Minus, Plus, Settings2, Grid3X3, Ruler } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
 import { LayoutPreview } from './layout-preview';
@@ -22,7 +22,6 @@ export function ExportSettingsModal({
 }: ExportSettingsModalProps) {
   const t = useTranslations('editor.exportSettings');
   const { exportConfig, setExportConfig, persons, templates, designMode } = useEditorStore();
-  const [lockAspectRatio, setLockAspectRatio] = useState(true);
   const [showBlankPagesModal, setShowBlankPagesModal] = useState(false);
 
   if (!isOpen) return null;
@@ -252,7 +251,7 @@ export function ExportSettingsModal({
                       </div>
 
                       {/* 가로/세로 입력 */}
-                      <div className="flex items-end gap-2">
+                      <div className="flex items-end gap-3">
                         <div className="flex-1">
                           <label className="text-[10px] font-medium text-slate-500 mb-1 block">
                             {t('width')}
@@ -264,30 +263,13 @@ export function ExportSettingsModal({
                             value={exportConfig.fixedWidth}
                             onChange={(e) => {
                               const newWidth = parseInt(e.target.value) || 20;
-                              if (lockAspectRatio && exportConfig.fixedWidth > 0) {
-                                const currentRatio = exportConfig.fixedWidth / exportConfig.fixedHeight;
-                                const newHeight = Math.round(newWidth / currentRatio);
-                                setExportConfig({ fixedWidth: newWidth, fixedHeight: Math.max(20, Math.min(200, newHeight)) });
-                              } else {
-                                setExportConfig({ fixedWidth: newWidth });
-                              }
+                              setExportConfig({ fixedWidth: newWidth });
                             }}
                             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white text-slate-700"
                           />
                         </div>
 
-                        {/* 비율 고정 토글 */}
-                        <button
-                          onClick={() => setLockAspectRatio(!lockAspectRatio)}
-                          className={`p-2 rounded-lg border transition-colors mb-0.5 ${
-                            lockAspectRatio
-                              ? 'bg-blue-50 border-blue-300 text-blue-600'
-                              : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
-                          }`}
-                          title={lockAspectRatio ? t('unlockRatio') : t('lockRatio')}
-                        >
-                          {lockAspectRatio ? <Link2 size={16} /> : <Link2Off size={16} />}
-                        </button>
+                        <span className="text-slate-400 mb-2">×</span>
 
                         <div className="flex-1">
                           <label className="text-[10px] font-medium text-slate-500 mb-1 block">
@@ -300,13 +282,7 @@ export function ExportSettingsModal({
                             value={exportConfig.fixedHeight}
                             onChange={(e) => {
                               const newHeight = parseInt(e.target.value) || 20;
-                              if (lockAspectRatio && exportConfig.fixedHeight > 0) {
-                                const currentRatio = exportConfig.fixedWidth / exportConfig.fixedHeight;
-                                const newWidth = Math.round(newHeight * currentRatio);
-                                setExportConfig({ fixedWidth: Math.max(20, Math.min(200, newWidth)), fixedHeight: newHeight });
-                              } else {
-                                setExportConfig({ fixedHeight: newHeight });
-                              }
+                              setExportConfig({ fixedHeight: newHeight });
                             }}
                             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white text-slate-700"
                           />

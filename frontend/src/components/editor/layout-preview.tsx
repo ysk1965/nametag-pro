@@ -378,7 +378,7 @@ export function LayoutPreview() {
                         className="w-full h-full bg-center bg-no-repeat relative"
                         style={{
                           backgroundImage: `url(${personTemplate.dataUrl || personTemplate.thumbnailUrl || personTemplate.imageUrl})`,
-                          backgroundSize: 'cover',
+                          backgroundSize: layoutInfo.isFixed ? '100% 100%' : 'cover',
                         }}
                       >
                         {/* 모든 텍스트 필드 렌더링 */}

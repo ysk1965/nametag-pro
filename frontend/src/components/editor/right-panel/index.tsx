@@ -19,6 +19,7 @@ const FONTS = [
   { value: 'Noto Sans KR', label: '노토 산스' },
   { value: 'Nanum Gothic', label: '나눔고딕' },
   { value: 'Nanum Myeongjo', label: '나눔명조' },
+  { value: 'NanumGothic-Local', label: '나눔고딕 (로컬)' },
   // 영문 폰트
   { value: 'Inter', label: 'Inter' },
   { value: 'Georgia', label: 'Georgia' },
