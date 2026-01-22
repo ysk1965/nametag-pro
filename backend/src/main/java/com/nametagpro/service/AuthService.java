@@ -172,7 +172,7 @@ public class AuthService {
         RefreshToken refreshToken = RefreshToken.builder()
                 .user(user)
                 .token(refreshTokenStr)
-                .expiresAt(LocalDateTime.now().plusMillis(jwtService.getRefreshTokenExpirationMs()))
+                .expiresAt(LocalDateTime.now().plusSeconds(jwtService.getRefreshTokenExpirationMs() / 1000))
                 .build();
 
         refreshTokenRepository.save(refreshToken);

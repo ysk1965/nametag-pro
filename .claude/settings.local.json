@@ -38,7 +38,8 @@
       "Bash(./gradlew build:*)",
       "Bash(./gradlew compileJava:*)",
       "Bash(./gradlew clean:*)",
-      "Bash(git diff:*)"
+      "Bash(git diff:*)",
+      "Bash(./gradlew bootJar:*)"
     ]
   }
 }
