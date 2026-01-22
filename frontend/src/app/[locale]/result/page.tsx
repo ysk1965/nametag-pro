@@ -9,8 +9,6 @@ import {
   Mail,
   FileText,
   Loader2,
-  Check,
-  Copy,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
@@ -130,8 +128,6 @@ export default function ResultPage() {
     );
   }
 
-  const pageCount = calculatePageCount(persons.length, exportConfig.layout);
-
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* Header */}
@@ -212,10 +208,10 @@ export default function ResultPage() {
 
             {/* Actions */}
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="gap-2" onClick={handleShare}>
                 <Share2 size={18} /> {t('share')}
               </Button>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="gap-2" onClick={handleEmail}>
                 <Mail size={18} /> {t('emailMe')}
               </Button>
             </div>

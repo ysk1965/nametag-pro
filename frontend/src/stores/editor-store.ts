@@ -143,10 +143,10 @@ const DEFAULT_TEXT_CONFIG: TextConfig = {
 const DEFAULT_EXPORT_CONFIG: ExportConfig = {
   paperSize: 'A4',
   layout: '2x2',
-  margin: 10,
+  margin: 12,
   dpi: 300,
   sizeMode: 'grid',  // 기본값: 그리드 모드
-  gridGap: 5,        // mm (명찰 사이 간격)
+  gridGap: 7,        // mm (명찰 사이 간격)
   fixedWidth: 90,    // mm (고정 크기 모드용)
   fixedHeight: 55,   // mm
   blankPages: 0,     // 빈 명찰 수 (템플릿 1개일 때)
