@@ -26,6 +26,7 @@ export function CenterPanel() {
     templateColumn,
     templateMode,
     designMode,
+    defaultTemplateConfig,
     exportConfig,
     selectedSampleIndex,
     setSelectedSampleIndex,
@@ -194,17 +195,20 @@ export function CenterPanel() {
   // 기본 템플릿 여부 확인
   const isDefaultTemplate = currentTemplate?.id === 'default-template';
 
-  // 기본 템플릿 헤더 색상 결정 (역할별 색상 모드일 때)
+  // 기본 템플릿 헤더 색상 결정 (역할별 색상 모드 또는 기본 설정)
   const getDefaultTemplateHeaderColor = () => {
-    if (!isDefaultTemplate) return '#3b82f6';
-    if (designMode !== 'default' || templateMode !== 'multi') return '#3b82f6';
-    if (!currentPerson || !templateColumn) return '#3b82f6';
+    if (!isDefaultTemplate) return defaultTemplateConfig.headerColor;
 
-    const roleValue = currentPerson.data[templateColumn];
-    if (roleValue && roleColors[roleValue]) {
-      return roleColors[roleValue];
+    // 멀티 템플릿 모드 + 역할별 색상이 설정된 경우
+    if (designMode === 'default' && templateMode === 'multi' && currentPerson && templateColumn) {
+      const roleValue = currentPerson.data[templateColumn];
+      if (roleValue && roleColors[roleValue]) {
+        return roleColors[roleValue];
+      }
     }
-    return '#3b82f6'; // 기본 파란색
+
+    // 그 외에는 기본 템플릿 설정 사용
+    return defaultTemplateConfig.headerColor;
   };
 
   const headerColor = getDefaultTemplateHeaderColor();
@@ -500,17 +504,25 @@ export function CenterPanel() {
           <div className="absolute inset-0 flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 pointer-events-none">
             {/* 테두리 */}
             <div className="absolute inset-[3%] border-2 border-slate-200 rounded-xl bg-white flex flex-col overflow-hidden">
-              {/* 상단 헤더 - 역할별 색상 적용 */}
+              {/* 상단 헤더 - 역할별 색상 또는 커스텀 색상 적용 */}
               <div
-                className="py-[8%] flex items-center justify-center transition-colors"
-                style={{ backgroundColor: headerColor }}
+                className="flex items-center justify-center transition-colors"
+                style={{
+                  backgroundColor: headerColor,
+                  paddingTop: `${defaultTemplateConfig.headerHeight * 0.36}%`,
+                  paddingBottom: `${defaultTemplateConfig.headerHeight * 0.36}%`,
+                }}
               >
-                <span className="text-white font-bold text-[clamp(10px,4vw,18px)] tracking-wide">NAME TAG</span>
+                <span className="text-white font-bold text-[clamp(10px,4vw,18px)] tracking-wide">
+                  {defaultTemplateConfig.headerText || 'NAME TAG'}
+                </span>
               </div>
               {/* 하단 정보 영역 */}
               <div className="flex-1 flex flex-col items-center justify-end pb-[6%]">
                 <div className="w-[80%] border-t-2 border-slate-200 mb-[4%]" />
-                <span className="text-slate-400 text-[clamp(8px,2.5vw,12px)]">Company / Organization</span>
+                <span className="text-slate-400 text-[clamp(8px,2.5vw,12px)]">
+                  {defaultTemplateConfig.footerText || 'Company / Organization'}
+                </span>
               </div>
             </div>
           </div>

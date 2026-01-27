@@ -19,6 +19,7 @@ export function LayoutPreview() {
     roleColors,
     templateMode,
     designMode,
+    defaultTemplateConfig,
   } = useEditorStore();
 
   // 선택된 템플릿 또는 첫 번째 템플릿 사용 (레이아웃 계산용)
@@ -49,13 +50,15 @@ export function LayoutPreview() {
 
   // 사람별 헤더 색상 가져오기 (기본 템플릿 + 역할별 색상 모드일 때)
   const getHeaderColorForPerson = (person: typeof persons[0] | undefined) => {
-    if (!person || !templateColumn) return '#3b82f6';
-
-    const role = person.data[templateColumn];
-    if (role && roleColors[role]) {
-      return roleColors[role];
+    // 역할별 색상 모드일 때만 역할에 따른 색상 반환
+    if (person && templateColumn) {
+      const role = person.data[templateColumn];
+      if (role && roleColors[role]) {
+        return roleColors[role];
+      }
     }
-    return '#3b82f6'; // 기본 파란색
+    // 기본 템플릿 설정 색상 사용
+    return defaultTemplateConfig.headerColor;
   };
 
   // 역할별 색상 모드인지 확인
@@ -331,12 +334,18 @@ export function LayoutPreview() {
                       // 기본 템플릿: HTML 기반 렌더링 (center-panel과 동일한 구조)
                       <div className="w-full h-full bg-gradient-to-br from-slate-50 to-slate-100 relative">
                         <div className="absolute inset-[3%] border border-slate-200 rounded bg-white flex flex-col overflow-hidden">
-                          {/* 헤더 - 역할별 색상 적용 */}
+                          {/* 헤더 - 역할별 색상 또는 커스텀 색상 적용 */}
                           <div
-                            className="py-[8%] flex items-center justify-center"
-                            style={{ backgroundColor: isRoleColorMode ? getHeaderColorForPerson(person) : '#3b82f6' }}
+                            className="flex items-center justify-center"
+                            style={{
+                              backgroundColor: isRoleColorMode ? getHeaderColorForPerson(person) : defaultTemplateConfig.headerColor,
+                              paddingTop: `${defaultTemplateConfig.headerHeight * 0.36}%`,
+                              paddingBottom: `${defaultTemplateConfig.headerHeight * 0.36}%`,
+                            }}
                           >
-                            <span className="text-white font-bold text-[4px]">NAME TAG</span>
+                            <span className="text-white font-bold text-[4px]">
+                              {defaultTemplateConfig.headerText || 'NAME TAG'}
+                            </span>
                           </div>
                           {/* 텍스트 필드 영역 */}
                           <div className="flex-1 relative">
@@ -368,7 +377,9 @@ export function LayoutPreview() {
                           {/* 하단 */}
                           <div className="flex flex-col items-center justify-center pb-[6%]">
                             <div className="w-[80%] border-t border-slate-200 mb-[4%]" />
-                            <span className="text-slate-400 text-[3px]">Company</span>
+                            <span className="text-slate-400 text-[3px]">
+                              {defaultTemplateConfig.footerText || 'Company / Organization'}
+                            </span>
                           </div>
                         </div>
                       </div>

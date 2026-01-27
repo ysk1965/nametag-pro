@@ -1,4 +1,4 @@
-import type { Template, Person, TextConfig, ExportConfig, TextField } from '@/types';
+import type { Template, Person, TextConfig, ExportConfig, TextField, DefaultTemplateConfig } from '@/types';
 import { getLayoutDimensions, PAPER_SIZES } from './utils';
 
 // Dynamic import for jsPDF (client-side only)
@@ -12,16 +12,26 @@ const RENDER_WIDTH = 400; // 프리뷰와 동일
 const RENDER_SCALE = 2; // 2x 스케일 (메모리 절약, 여전히 고품질)
 const IMAGE_QUALITY = 0.85; // JPEG 품질 (0.85는 좋은 품질 유지하면서 크기 줄임)
 
+// 기본 템플릿 설정 기본값
+const DEFAULT_TEMPLATE_CONFIG: DefaultTemplateConfig = {
+  headerText: 'NAME TAG',
+  footerText: 'Company / Organization',
+  headerHeight: 22,
+  headerColor: '#3b82f6',
+};
+
 /**
  * 기본 템플릿을 Canvas에 HTML 스타일로 렌더링 (찌그러지지 않음)
- * @param headerColor - 헤더 색상 (기본값: 파란색 #3b82f6)
+ * @param headerColor - 헤더 색상 (역할별 색상 모드용, 없으면 config.headerColor 사용)
+ * @param config - 기본 템플릿 커스터마이징 설정
  */
 function renderDefaultTemplateToCanvas(
   person: Person,
   textFields: TextField[],
   targetWidth: number,
   targetHeight: number,
-  headerColor: string = '#3b82f6'
+  headerColor?: string,
+  config: DefaultTemplateConfig = DEFAULT_TEMPLATE_CONFIG
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
@@ -61,20 +71,23 @@ function renderDefaultTemplateToCanvas(
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // 상단 헤더 (동적 색상)
-    const headerHeight = cardHeight * 0.22;
-    ctx.fillStyle = headerColor;
+    // 상단 헤더 (동적 색상 및 높이)
+    // headerColor가 전달되면 역할별 색상, 없으면 config 색상 사용
+    const actualHeaderColor = headerColor || config.headerColor;
+    const headerHeightRatio = config.headerHeight / 100; // 퍼센트를 비율로 변환
+    const headerHeight = cardHeight * headerHeightRatio;
+    ctx.fillStyle = actualHeaderColor;
     ctx.beginPath();
     ctx.roundRect(cardX, cardY, cardWidth, headerHeight, [borderRadius, borderRadius, 0, 0]);
     ctx.fill();
 
-    // 헤더 텍스트 "NAME TAG"
+    // 헤더 텍스트 (커스터마이징 가능)
     const headerFontSize = Math.min(cardWidth * 0.08, headerHeight * 0.5);
     ctx.font = `bold ${headerFontSize}px "Pretendard", "Arial", sans-serif`;
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('NAME TAG', cardX + cardWidth / 2, cardY + headerHeight / 2);
+    ctx.fillText(config.headerText || 'NAME TAG', cardX + cardWidth / 2, cardY + headerHeight / 2);
 
     // 하단 구분선
     const lineY = cardY + cardHeight - cardHeight * 0.18;
@@ -85,13 +98,13 @@ function renderDefaultTemplateToCanvas(
     ctx.lineTo(cardX + cardWidth * 0.9, lineY);
     ctx.stroke();
 
-    // 하단 텍스트 "Company / Organization"
+    // 하단 텍스트 (커스터마이징 가능)
     const footerFontSize = Math.min(cardWidth * 0.045, 12);
     ctx.font = `${footerFontSize}px "Pretendard", "Arial", sans-serif`;
     ctx.fillStyle = '#94a3b8';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('Company / Organization', cardX + cardWidth / 2, lineY + cardHeight * 0.08);
+    ctx.fillText(config.footerText || 'Company / Organization', cardX + cardWidth / 2, lineY + cardHeight * 0.08);
 
     // 사용자 텍스트 필드 렌더링
     for (const field of textFields) {
@@ -117,7 +130,8 @@ function renderDefaultTemplateToCanvas(
 
 /**
  * Canvas에 명찰 이미지를 렌더링 (템플릿 + 여러 텍스트 필드)
- * @param headerColor - 기본 템플릿 헤더 색상 (옵션)
+ * @param headerColor - 기본 템플릿 헤더 색상 (역할별 색상 모드용)
+ * @param defaultTemplateConfig - 기본 템플릿 커스터마이징 설정
  */
 async function renderNametagToCanvas(
   template: Template,
@@ -125,11 +139,12 @@ async function renderNametagToCanvas(
   textFields: TextField[],
   targetWidth: number,
   targetHeight: number,
-  headerColor?: string
+  headerColor?: string,
+  defaultTemplateConfig?: DefaultTemplateConfig
 ): Promise<string> {
   // 기본 템플릿인 경우 HTML 스타일로 렌더링
   if (template.id === 'default-template') {
-    return renderDefaultTemplateToCanvas(person, textFields, targetWidth, targetHeight, headerColor);
+    return renderDefaultTemplateToCanvas(person, textFields, targetWidth, targetHeight, headerColor, defaultTemplateConfig);
   }
 
   return new Promise((resolve, reject) => {
@@ -242,6 +257,7 @@ export interface GeneratePDFOptions {
   roleColors?: Record<string, string>;  // 기본 명찰 역할별 색상
   templateColumn?: string | null;
   textFields?: TextField[];
+  defaultTemplateConfig?: DefaultTemplateConfig;  // 기본 템플릿 커스터마이징 설정
 }
 
 export type ProgressCallback = (current: number, total: number) => void;
@@ -261,7 +277,8 @@ export async function generatePDF(
   textFields: TextField[] = [],
   onProgress?: ProgressCallback,
   selectedTemplateId: string | null = null,  // 싱글 모드에서 사용할 템플릿 ID
-  roleColors: Record<string, string> = {}    // 기본 명찰 역할별 색상
+  roleColors: Record<string, string> = {},   // 기본 명찰 역할별 색상
+  defaultTemplateConfig?: DefaultTemplateConfig  // 기본 템플릿 커스터마이징 설정
 ): Promise<string> {
   // 최대 300명 제한
   const MAX_PERSONS = 300;
@@ -419,7 +436,8 @@ export async function generatePDF(
           textFields,
           RENDER_WIDTH,
           renderHeight,
-          headerColor
+          headerColor,
+          defaultTemplateConfig
         );
       } else {
         const displayName = Object.values(person.data)[0] || 'Name';

@@ -189,14 +189,31 @@ export function RightPanel() {
 
                     {/* 폰트 크기 & 화살표 */}
                     {field && (
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-slate-400">{field.style.fontSize}px</span>
-                        <ChevronDown
-                          size={16}
-                          className={`text-slate-400 transition-transform ${
-                            isSelected ? 'rotate-180' : ''
-                          }`}
+                      <div className="flex items-center gap-0.5">
+                        <input
+                          type="number"
+                          min="12"
+                          max="120"
+                          value={field.style.fontSize}
+                          onChange={(e) => handleStyleChange(field.id, { fontSize: parseInt(e.target.value) || 12 })}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-8 text-xs text-slate-400 text-right bg-transparent border-none focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 rounded px-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
+                        <span className="text-xs text-slate-400">px</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedTextField(isSelected ? null : field.id);
+                          }}
+                          className="hover:bg-slate-100 rounded p-0.5 transition-colors ml-0.5"
+                        >
+                          <ChevronDown
+                            size={16}
+                            className={`text-slate-400 transition-transform ${
+                              isSelected ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </button>
                       </div>
                     )}
                   </div>
@@ -306,10 +323,18 @@ export function RightPanel() {
                               />
                             </div>
 
-                            {/* 크기 숫자 표시 */}
-                            <span className="text-[10px] text-slate-500 w-8 text-right">
-                              {field.style.fontSize}px
-                            </span>
+                            {/* 크기 입력 */}
+                            <div className="flex items-center">
+                              <input
+                                type="number"
+                                min="12"
+                                max="120"
+                                value={field.style.fontSize}
+                                onChange={(e) => handleStyleChange(field.id, { fontSize: parseInt(e.target.value) || 12 })}
+                                className="w-10 text-[10px] text-slate-500 text-right bg-transparent border border-slate-200 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              />
+                              <span className="text-[10px] text-slate-400 ml-0.5">px</span>
+                            </div>
 
                             {/* 굵기 토글 */}
                             <button

@@ -174,7 +174,12 @@
       "clickToSetDesign": "클릭하여 구분 컬럼과 디자인을 설정하세요",
       "clickToSetColor": "클릭하여 구분 컬럼과 색상을 설정하세요",
       "usingDefaultBadge": "기본 명찰 사용 중",
-      "columnBased": "{column} 기준 · {count}개 역할"
+      "columnBased": "{column} 기준 · {count}개 역할",
+      "defaultBadgeSettings": "기본 명찰 설정",
+      "headerText": "헤더 텍스트",
+      "footerText": "하단 텍스트",
+      "headerHeight": "헤더 높이",
+      "headerColor": "헤더 색상"
     },
     "dataUpload": {
       "importFile": "파일 가져오기",

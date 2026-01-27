@@ -20,6 +20,14 @@ export interface Template {
   role: string | null;
 }
 
+// ===== Default Template Config Types =====
+export interface DefaultTemplateConfig {
+  headerText: string;      // 헤더 텍스트 (기본: "NAME TAG")
+  footerText: string;      // 하단 텍스트 (기본: "Company / Organization")
+  headerHeight: number;    // 헤더 높이 퍼센트 (15-35, 기본: 22)
+  headerColor: string;     // 헤더 색상 (기본: "#3b82f6")
+}
+
 // ===== Roster Types =====
 export interface Person {
   id: string;

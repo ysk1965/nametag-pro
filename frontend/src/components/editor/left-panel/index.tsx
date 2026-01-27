@@ -119,8 +119,10 @@ export function LeftPanel() {
     roleMappings,
     roleColors,
     designMode,
+    defaultTemplateConfig,
     setTemplateMode,
     setDesignMode,
+    setDefaultTemplateConfig,
   } = useEditorStore();
 
   // 멀티 템플릿 모달 상태
@@ -297,18 +299,92 @@ export function LeftPanel() {
             <div className="border-2 border-blue-500 rounded-lg overflow-hidden bg-blue-50">
               <div className="aspect-[5/3] bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
                 <div className="w-[90%] h-[90%] border-2 border-slate-200 rounded-xl bg-white flex flex-col overflow-hidden">
-                  <div className="bg-blue-500 py-3 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">NAME TAG</span>
+                  <div
+                    className="flex items-center justify-center"
+                    style={{
+                      backgroundColor: defaultTemplateConfig.headerColor,
+                      paddingTop: `${defaultTemplateConfig.headerHeight * 0.4}%`,
+                      paddingBottom: `${defaultTemplateConfig.headerHeight * 0.4}%`,
+                    }}
+                  >
+                    <span className="text-white font-bold text-sm">{defaultTemplateConfig.headerText || 'NAME TAG'}</span>
                   </div>
                   <div className="flex-1 flex flex-col items-center justify-end pb-3">
                     <div className="w-[80%] border-t-2 border-slate-200 mb-2" />
-                    <span className="text-slate-400 text-[10px]">Company / Organization</span>
+                    <span className="text-slate-400 text-[10px]">{defaultTemplateConfig.footerText || 'Company / Organization'}</span>
                   </div>
                 </div>
               </div>
               <div className="px-3 py-2 bg-white border-t border-blue-200">
                 <p className="text-xs text-blue-700 font-medium">{t('usingDefaultBadge')}</p>
               </div>
+            </div>
+
+            {/* 기본 명찰 커스터마이징 */}
+            <div className="mt-3 p-3 bg-slate-50 rounded-lg space-y-3">
+              <label className="text-xs font-bold text-slate-500 block">{t('defaultBadgeSettings')}</label>
+
+              {/* 헤더 텍스트 */}
+              <div>
+                <span className="text-xs text-slate-400 block mb-1">{t('headerText')}</span>
+                <input
+                  type="text"
+                  value={defaultTemplateConfig.headerText}
+                  onChange={(e) => setDefaultTemplateConfig({ headerText: e.target.value })}
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="NAME TAG"
+                />
+              </div>
+
+              {/* 하단 텍스트 */}
+              <div>
+                <span className="text-xs text-slate-400 block mb-1">{t('footerText')}</span>
+                <input
+                  type="text"
+                  value={defaultTemplateConfig.footerText}
+                  onChange={(e) => setDefaultTemplateConfig({ footerText: e.target.value })}
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Company / Organization"
+                />
+              </div>
+
+              {/* 헤더 높이 */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs text-slate-400">{t('headerHeight')}</span>
+                  <span className="text-xs text-slate-500 font-medium">{defaultTemplateConfig.headerHeight}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="15"
+                  max="35"
+                  value={defaultTemplateConfig.headerHeight}
+                  onChange={(e) => setDefaultTemplateConfig({ headerHeight: Number(e.target.value) })}
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                />
+              </div>
+
+              {/* 헤더 색상 (역할별 색상 미설정 시만 표시) */}
+              {templateMode !== 'multi' && (
+                <div>
+                  <span className="text-xs text-slate-400 block mb-1">{t('headerColor')}</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={defaultTemplateConfig.headerColor}
+                      onChange={(e) => setDefaultTemplateConfig({ headerColor: e.target.value })}
+                      className="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={defaultTemplateConfig.headerColor}
+                      onChange={(e) => setDefaultTemplateConfig({ headerColor: e.target.value })}
+                      className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="#3b82f6"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}

@@ -174,7 +174,12 @@
       "clickToSetDesign": "Click to set column and design",
       "clickToSetColor": "Click to set column and color",
       "usingDefaultBadge": "Using default badge",
-      "columnBased": "{column} based · {count} roles"
+      "columnBased": "{column} based · {count} roles",
+      "defaultBadgeSettings": "Default Badge Settings",
+      "headerText": "Header Text",
+      "footerText": "Footer Text",
+      "headerHeight": "Header Height",
+      "headerColor": "Header Color"
     },
     "dataUpload": {
       "importFile": "Import File",

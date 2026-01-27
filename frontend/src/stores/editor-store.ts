@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import type { Template, Person, TextConfig, ExportConfig, EditorState, RoleCount, TextField, TemplateMode, CustomFont } from '@/types';
+import type { Template, Person, TextConfig, ExportConfig, EditorState, RoleCount, TextField, TemplateMode, CustomFont, DefaultTemplateConfig } from '@/types';
 
 // 기본 텍스트 필드 스타일
 const DEFAULT_TEXT_STYLE = {
@@ -66,6 +66,9 @@ interface EditorStore {
   // Design mode
   designMode: 'default' | 'custom';
 
+  // Default template customization
+  defaultTemplateConfig: DefaultTemplateConfig;
+
   // Legacy textConfig (하위 호환성)
   textConfig: TextConfig;
   exportConfig: ExportConfig;
@@ -111,6 +114,9 @@ interface EditorStore {
   // Design mode actions
   setDesignMode: (mode: 'default' | 'custom') => void;
 
+  // Default template config actions
+  setDefaultTemplateConfig: (config: Partial<DefaultTemplateConfig>) => void;
+
   // Legacy config actions (하위 호환성)
   setTextConfig: (config: Partial<TextConfig>) => void;
   setTextPosition: (x: number, y: number) => void;
@@ -153,6 +159,13 @@ const DEFAULT_EXPORT_CONFIG: ExportConfig = {
   blankPagesPerTemplate: {},  // 템플릿별 빈 명찰 수
 };
 
+const DEFAULT_TEMPLATE_CONFIG: DefaultTemplateConfig = {
+  headerText: 'NAME TAG',
+  footerText: 'Company / Organization',
+  headerHeight: 22,
+  headerColor: '#3b82f6',
+};
+
 // 초기 상태 생성 함수 (클라이언트에서 기본 템플릿 포함)
 const getInitialState = () => {
   const defaultTemplate = typeof window !== 'undefined' ? createDefaultTemplate() : null;
@@ -172,6 +185,7 @@ const getInitialState = () => {
     roleMappings: {},
     roleColors: {},
     designMode: 'default' as const,
+    defaultTemplateConfig: DEFAULT_TEMPLATE_CONFIG,
     customFonts: [] as CustomFont[],
     textConfig: DEFAULT_TEXT_CONFIG,
     exportConfig: DEFAULT_EXPORT_CONFIG,
@@ -515,6 +529,12 @@ export const useEditorStore = create<EditorStore>()(
             };
           }),
 
+        // Default template config actions
+        setDefaultTemplateConfig: (config) =>
+          set((state) => ({
+            defaultTemplateConfig: { ...state.defaultTemplateConfig, ...config },
+          })),
+
         // Legacy config actions (하위 호환성)
         setTextConfig: (config) =>
           set((state) => ({
@@ -630,6 +650,7 @@ export const useEditorStore = create<EditorStore>()(
         partialize: (state) => ({
           textConfig: state.textConfig,
           exportConfig: state.exportConfig,
+          defaultTemplateConfig: state.defaultTemplateConfig,
           // customFonts의 dataUrl은 너무 커서 localStorage 한도를 초과할 수 있으므로 제외
           // 페이지 새로고침 시 폰트를 다시 업로드해야 함
           customFonts: state.customFonts.map(({ dataUrl, ...rest }) => ({ ...rest, dataUrl: '' })),
