@@ -48,6 +48,7 @@ export function EditorLayout() {
     templateColumn,
     templateMode,
     designMode,
+    defaultTemplateConfig,
     selectedTemplateId,
     textFields,
     setGeneratedPdfUrl,
@@ -165,7 +166,8 @@ export function EditorLayout() {
           textFields,
           handleProgress,
           templateMode === 'single' ? selectedTemplateId : null,
-          designMode === 'default' && templateMode === 'multi' ? roleColors : {}
+          designMode === 'default' && templateMode === 'multi' ? roleColors : {},
+          designMode === 'default' ? defaultTemplateConfig : undefined
         );
         setGeneratedPdfUrl(pdfUrl);
         router.push('/result');

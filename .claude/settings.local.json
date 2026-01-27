@@ -39,7 +39,9 @@
       "Bash(./gradlew compileJava:*)",
       "Bash(./gradlew clean:*)",
       "Bash(git diff:*)",
-      "Bash(./gradlew bootJar:*)"
+      "Bash(./gradlew bootJar:*)",
+      "Bash(head:*)",
+      "Skill(orchestrator)"
     ]
   }
 }
